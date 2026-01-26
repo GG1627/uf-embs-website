@@ -21,7 +21,7 @@ import Image12 from "../../assets/grid/img12.avif";
 
 import { IoIosArrowDown } from "react-icons/io";
 import { gsap } from "gsap";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 import EventCard from "../../components/ui/EventCard";
 import EventModal from "../../components/ui/EventModal";
 import Footer from "../../components/layout/Footer";
@@ -43,6 +43,331 @@ import { LuDna } from "react-icons/lu";
 import { bannerGrid } from "../../data/bannerGrid";
 
 import useGoogleCalendar from "../../lib/useGoogleCalendar";
+
+// Optimized BannerGrid component - memoized to prevent unnecessary re-renders
+const BannerGrid = memo(({ bannerGrid }) => {
+  return (
+    <div className="flex flex-col gap-3 items-center h-full z-10">
+      {/* Row 1: 7 squares */}
+      <div className="flex flex-row gap-3 h-[290px]">
+        <div className="relative rounded-lg h-full w-[360px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[0].image} 
+            alt={bannerGrid[0].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[0].description}</p>
+          </div>
+        </div>
+        <div className="relative rounded-lg h-full w-[212px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[1].image} 
+            alt={bannerGrid[1].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[1].description}</p>
+          </div>
+        </div>
+        <div className="relative rounded-lg h-full w-[300px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[2].image} 
+            alt={bannerGrid[2].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[2].description}</p>
+          </div>
+        </div>
+        <div className="relative rounded-lg h-full w-[450px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[3].image} 
+            alt={bannerGrid[3].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[3].description}</p>
+          </div>
+        </div>
+        <div className="relative rounded-lg h-full w-[340px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[4].image} 
+            alt={bannerGrid[4].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[4].description}</p>
+          </div>
+        </div>
+        <div className="relative rounded-lg h-full w-[300px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[5].image} 
+            alt={bannerGrid[5].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[5].description}</p>
+          </div>
+        </div>
+        <div className="relative rounded-lg h-full w-[300px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[8].image} 
+            alt={bannerGrid[8].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[8].description}</p>
+          </div>
+        </div>
+      </div>
+      {/* Row 2: 6 squares */}
+      <div className="flex flex-row gap-3 h-[290px]">
+        <div className="relative rounded-lg h-full w-[500px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[6].image} 
+            alt={bannerGrid[6].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[6].description}</p>
+          </div>
+        </div>
+        <div className="relative rounded-lg h-full w-[400px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[7].image} 
+            alt={bannerGrid[7].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[7].description}</p>
+          </div>
+        </div>
+        <div className="relative rounded-lg h-full w-[380px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[9].image} 
+            alt={bannerGrid[9].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[9].description}</p>
+          </div>
+        </div>
+        <div className="relative rounded-lg h-full w-[280px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[10].image} 
+            alt={bannerGrid[10].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[10].description}</p>
+          </div>
+        </div>
+        <div className="relative rounded-lg h-full w-[450px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[11].image} 
+            alt={bannerGrid[11].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[11].description}</p>
+          </div>
+        </div>
+        <div className="relative rounded-lg h-full w-[260px] overflow-hidden group cursor-pointer">
+          <img 
+            src={bannerGrid[12].image} 
+            alt={bannerGrid[12].description} 
+            className="h-full w-full object-cover" 
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2 pointer-events-none">
+            <p className="text-white text-sm text-center">{bannerGrid[12].description}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+BannerGrid.displayName = "BannerGrid";
+
+// Optimized ImageGrid component - memoized and lazy-loaded
+const ImageGrid = memo(({ 
+  Image0, Image1, Image2, Image3, Image4, Image5, 
+  Image6, Image7, Image8, Image9, Image10, Image11, Image12,
+  gapSize = "gap-1", // Default for desktop
+  paddingSize = "p-2" // Default for desktop
+}) => {
+  return (
+    <div className={`h-full w-full grid grid-cols-[41fr_39fr_103fr] ${gapSize} ${paddingSize}`}>
+      {/* Column 1 */}
+      <div className={`flex flex-col ${gapSize} h-[56%] mt-[65%] items-end`}>
+        <div className="bg-[#b0b0b0] rounded-lg h-[20%] w-[70%]">
+          <img
+            src={Image0}
+            alt="Image Grid"
+            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div className="bg-[#b0b0b0] rounded-lg h-[35%] w-full">
+          <img
+            src={Image1}
+            alt="Image Grid"
+            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div className="bg-[#b0b0b0] rounded-lg h-[30%] w-[85%]">
+          <img
+            src={Image3}
+            alt="Image Grid"
+            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
+      {/* Column 2 */}
+      <div className={`flex flex-col ${gapSize} h-[78%] mt-[20%] items-end`}>
+        <div className="bg-[#b0b0b0] rounded-lg h-[25%] w-full">
+          <img
+            src={Image2}
+            alt="Image Grid"
+            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div className="bg-[#b0b0b0] rounded-lg h-[40%] w-full">
+          <img
+            src={Image4}
+            alt="Image Grid"
+            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div className="bg-[#b0b0b0] rounded-lg h-[30%] w-full">
+          <img
+            src={Image5}
+            alt="Image Grid"
+            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
+      {/* Column 3 */}
+      <div className={`flex flex-col ${gapSize} h-full items-start`}>
+        {/* Row 1 */}
+        <div className={`flex flex-row ${gapSize} h-[35%] w-[85%]`}>
+          <div className="bg-[#b0b0b0] rounded-lg h-full w-[40%]">
+            <img
+              src={Image6}
+              alt="Image Grid"
+              className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <div className="bg-[#b0b0b0] rounded-lg h-[80%] w-[60%] self-end">
+            <img
+              src={Image7}
+              alt="Image Grid"
+              className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </div>
+        {/* Row 2 */}
+        <div className={`flex flex-row h-[70%] ${gapSize} w-full`}>
+          <div className={`flex flex-col ${gapSize} h-full w-[53%]`}>
+            <div className="bg-[#b0b0b0] rounded-lg h-[50%] w-full">
+              <img
+                src={Image8}
+                alt="Image Grid"
+                className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div className={`flex flex-row ${gapSize} h-[30%] w-full`}>
+              <div className="bg-[#b0b0b0] rounded-lg h-full w-[47%]">
+                <img
+                  src={Image10}
+                  alt="Image Grid"
+                  className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div className="bg-[#b0b0b0] rounded-lg h-[85%] w-[53%]">
+                <img
+                  src={Image12}
+                  alt="Image Grid"
+                  className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+          </div>
+          <div className={`flex flex-col ${gapSize} h-[70%] w-[47%]`}>
+            <div className="bg-[#b0b0b0] rounded-lg h-[60%] w-full">
+              <img
+                src={Image9}
+                alt="Image Grid"
+                className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div className="bg-[#b0b0b0] rounded-lg h-[35%] w-[80%]">
+              <img
+                src={Image11}
+                alt="Image Grid"
+                className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+ImageGrid.displayName = "ImageGrid";
 
 export default function Home() {
   const iconRefDesktop = useRef(null);
@@ -201,12 +526,9 @@ export default function Home() {
   }, []);
 
   // Upcoming Events section animations
+  // Set up Intersection Observer once (performance optimization)
   useEffect(() => {
     if (!eventsTitleRef.current || !eventsCardsRef.current) return;
-
-    // Set initial states
-    gsap.set(eventsTitleRef.current, { opacity: 0, y: 30 });
-    gsap.set(eventsCardsRef.current.children, { opacity: 0, y: 40 });
 
     // Use Intersection Observer to trigger animations when section comes into view
     const observer = new IntersectionObserver(
@@ -222,13 +544,15 @@ export default function Home() {
               duration: 0.8,
             });
 
-            // Then animate event cards with stagger
-            tl.to(eventsCardsRef.current.children, {
-              opacity: 1,
-              y: 0,
-              duration: 0.8,
-              stagger: 0.2, // Stagger each card by 0.2 seconds
-            }, "-=0.4"); // Start slightly before title animation ends
+            // Then animate event cards with stagger (only if they exist)
+            if (eventsCardsRef.current.children.length > 0) {
+              tl.to(eventsCardsRef.current.children, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.2, // Stagger each card by 0.2 seconds
+              }, "-=0.4"); // Start slightly before title animation ends
+            }
 
             // Unobserve after animation to prevent re-triggering
             observer.unobserve(entry.target);
@@ -252,7 +576,18 @@ export default function Home() {
         observer.unobserve(eventsSection);
       }
     };
-  }, [events]); // Re-run when events change
+  }, []); // Only run once on mount - observer setup doesn't need to re-run
+
+  // Set initial animation states when events load (separate effect for performance)
+  useEffect(() => {
+    if (!eventsTitleRef.current || !eventsCardsRef.current) return;
+    
+    // Set initial states - this runs when events change, but doesn't recreate the observer
+    gsap.set(eventsTitleRef.current, { opacity: 0, y: 30 });
+    if (eventsCardsRef.current.children.length > 0) {
+      gsap.set(eventsCardsRef.current.children, { opacity: 0, y: 40 });
+    }
+  }, [events]); // Only update initial states when events change, not the observer setup
 
   // Our Branches section animations
   useEffect(() => {
@@ -511,137 +846,25 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Desktop Image Grid */}
+          {/* Desktop Image Grid - Optimized with lazy loading */}
           <div className="absolute -right-0 top-20 bottom-0 my-auto z-30 w-[50%] h-[80vh]">
-            {/* Inner grid */}
-            <div className="h-full w-full grid grid-cols-[41fr_39fr_103fr] gap-[0.25rem] p-2">
-              {/* Column 1 */}
-              <div className="flex flex-col gap-1 h-[56%] mt-[65%] items-end">
-                {/* <div className="bg-[#b0b0b0] rounded-lg h-[20%] w-[70%]" /> */}
-                <div className="bg-[#b0b0b0] rounded-lg h-[20%] w-[70%]">
-                  <img
-                    src={Image0}
-                    alt="Image Grid"
-                    className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                    decoding="async"
-                  />
-                </div>
-                <div className="bg-[#b0b0b0] rounded-lg h-[35%] w-full">
-                  <img
-                    src={Image1}
-                    alt="Image Grid"
-                    className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                    decoding="async"
-                  />
-                </div>
-                <div className="bg-[#b0b0b0] rounded-lg h-[30%] w-[85%]">
-                  <img
-                    src={Image3}
-                    alt="Image Grid"
-                    className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                    decoding="async"
-                  />
-                </div>
-              </div>
-              {/* Column 2 */}
-              <div className="flex flex-col gap-1 h-[78%] mt-[20%] items-end">
-                <div className="bg-[#b0b0b0] rounded-lg h-[25%] w-full">
-                  <img
-                    src={Image2}
-                    alt="Image Grid"
-                    className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                    decoding="async"
-                  />
-                </div>
-                <div className="bg-[#b0b0b0] rounded-lg h-[40%] w-full">
-                  <img
-                    src={Image4}
-                    alt="Image Grid"
-                    className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                    decoding="async"
-                  />
-                </div>
-                <div className="bg-[#b0b0b0] rounded-lg h-[30%] w-full">
-                  <img
-                    src={Image5}
-                    alt="Image Grid"
-                    className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                    decoding="async"
-                  />
-                </div>
-              </div>
-              {/* Column 3 */}
-              <div className="flex flex-col gap-1 h-full items-start">
-                {/* Row 1 */}
-                <div className="flex flex-row gap-1 h-[35%] w-[85%]">
-                  <div className="bg-[#b0b0b0] rounded-lg h-full w-[40%]">
-                    <img
-                      src={Image6}
-                      alt="Image Grid"
-                      className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                      decoding="async"
-                    />
-                  </div>
-                  <div className="bg-[#b0b0b0] rounded-lg h-[80%] w-[60%] self-end">
-                    <img
-                      src={Image7}
-                      alt="Image Grid"
-                      className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                      decoding="async"
-                    />
-                  </div>
-                </div>
-                {/* Row 2 */}
-                <div className="flex flex-row h-[70%] gap-1 w-full">
-                  <div className="flex flex-col gap-1 h-full w-[53%]">
-                    <div className="bg-[#b0b0b0] rounded-lg h-[50%] w-full">
-                      <img
-                        src={Image8}
-                        alt="Image Grid"
-                        className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                        decoding="async"
-                      />
-                    </div>
-                    <div className="flex flex-row gap-1 h-[30%] w-full">
-                      <div className="bg-[#b0b0b0] rounded-lg h-full w-[47%]">
-                        <img
-                          src={Image10}
-                          alt="Image Grid"
-                          className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                          decoding="async"
-                        />
-                      </div>
-                      <div className="bg-[#b0b0b0] rounded-lg h-[85%] w-[53%]">
-                        <img
-                          src={Image12}
-                          alt="Image Grid"
-                          className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                          decoding="async"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1 h-[70%] w-[47%]">
-                    <div className="bg-[#b0b0b0] rounded-lg h-[60%] w-full">
-                      <img
-                        src={Image9}
-                        alt="Image Grid"
-                        className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                        decoding="async"
-                      />
-                    </div>
-                    <div className="bg-[#b0b0b0] rounded-lg h-[35%] w-[80%]">
-                      <img
-                        src={Image11}
-                        alt="Image Grid"
-                        className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                        decoding="async"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ImageGrid
+              Image0={Image0}
+              Image1={Image1}
+              Image2={Image2}
+              Image3={Image3}
+              Image4={Image4}
+              Image5={Image5}
+              Image6={Image6}
+              Image7={Image7}
+              Image8={Image8}
+              Image9={Image9}
+              Image10={Image10}
+              Image11={Image11}
+              Image12={Image12}
+              gapSize="gap-[0.25rem]"
+              paddingSize="p-2"
+            />
           </div>
           {/* Scroll Down Icon */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full justify-center flex mt-0 flex-col items-center mb-2">
@@ -702,136 +925,25 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Mobile Image Grid - Positioned over particle circle */}
+        {/* Mobile Image Grid - Optimized with lazy loading */}
         <div className="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-[35] w-[90vw] h-[90vw] max-w-[500px] max-h-[500px]">
-          {/* Inner grid - scaled for mobile */}
-          <div className="h-full w-full grid grid-cols-[41fr_39fr_103fr] gap-[0.15rem] p-1">
-            {/* Column 1 */}
-            <div className="flex flex-col gap-[0.15rem] h-[56%] mt-[65%] items-end">
-              <div className="bg-[#b0b0b0] rounded-lg h-[20%] w-[70%]">
-                <img
-                  src={Image0}
-                  alt="Image Grid"
-                  className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                  decoding="async"
-                />
-              </div>
-              <div className="bg-[#b0b0b0] rounded-lg h-[35%] w-full">
-                <img
-                  src={Image1}
-                  alt="Image Grid"
-                  className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                  decoding="async"
-                />
-              </div>
-              <div className="bg-[#b0b0b0] rounded-lg h-[30%] w-[85%]">
-                <img
-                  src={Image3}
-                  alt="Image Grid"
-                  className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                  decoding="async"
-                />
-              </div>
-            </div>
-            {/* Column 2 */}
-            <div className="flex flex-col gap-[0.15rem] h-[78%] mt-[20%] items-end">
-              <div className="bg-[#b0b0b0] rounded-lg h-[25%] w-full">
-                <img
-                  src={Image2}
-                  alt="Image Grid"
-                  className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                  decoding="async"
-                />
-              </div>
-              <div className="bg-[#b0b0b0] rounded-lg h-[40%] w-full">
-                <img
-                  src={Image4}
-                  alt="Image Grid"
-                  className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                  decoding="async"
-                />
-              </div>
-              <div className="bg-[#b0b0b0] rounded-lg h-[30%] w-full">
-                <img
-                  src={Image5}
-                  alt="Image Grid"
-                  className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                  decoding="async"
-                />
-              </div>
-            </div>
-            {/* Column 3 */}
-            <div className="flex flex-col gap-[0.15rem] h-full items-start">
-              {/* Row 1 */}
-              <div className="flex flex-row gap-[0.15rem] h-[35%] w-[85%]">
-                <div className="bg-[#b0b0b0] rounded-lg h-full w-[40%]">
-                  <img
-                    src={Image6}
-                    alt="Image Grid"
-                    className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                    decoding="async"
-                  />
-                </div>
-                <div className="bg-[#b0b0b0] rounded-lg h-[80%] w-[60%] self-end">
-                  <img
-                    src={Image7}
-                    alt="Image Grid"
-                    className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                    decoding="async"
-                  />
-                </div>
-              </div>
-              {/* Row 2 */}
-              <div className="flex flex-row h-[70%] gap-[0.15rem] w-full">
-                <div className="flex flex-col gap-[0.15rem] h-full w-[53%]">
-                  <div className="bg-[#b0b0b0] rounded-lg h-[50%] w-full">
-                    <img
-                      src={Image8}
-                      alt="Image Grid"
-                      className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                      decoding="async"
-                    />
-                  </div>
-                  <div className="flex flex-row gap-[0.15rem] h-[30%] w-full">
-                    <div className="bg-[#b0b0b0] rounded-lg h-full w-[47%]">
-                      <img
-                        src={Image10}
-                        alt="Image Grid"
-                        className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                        decoding="async"
-                      />
-                    </div>
-                    <div className="bg-[#b0b0b0] rounded-lg h-[85%] w-[53%]">
-                      <img
-                        src={Image12}
-                        alt="Image Grid"
-                        className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                        decoding="async"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-[0.15rem] h-[70%] w-[47%]">
-                  <div className="bg-[#b0b0b0] rounded-lg h-[60%] w-full">
-                    <img
-                      src={Image9}
-                      alt="Image Grid"
-                      className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                      decoding="async"
-                    />
-                  </div>
-                  <div className="bg-[#b0b0b0] rounded-lg h-[35%] w-[80%]">
-                    <img
-                      src={Image11}
-                      alt="Image Grid"
-                      className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
-                      decoding="async"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ImageGrid
+            Image0={Image0}
+            Image1={Image1}
+            Image2={Image2}
+            Image3={Image3}
+            Image4={Image4}
+            Image5={Image5}
+            Image6={Image6}
+            Image7={Image7}
+            Image8={Image8}
+            Image9={Image9}
+            Image10={Image10}
+            Image11={Image11}
+            Image12={Image12}
+            gapSize="gap-[0.15rem]"
+            paddingSize="p-1"
+          />
         </div>
 
         {/* Mobile Text Content - Positioned below DNA */}
@@ -930,107 +1042,18 @@ export default function Home() {
           </div>
         </div>
 
+
+      {/* Optimized Banner Grid - Only renders 2 grids instead of mapping over itemsTwice */}
       <div className="w-full bg-[#ffffff]/90 mt-16 py-4 h-[624px] overflow-hidden relative flex items-center">
-        
         <div
-          className="
-          inline-flex items-center gap-2 whitespace-nowrap h-full
-          animate-[move-left_300s_linear_infinite]
-          motion-reduce:animate-none
-        "
+          className="inline-flex items-center gap-2 whitespace-nowrap h-full will-change-transform"
+          style={{
+            animation: "move-left 300s linear infinite",
+          }}
         >
-          {itemsTwice.map((text, i) => (
-            <span key={i} className="inline-flex items-center justify-center h-full">
-              {/* grid of images - 13 squares total */}
-              <div className="flex flex-col gap-3 items-center h-full z-10">
-                {/* Row 1: 6 squares */}
-                <div className="flex flex-row gap-3 h-[290px]">
-                  <div className="relative rounded-lg h-full w-[360px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[0].image} alt={bannerGrid[0].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[0].description}</p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-lg h-full w-[212px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[1].image} alt={bannerGrid[1].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[1].description}</p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-lg h-full w-[300px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[2].image} alt={bannerGrid[2].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[2].description}</p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-lg h-full w-[450px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[3].image} alt={bannerGrid[3].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[3].description}</p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-lg h-full w-[340px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[4].image} alt={bannerGrid[4].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[4].description}</p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-lg h-full w-[300px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[5].image} alt={bannerGrid[5].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[5].description}</p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-lg h-full w-[300px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[8].image} alt={bannerGrid[8].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[8].description}</p>
-                    </div>
-                  </div>
-                </div>
-                {/* Row 2: 6 squares */}
-                <div className="flex flex-row gap-3 h-[290px]">
-                  <div className="relative rounded-lg h-full w-[500px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[6].image} alt={bannerGrid[6].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[6].description}</p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-lg h-full w-[400px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[7].image} alt={bannerGrid[7].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[7].description}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="relative rounded-lg h-full w-[380px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[9].image} alt={bannerGrid[9].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[9].description}</p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-lg h-full w-[280px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[10].image} alt={bannerGrid[10].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[10].description}</p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-lg h-full w-[450px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[11].image} alt={bannerGrid[11].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[11].description}</p>
-                    </div>
-                  </div>
-                  <div className="relative rounded-lg h-full w-[260px] overflow-hidden group cursor-pointer">
-                    <img src={bannerGrid[12].image} alt={bannerGrid[12].description} className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-[#232323] opacity-0 group-hover:opacity-80 transition-opacity duration-300 flex items-center justify-center p-2">
-                      <p className="text-white text-sm text-center">{bannerGrid[12].description}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </span>
-          ))}
+          {/* Render grid only twice for seamless loop - much faster than mapping over itemsTwice */}
+          <BannerGrid bannerGrid={bannerGrid} />
+          <BannerGrid bannerGrid={bannerGrid} />
         </div>
       </div>
 
