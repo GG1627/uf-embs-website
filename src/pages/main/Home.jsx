@@ -61,9 +61,9 @@ const ImageGrid = memo(({
             src={Image0}
             alt="Image Grid"
             className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-            loading="eager"
+            loading="lazy"
             decoding="async"
-            fetchPriority="high"
+            fetchPriority="low"
           />
         </div>
         <div className="bg-[#b0b0b0] rounded-lg h-[35%] w-full">
@@ -71,8 +71,8 @@ const ImageGrid = memo(({
             src={Image1}
             alt="Image Grid"
             className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-            loading="eager"
-            fetchPriority="high"
+            loading="lazy"
+            fetchPriority="low"
             decoding="async"
           />
         </div>
@@ -81,8 +81,8 @@ const ImageGrid = memo(({
             src={Image3}
             alt="Image Grid"
             className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-            loading="eager"
-            fetchPriority="high"
+            loading="lazy"
+            fetchPriority="low"
             decoding="async"
           />
         </div>
@@ -94,8 +94,8 @@ const ImageGrid = memo(({
             src={Image2}
             alt="Image Grid"
             className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-            loading="eager"
-            fetchPriority="high"
+            loading="lazy"
+            fetchPriority="low"
             decoding="async"
           />
         </div>
@@ -104,8 +104,8 @@ const ImageGrid = memo(({
             src={Image4}
             alt="Image Grid"
             className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-            loading="eager"
-            fetchPriority="high"
+            loading="lazy"
+            fetchPriority="low"
             decoding="async"
           />
         </div>
@@ -114,8 +114,8 @@ const ImageGrid = memo(({
             src={Image5}
             alt="Image Grid"
             className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-            loading="eager"
-            fetchPriority="high"
+            loading="lazy"
+            fetchPriority="low"
             decoding="async"
           />
         </div>
@@ -129,8 +129,8 @@ const ImageGrid = memo(({
               src={Image6}
               alt="Image Grid"
               className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-              loading="eager"
-              fetchPriority="high"
+              loading="lazy"
+              fetchPriority="low"
               decoding="async"
             />
           </div>
@@ -139,8 +139,8 @@ const ImageGrid = memo(({
               src={Image7}
               alt="Image Grid"
               className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-              loading="eager"
-              fetchPriority="high"
+              loading="lazy"
+              fetchPriority="low"
               decoding="async"
             />
           </div>
@@ -153,8 +153,8 @@ const ImageGrid = memo(({
                 src={Image8}
                 alt="Image Grid"
                 className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-                loading="eager"
-                fetchPriority="high"
+                loading="lazy"
+                fetchPriority="low"
                 decoding="async"
               />
             </div>
@@ -164,8 +164,8 @@ const ImageGrid = memo(({
                   src={Image10}
                   alt="Image Grid"
                   className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-                  loading="eager"
-                  fetchPriority="high"
+                  loading="lazy"
+                  fetchPriority="low"
                   decoding="async"
                 />
               </div>
@@ -174,8 +174,8 @@ const ImageGrid = memo(({
                   src={Image12}
                   alt="Image Grid"
                   className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-                  loading="eager"
-                  fetchPriority="high"
+                  loading="lazy"
+                  fetchPriority="low"
                   decoding="async"
                 />
               </div>
@@ -187,8 +187,8 @@ const ImageGrid = memo(({
                 src={Image9}
                 alt="Image Grid"
                 className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-                loading="eager"
-                fetchPriority="high"
+                loading="lazy"
+                fetchPriority="low"
                 decoding="async"
               />
             </div>
@@ -197,8 +197,8 @@ const ImageGrid = memo(({
                 src={Image11}
                 alt="Image Grid"
                 className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
-                loading="eager"
-                fetchPriority="high"
+                loading="lazy"
+                fetchPriority="low"
                 decoding="async"
               />
             </div>
@@ -275,6 +275,7 @@ const AnimatedImageStack = memo(({ image, description, index, totalImages, width
         width={width}
         height={height}
         priority={index < 3 ? "high" : "auto"}
+        loading={index < 3 ? "eager" : "lazy"}
       />
     </div>
   );
@@ -798,6 +799,7 @@ export default function Home() {
                     width={item.width}
                     height={item.height}
                     priority="high"
+                    loading="eager"
                   />
                 </div>
               </div>

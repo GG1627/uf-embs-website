@@ -15,19 +15,19 @@ import BannerGridImage13 from "../assets/banner/img13.avif";
 export const bannerGrid = [
     {
         image: BannerGridImage1,
-        description: "EMBS Team Tabling at the UF Student Org Fair",
+        description: "EMBS Tabling at the UF Student Org Fair",
         width: "280px", // Optional: customize width (default: "280px")
         height: "auto", // Optional: customize height (default: "auto")
     },
     {
         image: BannerGridImage2,
-        description: "First GBM",
+        description: "The Very First GBM!!!",
         width: "340px",
         height: "auto",
     },
     {
         image: BannerGridImage3,
-        description: "Lincy Enjoying a Slice of Pizza at the GBM",
+        description: "Lincy Enjoying a Slice of Pizza",
         width: "280px",
         height: "auto",
     },
@@ -57,7 +57,7 @@ export const bannerGrid = [
     },
     {
         image: BannerGridImage8,
-        description: "Members Enjoying their Sweet Treats at the GBM",
+        description: "Members Enjoying their Sweet Treats",
         width: "300px",
         height: "auto",
     },

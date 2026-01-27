@@ -83,6 +83,7 @@ export const SnackbarProvider = ({ children }) => {
         autoHideDuration={4000}
         onClose={hideSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        sx={{ zIndex: 5000000 }}
       >
         <Alert
           onClose={hideSnackbar}
