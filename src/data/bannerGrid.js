@@ -22,7 +22,7 @@ export const bannerGrid = [
     {
         image: BannerGridImage2,
         description: "First GBM",
-        width: "280px",
+        width: "340px",
         height: "auto",
     },
     {
@@ -52,13 +52,13 @@ export const bannerGrid = [
     {
         image: BannerGridImage7,
         description: "EMBS Designathon Group Photo",
-        width: "280px",
+        width: "380px",
         height: "auto",
     },
     {
         image: BannerGridImage8,
         description: "Members Enjoying their Sweet Treats at the GBM",
-        width: "280px",
+        width: "300px",
         height: "auto",
     },
     {

@@ -396,7 +396,7 @@ const getRandomTransform = (index) => {
 // Animated Image Stack Component - handles z-index change for each image
 const AnimatedImageStack = memo(({ image, description, index, totalImages, width, height }) => {
   const containerRef = useRef(null);
-  const delay = index * 3000; // 3 seconds delay per image
+  const delay = index * 2500; // 3 seconds delay per image
 
   // Get consistent random transform values for this image
   const { rotation, offsetX, offsetY } = useMemo(() => getRandomTransform(index), [index]);
@@ -419,12 +419,12 @@ const AnimatedImageStack = memo(({ image, description, index, totalImages, width
   return (
     <div 
       ref={containerRef}
-      className="absolute top-1/2 left-4 md:left-8 w-fit"
+      className="absolute top-1/2 left-[45%] w-fit"
       style={{ 
         zIndex: initialZIndex,
         transform: `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) rotate(${rotation}deg)`,
         animationName: `slide-right-behind-rotated-${index}`,
-        animationDuration: '8s',
+        animationDuration: '3s',
         animationTimingFunction: 'ease-in-out',
         animationDelay: `${delay}ms`,
         animationFillMode: 'forwards',
@@ -437,8 +437,7 @@ const AnimatedImageStack = memo(({ image, description, index, totalImages, width
             transform: translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) rotate(${rotation}deg);
           }
           100% {
-            transform: translate(calc(100vw - 100% - 4rem - 50% + ${offsetX}px), calc(-50% + ${offsetY}px)) rotate(${rotation}deg);
-          }
+            transform: translate(calc(-50% + ${offsetX}px + 28rem), calc(-50% + ${offsetY}px)) rotate(${rotation}deg);
         }
       `}</style>
       <ImageStack 
@@ -924,6 +923,18 @@ export default function Home() {
 
       {/* Image Stack - Polaroid Style - All Images */}
       <div className="w-full bg-[#ffffff]/60 mt-16 py-12 md:py-16 h-auto min-h-[500px] overflow-hidden relative">
+        {/* Gallery Title - Left Side */}
+        <div className="max-w-7xl mx-auto relative h-full min-h-[500px]">
+          <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-6 lg:left-16 z-30 max-w-xs">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-3">
+              The EMBS Gallery
+            </h2>
+            <p className="text-black/80 text-base md:text-lg leading-relaxed">
+              A few shots taken at our events
+            </p>
+          </div>
+        </div>
+        
         {/* All images - First one starts immediately, others staggered by 3 seconds */}
         {bannerGrid.map((item, index) => {
           // Get consistent random transform values for this image
@@ -939,16 +950,16 @@ export default function Home() {
                       transform: translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) rotate(${rotation}deg);
                     }
                     100% {
-                      transform: translate(calc(100vw - 100% - 4rem - 50% + ${offsetX}px), calc(-50% + ${offsetY}px)) rotate(${rotation}deg);
+                      transform: translate(calc(-50% + ${offsetX}px + 28rem), calc(-50% + ${offsetY}px)) rotate(${rotation}deg);
                     }
                   }
                 `}</style>
                 <div 
-                  className="absolute top-1/2 left-4 md:left-8 w-fit"
+                  className="absolute top-1/2 left-[45%] w-fit"
                   style={{ 
                     zIndex: bannerGrid.length,
                     transform: `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) rotate(${rotation}deg)`,
-                    animation: `slide-right-rotated-0 8s ease-in-out forwards`
+                    animation: `slide-right-rotated-0 3s ease-in-out forwards`
                   }}
                 >
                   <ImageStack 
