@@ -36,7 +36,7 @@ const ImageStack = memo(({ image, description, width, height, priority = "auto",
                 style={{
                   width: imageWidth,
                   height: imageHeight,
-                  filter: "sepia(20%) contrast(1.1) brightness(1.05) saturate(1.1)",
+                  filter: "sepia(25%) contrast(1.1) brightness(1.1) saturate(0.9) hue-rotate(0deg)",
                 }}
                 fetchPriority={priority}
                 loading={loading}
@@ -44,13 +44,32 @@ const ImageStack = memo(({ image, description, width, height, priority = "auto",
                 onError={handleError}
                 onLoad={() => setImageError(false)}
               />
-              {/* Vignette overlay for nostalgic effect */}
+              {/* Warm overlay for authentic polaroid look */}
+              <div 
+                className="absolute inset-0 pointer-events-none mix-blend-multiply"
+                style={{
+                  background: "linear-gradient(135deg, rgba(255,220,177,0.15) 0%, rgba(255,200,150,0.1) 50%, rgba(200,180,160,0.2) 100%)",
+                  width: imageWidth,
+                  height: imageHeight,
+                }}
+              />
+              {/* Strong vignette overlay for nostalgic effect */}
               <div 
                 className="absolute inset-0 pointer-events-none"
                 style={{
-                  background: "radial-gradient(circle at center, transparent 60%, rgba(0,0,0,0.15) 100%)",
+                  background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4) 100%)",
                   width: imageWidth,
                   height: imageHeight,
+                }}
+              />
+              {/* Grain texture for authentic film look */}
+              <div 
+                className="absolute inset-0 pointer-events-none opacity-30"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                  width: imageWidth,
+                  height: imageHeight,
+                  mixBlendMode: "overlay",
                 }}
               />
             </>

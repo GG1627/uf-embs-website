@@ -274,8 +274,8 @@ const AnimatedImageStack = memo(({ image, description, index, totalImages, width
         description={description}
         width={width}
         height={height}
-        priority={index < 3 ? "high" : "auto"}
-        loading={index < 3 ? "eager" : "lazy"}
+        priority={index < 6 ? "high" : "auto"}
+        loading={index < 6 ? "eager" : "lazy"}
       />
     </div>
   );
@@ -324,11 +324,12 @@ export default function Home() {
     setSelectedEvent(null);
   };
 
-  // Preload critical hero images and warm the cache ASAP
+  // Preload critical gallery images first (most important), then background images
   useEffect(() => {
-    const urlsToPreload = [DesktopBackgroundFiller, DesktopBackgroundDNA];
-
-    urlsToPreload.forEach((url) => {
+    // Preload first 6 gallery images (most important)
+    const galleryImagesToPreload = bannerGrid.slice(0, 6).map(item => item.image);
+    
+    galleryImagesToPreload.forEach((url) => {
       if (!document.querySelector(`link[rel="preload"][href="${url}"]`)) {
         const link = document.createElement("link");
         link.rel = "preload";
@@ -337,18 +338,19 @@ export default function Home() {
         link.setAttribute("fetchpriority", "high");
         document.head.appendChild(link);
       }
+    });
 
-      // Warm the cache via JS image prefetch as a fallback
-      const img = new Image();
-      img.decoding = "async";
-      try {
-        // Some browsers support this; if not, it is safely ignored
-        // @ts-ignore
-        img.fetchPriority = "high";
-      } catch (_) {
-        /* no-op */
+    // Preload background images with lower priority (decorative, can load later)
+    const backgroundImagesToPreload = [DesktopBackgroundFiller, DesktopBackgroundDNA];
+    backgroundImagesToPreload.forEach((url) => {
+      if (!document.querySelector(`link[rel="preload"][href="${url}"]`)) {
+        const link = document.createElement("link");
+        link.rel = "preload";
+        link.as = "image";
+        link.href = url;
+        link.setAttribute("fetchpriority", "low");
+        document.head.appendChild(link);
       }
-      img.src = url;
     });
   }, []);
 
@@ -496,18 +498,18 @@ export default function Home() {
             <img
               src={DesktopBackgroundFiller}
               alt="Background Filler"
-              loading="eager"
+              loading="lazy"
               decoding="async"
-              fetchPriority="high"
+              fetchPriority="low"
               className="absolute left-1/2 top-1/2 -translate-x-[30%] -translate-y-1/2 h-screen w-auto z-10 opacity-100"
             />
             <div className="absolute inset-0 flex items-center justify-center z-20">
               <img
                 src={DesktopBackgroundDNA}
                 alt="DNA"
-                loading="eager"
+                loading="lazy"
                 decoding="async"
-                fetchPriority="high"
+                fetchPriority="low"
                 className="h-screen w-auto"
               />
             </div>
@@ -606,18 +608,18 @@ export default function Home() {
           <img
             src={MobileBackgroundFiller}
             alt="Background Filler"
-            loading="eager"
+            loading="lazy"
             decoding="async"
-            fetchPriority="high"
+            fetchPriority="low"
             className="absolute left-1/2 -translate-x-1/2 -translate-y-[15%] h-auto w-screen z-10 opacity-100"
           />
           {/* DNA positioned relative to this container */}
           <img
             src={MobileBackgroundDNA}
             alt="DNA"
-            loading="eager"
+            loading="lazy"
             decoding="async"
-            fetchPriority="high"
+            fetchPriority="low"
             className="absolute left-1/2 -translate-x-1/2 -translate-y-[8%] h-auto w-screen z-20"
           />
         </div>
