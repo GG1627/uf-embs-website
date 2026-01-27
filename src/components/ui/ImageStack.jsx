@@ -18,7 +18,8 @@ const ImageStack = memo(({ image, description, width, height }) => {
             width: imageWidth,
             height: imageHeight,
           }}
-          loading="lazy"
+          fetchPriority="medium"
+          loading="eager"
           decoding="async"
         />
       </div>
