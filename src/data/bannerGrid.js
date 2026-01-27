@@ -16,53 +16,79 @@ export const bannerGrid = [
     {
         image: BannerGridImage1,
         description: "EMBS Team Tabling at the UF Student Org Fair",
+        width: "280px", // Optional: customize width (default: "280px")
+        height: "auto", // Optional: customize height (default: "auto")
     },
     {
         image: BannerGridImage2,
         description: "First GBM",
+        width: "280px",
+        height: "auto",
     },
     {
         image: BannerGridImage3,
         description: "Lincy Enjoying a Slice of Pizza at the GBM",
+        width: "280px",
+        height: "auto",
     },
     {
         image: BannerGridImage4,
         description: "Spaghetti Tower Building Competition at the GBM",
+        width: "280px",
+        height: "auto",
     },
     {
         image: BannerGridImage5,
         description: "Heart Rate Monitor Workshop",
+        width: "280px",
+        height: "auto",
     },
     {
         image: BannerGridImage6,
         description: "Designathon Competition",
+        width: "280px",
+        height: "auto",
     },
     {
         image: BannerGridImage7,
         description: "EMBS Designathon Group Photo",
+        width: "280px",
+        height: "auto",
     },
     {
         image: BannerGridImage8,
         description: "Members Enjoying their Sweet Treats at the GBM",
+        width: "280px",
+        height: "auto",
     },
     {
         image: BannerGridImage9,
         description: "Soldering Workshop",
+        width: "280px",
+        height: "auto",
     },
     {
         image: BannerGridImage10,
         description: "GBM 1",
+        width: "280px",
+        height: "auto",
     },
     {
         image: BannerGridImage11,
         description: "Tabling at the UF Student Org Fair",
+        width: "280px",
+        height: "auto",
     },
     {
         image: BannerGridImage12,
         description: "The EMBS Team",
+        width: "280px",
+        height: "auto",
     },
     {
         image: BannerGridImage13,
         description: "Schedule Building/Advice Social",
+        width: "280px",
+        height: "auto",
     },
 ]

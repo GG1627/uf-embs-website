@@ -65,6 +65,36 @@
   animation: spin-slow 10s linear infinite;
 }
 
+/* float animation for polaroid */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(2deg);
+  }
+}
+
+/* slide right animation for image stack */
+@keyframes slide-right {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(100vw - 100% - 4rem));
+  }
+}
+
+/* slide right animation for second image - starts behind, ends on top */
+@keyframes slide-right-behind {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(100vw - 100% - 4rem));
+  }
+}
+
 .page-shadow, .html-flip-book-shadow, .book-shadow, .page-shadow-bottom {
   display: none !important;
   box-shadow: none !important;
