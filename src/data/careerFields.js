@@ -1,14 +1,14 @@
-import img1 from "../assets/resources/img1.png";
-import img2 from "../assets/resources/img2.png";
-import img3 from "../assets/resources/img3.png";
-import img4 from "../assets/resources/img4.png";
-import img5 from "../assets/resources/img5.png";
-import img6 from "../assets/resources/img6.png";
-import img7 from "../assets/resources/img7.png";
-import img8 from "../assets/resources/img8.png";
-import img9 from "../assets/resources/img9.png";
-import img10 from "../assets/resources/img10.png";
-import img11 from "../assets/resources/img11.png";
+import img1 from "../assets/resources/img1.avif";
+import img2 from "../assets/resources/img2.avif";
+import img3 from "../assets/resources/img3.avif";
+import img4 from "../assets/resources/img4.avif";
+import img5 from "../assets/resources/img5.avif";
+import img6 from "../assets/resources/img6.avif";
+import img7 from "../assets/resources/img7.avif";
+import img8 from "../assets/resources/img8.avif";
+import img9 from "../assets/resources/img9.avif";
+import img10 from "../assets/resources/img10.avif";
+import img11 from "../assets/resources/img11.avif";
 
 export const careerFields = [
   {

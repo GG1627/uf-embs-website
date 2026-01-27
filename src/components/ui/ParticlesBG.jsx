@@ -43,8 +43,7 @@ export default function ParticlesBg({
           links: { enable: false }, // no connecting lines
         },
         interactivity: {
-          events: { onHover: { enable: true, mode: "repulse" } },
-          modes: { repulse: { distance: 120, duration: 0.2 } },
+          events: { onHover: { enable: false } },
         },
       }}
     />
