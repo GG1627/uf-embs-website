@@ -754,7 +754,7 @@ export default function Home() {
       <div className="w-full bg-[#ffffff]/60 mt-16 py-12 md:py-16 h-auto min-h-[500px] overflow-hidden relative">
         {/* Gallery Title - Left Side */}
         <div className="max-w-7xl mx-auto relative h-full min-h-[500px]">
-          <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-6 lg:left-16 z-30 max-w-xs">
+          <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-6 lg:left-12 z-30 max-w-xs">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-3">
               The EMBS Gallery
             </h2>
