@@ -1,6 +1,6 @@
 import { memo } from "react";
 
-const ImageStack = memo(({ image, description, width, height }) => {
+const ImageStack = memo(({ image, description, width, height, priority = "high" }) => {
   // Default dimensions if not provided
   const imageWidth = width || "280px";
   const imageHeight = height || "auto";
@@ -18,7 +18,7 @@ const ImageStack = memo(({ image, description, width, height }) => {
             width: imageWidth,
             height: imageHeight,
           }}
-          fetchPriority="medium"
+          fetchPriority={priority}
           loading="eager"
           decoding="async"
         />

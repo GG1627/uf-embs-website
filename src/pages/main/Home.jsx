@@ -274,6 +274,7 @@ const AnimatedImageStack = memo(({ image, description, index, totalImages, width
         description={description}
         width={width}
         height={height}
+        priority={index < 3 ? "high" : "auto"}
       />
     </div>
   );
@@ -796,6 +797,7 @@ export default function Home() {
                     description={item.description}
                     width={item.width}
                     height={item.height}
+                    priority="high"
                   />
                 </div>
               </div>
