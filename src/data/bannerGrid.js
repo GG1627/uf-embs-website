@@ -33,7 +33,7 @@ export const bannerGrid = [
     },
     {
         image: BannerGridImage4,
-        description: "Spaghetti Tower Building Competition at the GBM",
+        description: "Spaghetti Tower Building Competition",
         width: "280px",
         height: "auto",
     },

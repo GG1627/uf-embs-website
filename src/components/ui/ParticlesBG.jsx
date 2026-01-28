@@ -1,12 +1,18 @@
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { getOptimizedParticleCount } from "../../lib/browserDetection";
 
 export default function ParticlesBg({
   id = "particles",
   particleCount = 220,
 } = {}) {
   const [init, setInit] = useState(false);
+  
+  // Optimize particle count based on browser and device performance
+  const optimizedParticleCount = useMemo(() => {
+    return getOptimizedParticleCount(particleCount);
+  }, [particleCount]);
 
   useEffect(() => {
     initParticlesEngine(async (engine) => {
@@ -30,7 +36,7 @@ export default function ParticlesBg({
         background: { color: "transparent" },
         particles: {
           number: {
-            value: particleCount,
+            value: optimizedParticleCount,
             density: { enable: true, area: 800 },
           },
           size: { value: { min: 1, max: 4 } },

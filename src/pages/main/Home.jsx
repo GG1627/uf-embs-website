@@ -43,6 +43,11 @@ import { LuDna } from "react-icons/lu";
 import { bannerGrid } from "../../data/bannerGrid";
 
 import useGoogleCalendar from "../../lib/useGoogleCalendar";
+import { getKeyframeManager } from "../../lib/keyframeManager";
+import { useAnimationControl } from "../../lib/useAnimationControl";
+import { getImagePreloader } from "../../lib/imagePreloader";
+import { getPerformanceMonitor } from "../../lib/performanceMonitor";
+import { useLazyRender } from "../../lib/useLazyRender";
 
 
 // Optimized ImageGrid component - memoized and lazy-loaded
@@ -53,14 +58,17 @@ const ImageGrid = memo(({
   paddingSize = "p-2" // Default for desktop
 }) => {
   return (
-    <div className={`h-full w-full grid grid-cols-[41fr_39fr_103fr] ${gapSize} ${paddingSize}`}>
+    <div 
+      className={`h-full w-full grid grid-cols-[41fr_39fr_103fr] ${gapSize} ${paddingSize}`}
+      style={{ contain: "layout style paint" }}
+    >
       {/* Column 1 */}
       <div className={`flex flex-col ${gapSize} h-[56%] mt-[65%] items-end`}>
         <div className="bg-[#b0b0b0] rounded-lg h-[20%] w-[70%]">
           <img
             src={Image0}
             alt="Image Grid"
-            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
             loading="lazy"
             decoding="async"
             fetchPriority="low"
@@ -70,7 +78,7 @@ const ImageGrid = memo(({
           <img
             src={Image1}
             alt="Image Grid"
-            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
             loading="lazy"
             fetchPriority="low"
             decoding="async"
@@ -80,7 +88,7 @@ const ImageGrid = memo(({
           <img
             src={Image3}
             alt="Image Grid"
-            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
             loading="lazy"
             fetchPriority="low"
             decoding="async"
@@ -93,7 +101,7 @@ const ImageGrid = memo(({
           <img
             src={Image2}
             alt="Image Grid"
-            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
             loading="lazy"
             fetchPriority="low"
             decoding="async"
@@ -103,7 +111,7 @@ const ImageGrid = memo(({
           <img
             src={Image4}
             alt="Image Grid"
-            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
             loading="lazy"
             fetchPriority="low"
             decoding="async"
@@ -113,7 +121,7 @@ const ImageGrid = memo(({
           <img
             src={Image5}
             alt="Image Grid"
-            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+            className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
             loading="lazy"
             fetchPriority="low"
             decoding="async"
@@ -128,7 +136,7 @@ const ImageGrid = memo(({
             <img
               src={Image6}
               alt="Image Grid"
-              className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+              className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
               loading="lazy"
               fetchPriority="low"
               decoding="async"
@@ -138,7 +146,7 @@ const ImageGrid = memo(({
             <img
               src={Image7}
               alt="Image Grid"
-              className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+              className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
               loading="lazy"
               fetchPriority="low"
               decoding="async"
@@ -152,7 +160,7 @@ const ImageGrid = memo(({
               <img
                 src={Image8}
                 alt="Image Grid"
-                className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+                className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
                 loading="lazy"
                 fetchPriority="low"
                 decoding="async"
@@ -163,7 +171,7 @@ const ImageGrid = memo(({
                 <img
                   src={Image10}
                   alt="Image Grid"
-                  className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+                  className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
                   loading="lazy"
                   fetchPriority="low"
                   decoding="async"
@@ -173,7 +181,7 @@ const ImageGrid = memo(({
                 <img
                   src={Image12}
                   alt="Image Grid"
-                  className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+                  className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
                   loading="lazy"
                   fetchPriority="low"
                   decoding="async"
@@ -186,7 +194,7 @@ const ImageGrid = memo(({
               <img
                 src={Image9}
                 alt="Image Grid"
-                className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+                className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
                 loading="lazy"
                 fetchPriority="low"
                 decoding="async"
@@ -196,7 +204,7 @@ const ImageGrid = memo(({
               <img
                 src={Image11}
                 alt="Image Grid"
-                className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-opacity"
+                className="h-full w-full object-cover rounded-lg opacity-60 hover:opacity-100 transition-opacity duration-300"
                 loading="lazy"
                 fetchPriority="low"
                 decoding="async"
@@ -229,6 +237,26 @@ const AnimatedImageStack = memo(({ image, description, index, totalImages, width
 
   // Get consistent random transform values for this image
   const { rotation, offsetX, offsetY } = useMemo(() => getRandomTransform(index), [index]);
+  
+  // Register keyframe animation in centralized stylesheet
+  const animationName = useMemo(() => {
+    const keyframeManager = getKeyframeManager();
+    return keyframeManager.createSlideAnimation(index, offsetX, offsetY, rotation, 28);
+  }, [index, offsetX, offsetY, rotation]);
+  
+  // Control animation based on visibility
+  const animationControlRef = useAnimationControl({
+    enabled: true,
+    rootMargin: '100px', // Start checking 100px before visible
+  });
+  
+  // Combine refs
+  const combinedRef = useCallback((node) => {
+    containerRef.current = node;
+    if (animationControlRef) {
+      animationControlRef(node);
+    }
+  }, [animationControlRef]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -244,15 +272,19 @@ const AnimatedImageStack = memo(({ image, description, index, totalImages, width
   // Initial z-index: later images (higher index) should be behind initially
   // So image 0 is on top, image 12 is at the bottom
   const initialZIndex = totalImages - index;
+  
+  // Use transform3d for better GPU acceleration, especially in Firefox
+  const transformValue = `translate3d(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px), 0) rotate(${rotation}deg)`;
 
   return (
     <div 
-      ref={containerRef}
+      ref={combinedRef}
       className="absolute top-1/2 left-[45%] w-fit"
       style={{ 
         zIndex: initialZIndex,
-        transform: `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) rotate(${rotation}deg)`,
-        animationName: `slide-right-behind-rotated-${index}`,
+        transform: transformValue,
+        willChange: index <= 3 ? 'transform' : 'auto', // Only hint for first few images
+        animationName: animationName,
         animationDuration: '3s',
         animationTimingFunction: 'ease-in-out',
         animationDelay: `${delay}ms`,
@@ -260,15 +292,6 @@ const AnimatedImageStack = memo(({ image, description, index, totalImages, width
         animationIterationCount: '1'
       }}
     >
-      <style>{`
-        @keyframes slide-right-behind-rotated-${index} {
-          0% {
-            transform: translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) rotate(${rotation}deg);
-          }
-          100% {
-            transform: translate(calc(-50% + ${offsetX}px + 28rem), calc(-50% + ${offsetY}px)) rotate(${rotation}deg);
-        }
-      `}</style>
       <ImageStack 
         image={image} 
         description={description}
@@ -283,6 +306,165 @@ const AnimatedImageStack = memo(({ image, description, index, totalImages, width
 
 AnimatedImageStack.displayName = "AnimatedImageStack";
 
+// First Image Component - separate to allow hooks
+const FirstAnimatedImage = memo(({ image, description, width, height, offsetX, offsetY, rotation, totalImages }) => {
+  // Register keyframe in centralized stylesheet
+  const animationName = useMemo(() => {
+    const keyframeManager = getKeyframeManager();
+    return keyframeManager.createSlideAnimation(0, offsetX, offsetY, rotation, 28);
+  }, [offsetX, offsetY, rotation]);
+  
+  // Control animation based on visibility
+  const animationRef = useAnimationControl({
+    enabled: true,
+    rootMargin: '100px',
+  });
+  
+  return (
+    <div 
+      ref={animationRef}
+      className="absolute top-1/2 left-[45%] w-fit"
+      style={{ 
+        zIndex: totalImages,
+        transform: `translate3d(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px), 0) rotate(${rotation}deg)`,
+        willChange: 'transform', // Only on actively animating element
+        animationName: animationName,
+        animationDuration: '3s',
+        animationTimingFunction: 'ease-in-out',
+        animationFillMode: 'forwards',
+        animationPlayState: 'running', // Explicitly start as running
+      }}
+    >
+      <ImageStack 
+        image={image} 
+        description={description}
+        width={width}
+        height={height}
+        priority="high"
+        loading="eager"
+      />
+    </div>
+  );
+});
+
+FirstAnimatedImage.displayName = "FirstAnimatedImage";
+
+// Gallery Section Component - Lazy rendered and optimized
+const GallerySection = memo(() => {
+  // Lazy render the entire gallery section - only render when near viewport
+  const [shouldRender, galleryRef] = useLazyRender({
+    rootMargin: '600px', // Start rendering 600px before visible
+    triggerOnce: true,
+  });
+
+  // Pre-calculate transform for first image
+  const firstImageTransform = useMemo(() => {
+    return getRandomTransform(0);
+  }, []);
+
+  if (!shouldRender) {
+    // Return placeholder to maintain layout
+    return (
+      <div 
+        ref={galleryRef}
+        className="w-full bg-[#ffffff]/60 mt-16 py-12 md:py-16 h-auto min-h-[500px] overflow-hidden relative"
+        style={{ contain: "layout style paint" }}
+      >
+        <div className="max-w-7xl mx-auto relative h-full min-h-[500px]">
+          <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-6 lg:left-12 z-30 max-w-xs">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-3">
+              The EMBS Gallery
+            </h2>
+            <p className="text-black/80 text-base md:text-lg leading-relaxed">
+              A few shots taken at our events
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const firstItem = bannerGrid[0];
+
+  return (
+    <div 
+      ref={galleryRef}
+      className="w-full bg-[#ffffff]/60 mt-16 py-12 md:py-16 h-auto min-h-[500px] overflow-hidden relative"
+      style={{ contain: "layout style paint" }}
+    >
+      {/* Gallery Title - Left Side */}
+      <div className="max-w-7xl mx-auto relative h-full min-h-[500px]">
+        <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-6 lg:left-12 z-30 max-w-xs">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-3">
+            The EMBS Gallery
+          </h2>
+          <p className="text-black/80 text-base md:text-lg leading-relaxed">
+            A few shots taken at our events
+          </p>
+        </div>
+      </div>
+      
+      {/* All images - First one starts immediately, others staggered */}
+      <FirstAnimatedImage
+        key={0}
+        image={firstItem.image}
+        description={firstItem.description}
+        width={firstItem.width}
+        height={firstItem.height}
+        offsetX={firstImageTransform.offsetX}
+        offsetY={firstImageTransform.offsetY}
+        rotation={firstImageTransform.rotation}
+        totalImages={bannerGrid.length}
+      />
+      
+      {/* Other images using AnimatedImageStack - lazy rendered individually */}
+      {bannerGrid.slice(1).map((item, index) => {
+        const actualIndex = index + 1;
+        return (
+          <LazyAnimatedImageStack
+            key={actualIndex}
+            image={item.image}
+            description={item.description}
+            index={actualIndex}
+            totalImages={bannerGrid.length}
+            width={item.width}
+            height={item.height}
+          />
+        );
+      })}
+    </div>
+  );
+});
+
+GallerySection.displayName = "GallerySection";
+
+// Lazy rendered AnimatedImageStack - only renders when near viewport
+const LazyAnimatedImageStack = memo(({ image, description, index, totalImages, width, height }) => {
+  const [shouldRender, ref] = useLazyRender({
+    rootMargin: '400px', // Start rendering 400px before visible
+    triggerOnce: true,
+  });
+
+  if (!shouldRender) {
+    return <div ref={ref} style={{ position: 'absolute', visibility: 'hidden' }} />;
+  }
+
+  return (
+    <div ref={ref}>
+      <AnimatedImageStack
+        image={image}
+        description={description}
+        index={index}
+        totalImages={totalImages}
+        width={width}
+        height={height}
+      />
+    </div>
+  );
+});
+
+LazyAnimatedImageStack.displayName = "LazyAnimatedImageStack";
+
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -290,6 +472,15 @@ export default function Home() {
   const [userRole, setUserRole] = useState("member");
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Initialize performance monitoring
+  useEffect(() => {
+    const monitor = getPerformanceMonitor();
+    // Monitor is auto-initialized, but we can trigger a report if needed
+    return () => {
+      // Cleanup if component unmounts
+    };
+  }, []);
 
   // Memoize duplicated sliding text array - only recreate if slidingText changes
   const itemsTwice = useMemo(() => [...slidingText, ...slidingText], []);
@@ -324,34 +515,36 @@ export default function Home() {
     setSelectedEvent(null);
   };
 
-  // Preload critical gallery images first (most important), then background images
+  // Advanced image preloading with priority queue
   useEffect(() => {
-    // Preload first 6 gallery images (most important)
-    const galleryImagesToPreload = bannerGrid.slice(0, 6).map(item => item.image);
+    const preloader = getImagePreloader();
     
-    galleryImagesToPreload.forEach((url) => {
-      if (!document.querySelector(`link[rel="preload"][href="${url}"]`)) {
-        const link = document.createElement("link");
-        link.rel = "preload";
-        link.as = "image";
-        link.href = url;
-        link.setAttribute("fetchpriority", "high");
-        document.head.appendChild(link);
-      }
+    // Preload critical gallery images first (high priority)
+    const criticalImages = bannerGrid.slice(0, 6).map(item => ({
+      url: item.image,
+      priority: 'high'
+    }));
+    
+    // Preload remaining gallery images (auto priority)
+    const remainingImages = bannerGrid.slice(6).map(item => ({
+      url: item.image,
+      priority: 'auto'
+    }));
+    
+    // Preload background images (low priority - decorative)
+    const backgroundImages = [
+      { url: DesktopBackgroundFiller, priority: 'low' },
+      { url: DesktopBackgroundDNA, priority: 'low' }
+    ];
+    
+    // Load in priority order: critical -> remaining -> background
+    preloader.preloadBatch(criticalImages).then(() => {
+      // After critical images load, start remaining
+      preloader.preloadBatch(remainingImages);
     });
-
-    // Preload background images with lower priority (decorative, can load later)
-    const backgroundImagesToPreload = [DesktopBackgroundFiller, DesktopBackgroundDNA];
-    backgroundImagesToPreload.forEach((url) => {
-      if (!document.querySelector(`link[rel="preload"][href="${url}"]`)) {
-        const link = document.createElement("link");
-        link.rel = "preload";
-        link.as = "image";
-        link.href = url;
-        link.setAttribute("fetchpriority", "low");
-        document.head.appendChild(link);
-      }
-    });
+    
+    // Background images can load whenever
+    preloader.preloadBatch(backgroundImages);
   }, []);
 
   // Simplified authentication result handling
@@ -558,7 +751,10 @@ export default function Home() {
           </div>
 
           {/* Desktop Image Grid - Optimized with lazy loading */}
-          <div className="absolute -right-0 top-20 bottom-0 my-auto z-30 w-[50%] h-[80vh]">
+          <div 
+            className="absolute -right-0 top-20 bottom-0 my-auto z-30 w-[50%] h-[80vh]"
+            style={{ contain: "layout style paint" }}
+          >
             <ImageGrid
               Image0={Image0}
               Image1={Image1}
@@ -637,7 +833,10 @@ export default function Home() {
         </div>
 
         {/* Mobile Image Grid - Optimized with lazy loading */}
-        <div className="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-[35] w-[90vw] h-[90vw] max-w-[500px] max-h-[500px]">
+        <div 
+          className="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-[35] w-[90vw] h-[90vw] max-w-[500px] max-h-[500px]"
+          style={{ contain: "layout style paint" }}
+        >
           <ImageGrid
             Image0={Image0}
             Image1={Image1}
@@ -731,9 +930,12 @@ export default function Home() {
       </div>
 
       {/* Rest of page content */}
-      <div className="bg-none">
+      <div className="bg-none" style={{ contain: "layout style" }}>
         {/* Upcoming Events */}
-        <div className="max-w-7xl mx-auto p-4 md:p-0 mt-16">
+        <div 
+          className="max-w-7xl mx-auto p-4 md:p-0 mt-16"
+          style={{ contentVisibility: 'auto', contain: "layout style paint" }}
+        >
           <h1 className="text-4xl text-white font-bold text-center mb-8 italic">
             Upcoming Events
           </h1>
@@ -755,74 +957,13 @@ export default function Home() {
 
 
       {/* Image Stack - Polaroid Style - All Images */}
-      <div className="w-full bg-[#ffffff]/60 mt-16 py-12 md:py-16 h-auto min-h-[500px] overflow-hidden relative">
-        {/* Gallery Title - Left Side */}
-        <div className="max-w-7xl mx-auto relative h-full min-h-[500px]">
-          <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-6 lg:left-12 z-30 max-w-xs">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-3">
-              The EMBS Gallery
-            </h2>
-            <p className="text-black/80 text-base md:text-lg leading-relaxed">
-              A few shots taken at our events
-            </p>
-          </div>
-        </div>
-        
-        {/* All images - First one starts immediately, others staggered by 3 seconds */}
-        {bannerGrid.map((item, index) => {
-          // Get consistent random transform values for this image
-          const { rotation, offsetX, offsetY } = getRandomTransform(index);
-          
-          if (index === 0) {
-            // First image - starts immediately, highest z-index initially
-            return (
-              <div key={index}>
-                <style>{`
-                  @keyframes slide-right-rotated-0 {
-                    0% {
-                      transform: translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) rotate(${rotation}deg);
-                    }
-                    100% {
-                      transform: translate(calc(-50% + ${offsetX}px + 28rem), calc(-50% + ${offsetY}px)) rotate(${rotation}deg);
-                    }
-                  }
-                `}</style>
-                <div 
-                  className="absolute top-1/2 left-[45%] w-fit"
-                  style={{ 
-                    zIndex: bannerGrid.length,
-                    transform: `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px)) rotate(${rotation}deg)`,
-                    animation: `slide-right-rotated-0 3s ease-in-out forwards`
-                  }}
-                >
-                  <ImageStack 
-                    image={item.image} 
-                    description={item.description}
-                    width={item.width}
-                    height={item.height}
-                    priority="high"
-                    loading="eager"
-                  />
-                </div>
-              </div>
-            );
-          }
-          return (
-            <AnimatedImageStack
-              key={index}
-              image={item.image}
-              description={item.description}
-              index={index}
-              totalImages={bannerGrid.length}
-              width={item.width}
-              height={item.height}
-            />
-          );
-        })}
-      </div>
+      <GallerySection />
 
-        {/* Branches Section */}
-        <div className="w-full mt-16 px-4 md:px-0">
+      {/* Branches Section */}
+      <div 
+        className="w-full mt-16 px-4 md:px-0"
+        style={{ contentVisibility: 'auto', contain: "layout style paint" }}
+      >
           <h1 className="text-4xl font-bold text-center text-white mb-8 italic">Our Branches</h1>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto items-stretch">
             {useMemo(() => [

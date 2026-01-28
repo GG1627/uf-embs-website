@@ -1,7 +1,30 @@
 // components/ui/FlipCard.jsx
 import React from "react";
+import { shouldUseBackdropFilter } from "../../lib/browserDetection";
 
 export default function FlipCard({ imageSrc, name, summary, onClick }) {
+  const useBackdropFilter = shouldUseBackdropFilter();
+  
+  // For Firefox, use a more opaque background instead of backdrop-filter
+  const frontFaceStyle = {
+    background: useBackdropFilter 
+      ? "rgba(255, 255, 255, 0.95)" 
+      : "rgba(255, 255, 255, 0.98)", // More opaque for Firefox
+    backdropFilter: useBackdropFilter ? "blur(40px)" : "none",
+    WebkitBackdropFilter: useBackdropFilter ? "blur(40px)" : "none",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5), 0 20px 60px rgba(255, 255, 255, 0.4)",
+    transform: "translateY(0)",
+  };
+  
+  const backFaceStyle = {
+    background: useBackdropFilter 
+      ? "rgba(255, 255, 255, 0.95)" 
+      : "rgba(255, 255, 255, 0.98)", // More opaque for Firefox
+    backdropFilter: useBackdropFilter ? "blur(40px)" : "none",
+    WebkitBackdropFilter: useBackdropFilter ? "blur(40px)" : "none",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5), 0 20px 60px rgba(255, 255, 255, 0.4)",
+  };
+
   return (
     <div
       onClick={onClick}
@@ -14,13 +37,7 @@ export default function FlipCard({ imageSrc, name, summary, onClick }) {
         {/* Front Face */}
         <div 
           className="absolute inset-0 backface-hidden rounded-3xl overflow-hidden transition-all duration-500 ease-out"
-          style={{
-            background: "rgba(255, 255, 255, 0.95)",
-            backdropFilter: "blur(40px)",
-            WebkitBackdropFilter: "blur(40px)",
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5), 0 20px 60px rgba(255, 255, 255, 0.4)",
-            transform: "translateY(0)",
-          }}
+          style={frontFaceStyle}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "translateY(-8px) scale(1.02)";
             e.currentTarget.style.boxShadow = "0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.6), 0 30px 80px rgba(255, 255, 255, 0.6)";
@@ -87,12 +104,7 @@ export default function FlipCard({ imageSrc, name, summary, onClick }) {
         {/* Back Face */}
         <div 
           className="absolute inset-0 backface-hidden transform rotate-y-180 rounded-3xl overflow-hidden transition-all duration-500 ease-out"
-          style={{
-            background: "rgba(255, 255, 255, 0.95)",
-            backdropFilter: "blur(40px)",
-            WebkitBackdropFilter: "blur(40px)",
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5), 0 20px 60px rgba(255, 255, 255, 0.4)",
-          }}
+          style={backFaceStyle}
         >
           {/* Subtle gradient overlay */}
           <div 
