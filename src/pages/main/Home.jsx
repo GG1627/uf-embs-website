@@ -1,7 +1,7 @@
 import DesktopBackgroundFiller from "../../assets/images/desktop_background_filler2.avif";
 import DesktopBackgroundDNA from "../../assets/images/desktop_background_dna2.avif";
-import MobileBackgroundFiller from "../../assets/images/mobile_background_filler.avif";
-import MobileBackgroundDNA from "../../assets/images/mobile_background_dna.avif";
+import MobileBackgroundFiller from "../../assets/images/mobile_background_filler2.avif";
+import MobileBackgroundDNA from "../../assets/images/mobile_background_dna2.avif";
 import UF_Skyline from "../../assets/images/uf_skyline.avif";
 
 import Image0 from "../../assets/grid/img0.avif";
@@ -372,7 +372,7 @@ const GallerySection = memo(() => {
         style={{ contain: "layout style paint" }}
       >
         <div className="max-w-7xl mx-auto relative h-full min-h-[500px]">
-          <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-6 lg:left-12 z-30 max-w-xs">
+          <div className="hidden md:block absolute top-1/2 -translate-y-1/2 left-4 md:left-6 lg:left-12 z-30 max-w-xs">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-3">
               The EMBS Gallery
             </h2>
@@ -395,7 +395,7 @@ const GallerySection = memo(() => {
     >
       {/* Gallery Title - Left Side */}
       <div className="max-w-7xl mx-auto relative h-full min-h-[500px]">
-        <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-6 lg:left-12 z-30 max-w-xs">
+        <div className="hidden md:block absolute top-1/2 -translate-y-1/2 left-4 md:left-6 lg:left-12 z-30 max-w-xs">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-3">
             The EMBS Gallery
           </h2>
@@ -811,7 +811,7 @@ export default function Home() {
             loading="lazy"
             decoding="async"
             fetchPriority="low"
-            className="absolute left-1/2 -translate-x-1/2 -translate-y-[15%] h-auto w-screen z-10 opacity-100"
+            className="absolute left-1/2 -translate-x-[50%] -translate-y-[31%] scale-102 h-auto w-screen z-10 opacity-100"
           />
           {/* DNA positioned relative to this container */}
           <img
@@ -820,7 +820,7 @@ export default function Home() {
             loading="lazy"
             decoding="async"
             fetchPriority="low"
-            className="absolute left-1/2 -translate-x-1/2 -translate-y-[8%] h-auto w-screen z-20"
+            className="absolute left-1/2 -translate-x-[50%] -translate-y-[12%] scale-102 h-auto w-screen z-20"
           />
         </div>
 
@@ -866,25 +866,23 @@ export default function Home() {
           style={{ top: "clamp(45%, 52vh, 65%)" }}
         >
           <div className="text-center">
-            <h1 className="font-bold text-[#B17CB3] mb-4 text-[clamp(1.2rem,6.5vw,2.25rem)] leading-tight">
+            <h2 className="text-left mb-3 leading-tight text-[clamp(0.875rem,1.3vw,1.125rem)] text-white/80 font-light tracking-wide">
+                <span className="text-white/40 mr-2">—</span>
+                <span className="font-medium text-[#87dbe6] tracking-wider uppercase">EST 2025</span>
+                <span className="text-white/30 mx-2.5">//</span>
+                <span className="text-white/90 font-normal">University of Florida Student Chapter</span>
+              </h2>
+            <h1 className="font-bold text-[#64aeb7] mb-4 text-[clamp(1.2rem,6.5vw,2.25rem)] leading-tight">
               Engineering in Medicine & Biology Society
             </h1>
-            <h2 className="font-bold text-[#97BDD7] mb-4 text-[clamp(0.9rem,4.8vw,1.5rem)] leading-tight">
-              University of Florida Chapter
-            </h2>
             <p className="text-white/95 mb-6 text-[clamp(0.8rem,3.8vw,1.05rem)] leading-relaxed">
-              "Bridging innovation, AI, and human health, we empower students to
+              Bridging innovation, AI, and human health, we empower students to
               explore the frontiers of biomedical technology through
-              collaboration, research, and real-world impact."
+              collaboration, research, and real-world impact.
             </p>
             <div className="flex flex-row gap-3 items-center justify-center">
-              <button className="bg-[#ffffff] text-black px-5 py-2.5 rounded-3xl text-[clamp(0.75rem,3.5vw,0.9rem)] shadow-[0_0_14px_rgba(255,255,255,0.85)] hover:shadow-[0_0_28px_rgba(255,255,255,0.85)] transition-shadow duration-300">
-                <Link className="no-underline" to="/about">
-                  Learn More
-                </Link>
-              </button>
               {user ? (
-                <button className="bg-[#ffffff] text-black px-5 py-2.5 rounded-3xl text-[clamp(0.75rem,3.5vw,0.9rem)] shadow-[0_0_14px_rgba(255,255,255,0.85)] hover:shadow-[0_0_28px_rgba(255,255,255,0.85)] transition-shadow duration-300">
+                <button className="bg-[#ffffff] text-black uppercase px-6 py-2.5 rounded text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_4px_rgba(255,255,255,0.85)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
                   <Link
                     className="no-underline"
                     to={
@@ -895,12 +893,17 @@ export default function Home() {
                   </Link>
                 </button>
               ) : (
-                <button className="bg-[#ffffff] text-black px-9 py-2.5 rounded-3xl text-[clamp(0.75rem,3.5vw,0.9rem)] shadow-[0_0_14px_rgba(255,255,255,0.85)] hover:shadow-[0_0_28px_rgba(255,255,255,0.85)] transition-shadow duration-300">
-                  <Link className="no-underline" to="/auth/login">
-                    Login
+                <button className="bg-[#ffffff] text-black uppercase px-6 py-2.5 rounded text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_4px_rgba(255,255,255,0.85)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
+                  <Link className="no-underline" to="/auth/register">
+                    Join Society
                   </Link>
                 </button>
               )}
+              <button className=" text-white px-6 py-2.5 uppercase rounded text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_4px_rgba(255,255,255,0.85)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
+                <Link className="no-underline" to="/events">
+                  Explore Events →
+                </Link>
+              </button>
             </div>
           </div>
         </div>
