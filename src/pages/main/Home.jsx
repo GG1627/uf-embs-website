@@ -727,11 +727,6 @@ export default function Home() {
                 collaboration, research, and real-world impact.
               </p>
               <div className="flex flex-row flex-wrap items-center justify-start gap-4 mt-6 pl-0">
-                <button className="bg-[#ffffff] text-black uppercase px-6 py-2.5 rounded text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_4px_rgba(255,255,255,0.85)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
-                  <Link className="no-underline" to="/auth/register">
-                    Join Society
-                  </Link>
-                </button>
                 {user ? (
                   <button className="bg-[#ffffff] text-black uppercase px-6 py-2.5 rounded text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_4px_rgba(255,255,255,0.85)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
                     <Link
@@ -744,12 +739,17 @@ export default function Home() {
                     </Link>
                   </button>
                 ) : (
-                  <button className=" text-white px-6 py-2.5 uppercase rounded text-[clamp(1rem,1.2vw,1.25rem)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
-                    <Link className="no-underline" to="/events">
-                      Explore Events →
+                  <button className="bg-[#ffffff] text-black uppercase px-6 py-2.5 rounded text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_4px_rgba(255,255,255,0.85)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
+                    <Link className="no-underline" to="/auth/register">
+                      Join Society
                     </Link>
                   </button>
                 )}
+                <button className=" text-white px-6 py-2.5 uppercase rounded text-[clamp(1rem,1.2vw,1.25rem)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
+                  <Link className="no-underline" to="/events">
+                    Explore Events →
+                  </Link>
+                </button>
               </div>
             </div>
           </div>
