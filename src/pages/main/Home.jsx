@@ -678,7 +678,7 @@ export default function Home() {
         {/* Centered content container */}
         <div className="relative min-h-[100dvh] max-w-[1600px] mx-auto overflow-hidden bg-[#1A1A1A]">
           {/* Right half overlay - positioned relative to container */}
-          <div className="absolute inset-y-0 right-0 w-[46.5%] bg-[#D9D9D9] z-0" />
+          <div className="absolute inset-y-0 right-0 w-[44.5%] bg-[#D9D9D9] z-0" />
 
           {/* Large Circle with Particles - Desktop only */}
           <div className="hidden md:block absolute top-1/2 left-1/2 -translate-y-1/2 z-20">
