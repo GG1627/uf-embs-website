@@ -961,7 +961,7 @@ export default function Home() {
 
       {/* Branches Section */}
       <div 
-        className="w-full mt-16 px-4 md:px-0"
+        className="w-full mt-16 pb-26 px-4 md:px-0"
         style={{ contentVisibility: 'auto', contain: "layout style paint" }}
       >
           <h1 className="text-4xl font-bold text-center text-white mb-8 italic">Our Branches</h1>
@@ -1020,7 +1020,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mb-10 mt-20"></div>
+        <div className="mb-10 mt-[-60px]"></div>
         {/* Footer */}
         <Footer />
       </div>

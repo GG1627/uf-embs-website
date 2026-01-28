@@ -13,7 +13,6 @@ export default function FlipCard({ imageSrc, name, summary, onClick }) {
     backdropFilter: useBackdropFilter ? "blur(40px)" : "none",
     WebkitBackdropFilter: useBackdropFilter ? "blur(40px)" : "none",
     boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5), 0 20px 60px rgba(255, 255, 255, 0.4)",
-    transform: "translateY(0)",
   };
   
   const backFaceStyle = {
@@ -33,19 +32,11 @@ export default function FlipCard({ imageSrc, name, summary, onClick }) {
         minHeight: "320px",
       }}
     >
-      <div className="relative w-full h-full transition-transform duration-700 ease-out [transform-style:preserve-3d] hover:[transform:rotateY(180deg)]">
+      <div className="flip-card-inner relative w-full h-full [transform-style:preserve-3d]">
         {/* Front Face */}
         <div 
-          className="absolute inset-0 backface-hidden rounded-3xl overflow-hidden transition-all duration-500 ease-out"
+          className="flip-card-front absolute inset-0 backface-hidden rounded-3xl overflow-hidden"
           style={frontFaceStyle}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-8px) scale(1.02)";
-            e.currentTarget.style.boxShadow = "0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.6), 0 30px 80px rgba(255, 255, 255, 0.6)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "translateY(0) scale(1)";
-            e.currentTarget.style.boxShadow = "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5), 0 20px 60px rgba(255, 255, 255, 0.4)";
-          }}
         >
           {/* Subtle gradient overlay */}
           <div 
@@ -76,16 +67,10 @@ export default function FlipCard({ imageSrc, name, summary, onClick }) {
 
             {/* Accent line */}
             <div 
-              className="h-0.5 rounded-full transition-all duration-500"
+              className="h-0.5 rounded-full transition-all duration-500 accent-line"
               style={{
                 background: "linear-gradient(90deg, #772583 0%, #9C1E96 100%)",
                 width: "32px",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.width = "56px";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.width = "32px";
               }}
             />
 
@@ -103,7 +88,7 @@ export default function FlipCard({ imageSrc, name, summary, onClick }) {
 
         {/* Back Face */}
         <div 
-          className="absolute inset-0 backface-hidden transform rotate-y-180 rounded-3xl overflow-hidden transition-all duration-500 ease-out"
+          className="flip-card-back absolute inset-0 backface-hidden rounded-3xl overflow-hidden"
           style={backFaceStyle}
         >
           {/* Subtle gradient overlay */}
@@ -173,8 +158,22 @@ export default function FlipCard({ imageSrc, name, summary, onClick }) {
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
         }
-        .rotate-y-180 {
+        .flip-card-inner {
+          transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+          transform: rotateY(0deg);
+          will-change: transform;
+        }
+        .group:hover .flip-card-inner {
           transform: rotateY(180deg);
+        }
+        .flip-card-front {
+          transform: translate3d(0, 0, 0) rotateY(0deg);
+        }
+        .flip-card-back {
+          transform: translate3d(0, 0, 0) rotateY(180deg);
+        }
+        .group:hover .flip-card-front .accent-line {
+          width: 56px;
         }
       `}</style>
     </div>
