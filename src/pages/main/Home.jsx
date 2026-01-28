@@ -1,5 +1,5 @@
-import DesktopBackgroundFiller from "../../assets/images/desktop_background_filler.avif";
-import DesktopBackgroundDNA from "../../assets/images/desktop_background_dna.avif";
+import DesktopBackgroundFiller from "../../assets/images/desktop_background_filler2.avif";
+import DesktopBackgroundDNA from "../../assets/images/desktop_background_dna2.avif";
 import MobileBackgroundFiller from "../../assets/images/mobile_background_filler.avif";
 import MobileBackgroundDNA from "../../assets/images/mobile_background_dna.avif";
 import UF_Skyline from "../../assets/images/uf_skyline.avif";
@@ -41,6 +41,7 @@ import { slidingText } from "../../data/slidingText";
 import ParticlesBg from "../../components/ui/ParticlesBG";
 import { LuDna } from "react-icons/lu";
 import { bannerGrid } from "../../data/bannerGrid";
+import GradientMesh from "../../components/ui/GradientMesh";
 
 import useGoogleCalendar from "../../lib/useGoogleCalendar";
 import { getKeyframeManager } from "../../lib/keyframeManager";
@@ -687,7 +688,7 @@ export default function Home() {
           </div>
 
           {/* Centered DNA with filler behind */}
-          <div className="absolute inset-0 z-10 pointer-events-none">
+          <div className="absolute inset-0 z-10 pointer-events-none mt-4 ml-12">
             <img
               src={DesktopBackgroundFiller}
               alt="Background Filler"
@@ -711,25 +712,28 @@ export default function Home() {
           {/* Desktop Text Content */}
           <div className="absolute left-6 top-1/2 -translate-y-1/2 z-30 w-[48%] lg:w-[44%] xl:w-[40%] 2xl:w-[38%] h-[70vh] p-2 rounded-xl overflow-x-hidden overflow-y-auto">
             <div className="flex flex-col h-full justify-center gap-4 lg:gap-5">
-              <h1 className="font-bold text-left text-[#B17CB3] mb-3 leading-[1.08] tracking-tight text-[clamp(2rem,3.8vw,4rem)]">
+              <h2 className="text-left mb-3 leading-tight text-[clamp(0.875rem,1.3vw,1.125rem)] text-white/80 font-light tracking-wide">
+                <span className="text-white/40 mr-2">—</span>
+                <span className="font-medium text-[#87dbe6] tracking-wider uppercase">EST 2025</span>
+                <span className="text-white/30 mx-2.5">//</span>
+                <span className="text-white/90 font-normal">University of Florida Student Chapter</span>
+              </h2>
+              <h1 className="font-bold text-left text-[#64aeb7] mb-3 leading-[1.08] tracking-tight text-[clamp(2rem,3.8vw,4rem)]">
                 Engineering in Medicine &amp; Biology Society
               </h1>
-              <h2 className="font-bold text-left text-[#97BDD7] mb-3 leading-tight text-[clamp(1.25rem,2.2vw,2.5rem)]">
-                University of Florida Chapter
-              </h2>
-              <p className="text-left text-[clamp(1rem,1.4vw,1.5rem)] text-white/95 max-w-[65ch]">
-                "Bridging innovation, AI, and human health, we empower students
+              <p className="text-left border-l-2 border-white/50 pl-4 text-[clamp(1rem,1.4vw,1.5rem)] text-white/95 max-w-[65ch]">
+                Bridging innovation, AI, and human health, we empower students
                 to explore the frontiers of biomedical technology through
-                collaboration, research, and real-world impact."
+                collaboration, research, and real-world impact.
               </p>
-              <div className="flex flex-row flex-wrap items-center justify-start gap-4 mt-6 pl-20">
-                <button className="bg-[#ffffff] text-black px-6 py-2.5 rounded-3xl text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_14px_rgba(255,255,255,0.85)] hover:shadow-[0_0_28px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
-                  <Link className="no-underline" to="/about">
-                    Learn More
+              <div className="flex flex-row flex-wrap items-center justify-start gap-4 mt-6 pl-0">
+                <button className="bg-[#ffffff] text-black uppercase px-6 py-2.5 rounded text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_4px_rgba(255,255,255,0.85)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
+                  <Link className="no-underline" to="/auth/register">
+                    Join Society
                   </Link>
                 </button>
                 {user ? (
-                  <button className="bg-[#ffffff] text-black px-6 py-2.5 rounded-3xl text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_14px_rgba(255,255,255,0.85)] hover:shadow-[0_0_28px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
+                  <button className="bg-[#ffffff] text-black uppercase px-6 py-2.5 rounded text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_4px_rgba(255,255,255,0.85)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
                     <Link
                       className="no-underline"
                       to={
@@ -740,9 +744,9 @@ export default function Home() {
                     </Link>
                   </button>
                 ) : (
-                  <button className="bg-[#ffffff] text-black px-6 py-2.5 rounded-3xl text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_14px_rgba(255,255,255,0.85)] hover:shadow-[0_0_28px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
-                    <Link className="no-underline" to="/auth/login">
-                      Login
+                  <button className=" text-white px-6 py-2.5 uppercase rounded text-[clamp(1rem,1.2vw,1.25rem)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
+                    <Link className="no-underline" to="/events">
+                      Explore Events →
                     </Link>
                   </button>
                 )}
@@ -774,7 +778,7 @@ export default function Home() {
             />
           </div>
           {/* Scroll Down Icon */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full justify-center flex mt-0 flex-col items-center mb-2">
+          <div className="absolute bottom-0 right-[30%] w-full flex mt-0 flex-col items-center mb-6">
             <IoIosArrowDown className="text-white text-4xl" />
           </div>
         </div>

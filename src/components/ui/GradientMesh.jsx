@@ -6,6 +6,7 @@ export default function GradientMesh({
   baseGradient = "linear-gradient(to bottom, #ffffff, #f8f8f8, #ffffff)",
   minHeight = "200vh",
   className = "",
+  zIndex = -1,
 }) {
   // The original 9 blobs (positions/sizes/blur) with your exact defaults
   const defaultBlobs = [
@@ -37,7 +38,7 @@ export default function GradientMesh({
   return (
     <div
       className={`absolute inset-0 w-full ${className}`}
-      style={{ zIndex: -1, minHeight }}
+      style={{ zIndex, minHeight }}
       aria-hidden
     >
       {/* Main gradient background (unchanged) */}
