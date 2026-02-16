@@ -728,7 +728,7 @@ export default function Home() {
               </p>
               <div className="flex flex-row flex-wrap items-center justify-start gap-4 mt-6 pl-0">
                 {user ? (
-                  <button className="bg-[#ffffff] text-black uppercase px-6 py-2.5 rounded text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_4px_rgba(255,255,255,0.85)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
+                  <button className="hero-btn-hover bg-gradient-to-t from-[#1c1c1c] to-[#404040] text-white border-2 border-[#595959] uppercase px-6 py-2.5 rounded text-[clamp(1rem,1.2vw,1.25rem)] hover:cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[190px] text-center">
                     <Link
                       className="no-underline"
                       to={
@@ -739,13 +739,13 @@ export default function Home() {
                     </Link>
                   </button>
                 ) : (
-                  <button className="bg-[#ffffff] text-black uppercase px-6 py-2.5 rounded text-[clamp(1rem,1.2vw,1.25rem)] shadow-[0_0_4px_rgba(255,255,255,0.85)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
+                  <button className="hero-btn-hover bg-gradient-to-t from-[#1c1c1c] to-[#404040] text-white border-2 border-[#595959] uppercase px-6 py-2.5 rounded text-[clamp(1rem,1.2vw,1.25rem)] hover:cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[190px] text-center">
                     <Link className="no-underline" to="/auth/register">
                       Join Society
                     </Link>
                   </button>
                 )}
-                <button className=" text-white px-6 py-2.5 uppercase rounded text-[clamp(1rem,1.2vw,1.25rem)] hover:shadow-[0_0_8px_rgba(255,255,255,0.85)] hover:cursor-pointer transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
+                <button className="hero-btn-ghost-hover text-white px-6 py-2.5 uppercase rounded text-[clamp(1rem,1.2vw,1.25rem)] hover:cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-w-[140px] text-center">
                   <Link className="no-underline" to="/events">
                     Explore Events →
                   </Link>
@@ -940,7 +940,7 @@ export default function Home() {
       <div className="bg-none" style={{ contain: "layout style" }}>
         {/* Upcoming Events */}
         <div 
-          className="max-w-7xl mx-auto p-4 md:p-0 mt-16"
+          className="max-w-7xl mx-auto p-4 md:p-10 mt-16"
           style={{ contentVisibility: 'auto', contain: "layout style paint" }}
         >
           <h1 className="text-4xl text-white font-bold text-center mb-8 italic">

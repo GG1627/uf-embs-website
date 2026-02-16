@@ -24,7 +24,7 @@ export default function EventCard({
           background: "rgba(255, 255, 255, 0.95)",
           backdropFilter: "blur(40px)",
           WebkitBackdropFilter: "blur(40px)",
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5), 0 20px 60px rgba(255, 255, 255, 0.4)",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5), 0 0px 10px rgba(255, 255, 255, 0.4)",
           transform: "translateY(0)",
           minHeight: "320px",
           height: "100%",
@@ -33,11 +33,11 @@ export default function EventCard({
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = "translateY(-8px) scale(1.02)";
-          e.currentTarget.style.boxShadow = "0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.6), 0 30px 80px rgba(255, 255, 255, 0.6)";
+          e.currentTarget.style.boxShadow = "0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.6), 0 0px 40px rgba(255, 255, 255, 0.6)";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = "translateY(0) scale(1)";
-          e.currentTarget.style.boxShadow = "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5), 0 20px 60px rgba(255, 255, 255, 0.4)";
+          e.currentTarget.style.boxShadow = "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5), 0 0px 40px rgba(255, 255, 255, 0.4)";
         }}
       >
         {/* Subtle gradient overlay */}

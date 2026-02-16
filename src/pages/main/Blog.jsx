@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../pages/auth/AuthContext";
 import { useSnackbar } from "../../components/ui/Snackbar";
@@ -6,11 +6,18 @@ import Footer from "../../components/layout/Footer";
 import { gradientPresets } from "../../styles/ieeeColors";
 import GradientMesh from "../../components/ui/GradientMesh";
 
+const POSTS_PER_PAGE = 5;
+
 export default function Blog() {
   const { user } = useAuth();
   const { showSnackbar } = useSnackbar();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const loadMoreSentinelRef = useRef(null);
+  const isLoadingMoreRef = useRef(false);
   const [role, setRole] = useState("member");
   const [canManageBlog, setCanManageBlog] = useState(false);
   const [showAdminForm, setShowAdminForm] = useState(false);
@@ -53,6 +60,14 @@ export default function Blog() {
   const [currentImageIndex, setCurrentImageIndex] = useState({});
   const [carouselIntervals, setCarouselIntervals] = useState({});
 
+  // Comments states
+  const [commentCounts, setCommentCounts] = useState({});
+  const [commentsPanelPost, setCommentsPanelPost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [commentInput, setCommentInput] = useState("");
+  const [submittingComment, setSubmittingComment] = useState(false);
+
   // Fetch user role
   useEffect(() => {
     const fetchRole = async () => {
@@ -86,35 +101,36 @@ export default function Blog() {
     fetchRole();
   }, [user]);
 
-  // Fetch blog posts
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from("blog_posts")
-          .select("*")
-          .order("event_date", { ascending: false });
+  // Fetch blog posts (paginated - initial load or refresh)
+  const fetchPosts = useCallback(async (pageNum = 0, append = false) => {
+    const from = pageNum * POSTS_PER_PAGE;
+    const to = from + POSTS_PER_PAGE - 1;
 
-        if (error) {
-          console.error("Error fetching blog posts:", error);
-          showSnackbar("Error loading blog posts", { customColor: "#dc2626" });
-          // Fallback to default post if no posts exist
-          setPosts([
-            {
-              id: "default",
-              title: "Welcome to the Blog",
-              content:
-                "Here you'll find short summaries after every UF EMBS event and meeting, highlighting what we covered, explored, or accomplished. Whether you missed a GBM or just want a recap, check back here for all our latest updates!",
-              created_at: "2025-08-06T00:00:00Z",
-              image_urls: [],
-            },
-          ]);
-        } else {
-          setPosts(data || []);
-        }
-      } catch (error) {
-        console.error("Exception fetching blog posts:", error);
+    try {
+      if (!append) setLoading(true);
+      else setLoadingMore(true);
+
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("*")
+        .order("event_date", { ascending: false })
+        .range(from, to);
+
+      if (error) {
+        throw error;
+      }
+
+      const newPosts = data || [];
+      if (append) {
+        setPosts((prev) => [...prev, ...newPosts]);
+      } else {
+        setPosts(newPosts);
+      }
+      setHasMore(newPosts.length === POSTS_PER_PAGE);
+    } catch (error) {
+      console.error("Error fetching blog posts:", error);
+      if (!append) {
+        showSnackbar("Error loading blog posts", { customColor: "#dc2626" });
         setPosts([
           {
             id: "default",
@@ -125,13 +141,78 @@ export default function Blog() {
             image_urls: [],
           },
         ]);
-      } finally {
-        setLoading(false);
+      }
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [showSnackbar]);
+
+  // Initial load
+  useEffect(() => {
+    setPage(0);
+    setHasMore(true);
+    fetchPosts(0, false);
+  }, [fetchPosts]);
+
+  // Load more when sentinel is visible
+  const loadMorePosts = useCallback(() => {
+    if (loadingMore || !hasMore || isLoadingMoreRef.current) return;
+    isLoadingMoreRef.current = true;
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchPosts(nextPage, true).finally(() => {
+      isLoadingMoreRef.current = false;
+    });
+  }, [page, loadingMore, hasMore, fetchPosts]);
+
+  // Fetch comment counts when posts change
+  useEffect(() => {
+    const fetchCounts = async () => {
+      if (posts.length === 0) {
+        setCommentCounts({});
+        return;
+      }
+      try {
+        const postIds = posts.map((p) => p.id);
+        const { data, error } = await supabase
+          .from("blog_comments")
+          .select("post_id")
+          .in("post_id", postIds);
+
+        if (error) throw error;
+        const counts = {};
+        postIds.forEach((id) => (counts[id] = 0));
+        (data || []).forEach((c) => {
+          counts[c.post_id] = (counts[c.post_id] || 0) + 1;
+        });
+        setCommentCounts(counts);
+      } catch (e) {
+        console.error("Error fetching comment counts:", e);
+        setCommentCounts({});
       }
     };
+    fetchCounts();
+  }, [posts]);
 
-    fetchPosts();
-  }, [showSnackbar]);
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const sentinel = loadMoreSentinelRef.current;
+    if (!sentinel || !hasMore || loading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry?.isIntersecting && hasMore && !loadingMore) {
+          loadMorePosts();
+        }
+      },
+      { rootMargin: "200px", threshold: 0 }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, loading, loadMorePosts]);
 
   // Auto-start carousels for posts with multiple images
   useEffect(() => {
@@ -395,15 +476,10 @@ export default function Blog() {
       setVideoThumbnailPreview("");
       setShowAdminForm(false);
 
-      // Refresh posts
-      const { data: updatedPosts, error: fetchError } = await supabase
-        .from("blog_posts")
-        .select("*")
-        .order("event_date", { ascending: false });
-
-      if (!fetchError) {
-        setPosts(updatedPosts || []);
-      }
+      // Refresh posts (reset pagination)
+      setPage(0);
+      setHasMore(true);
+      fetchPosts(0, false);
     } catch (error) {
       console.error("Error creating blog post:", error);
       showSnackbar("Error publishing blog post", { customColor: "#dc2626" });
@@ -510,15 +586,10 @@ export default function Blog() {
       // Reset edit form and close modal
       cancelEditing();
 
-      // Refresh posts
-      const { data: updatedPosts, error: fetchError } = await supabase
-        .from("blog_posts")
-        .select("*")
-        .order("event_date", { ascending: false });
-
-      if (!fetchError) {
-        setPosts(updatedPosts || []);
-      }
+      // Refresh posts (reset pagination)
+      setPage(0);
+      setHasMore(true);
+      fetchPosts(0, false);
     } catch (error) {
       console.error("Error updating blog post:", error);
       showSnackbar("Error updating blog post", { customColor: "#dc2626" });
@@ -627,9 +698,95 @@ export default function Blog() {
     document.body.style.overflow = "unset";
   };
 
+  // Open comments panel and fetch comments
+  const openCommentsPanel = async (post) => {
+    setCommentsPanelPost(post);
+    setComments([]);
+    setCommentInput("");
+    setLoadingComments(true);
+    document.body.style.overflow = "hidden";
+    try {
+      const { data, error } = await supabase
+        .from("blog_comments")
+        .select("id, user_id, author_name, content, created_at")
+        .eq("post_id", post.id)
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      setComments(data || []);
+    } catch (e) {
+      console.error("Error fetching comments:", e);
+      showSnackbar("Error loading comments", { customColor: "#dc2626" });
+      setComments([]);
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+  const closeCommentsPanel = () => {
+    setCommentsPanelPost(null);
+    setComments([]);
+    setCommentInput("");
+    document.body.style.overflow = "unset";
+    // Refresh comment counts when we added a comment (handled in submit);
+    // closing doesn't need to refetch - counts are already updated on submit
+  };
+
+  const handleSubmitComment = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      showSnackbar("Please sign in to comment", { customColor: "#dc2626" });
+      return;
+    }
+    const trimmed = commentInput.trim();
+    if (!trimmed || trimmed.length > 1000) {
+      showSnackbar("Comment must be 1–1000 characters", {
+        customColor: "#dc2626",
+      });
+      return;
+    }
+    if (!commentsPanelPost) return;
+
+    setSubmittingComment(true);
+    try {
+      const { data: member } = await supabase
+        .from("members")
+        .select("first_name, last_name")
+        .eq("user_id", user.id)
+        .single();
+
+      const authorName = member
+        ? [member.first_name, member.last_name].filter(Boolean).join(" ").trim() || "Member"
+        : "Member";
+
+      const { data, error } = await supabase
+        .from("blog_comments")
+        .insert({
+          post_id: commentsPanelPost.id,
+          user_id: user.id,
+          author_name: authorName,
+          content: trimmed,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      setComments((prev) => [...prev, data]);
+      setCommentInput("");
+      setCommentCounts((prev) => ({
+        ...prev,
+        [commentsPanelPost.id]: (prev[commentsPanelPost.id] || 0) + 1,
+      }));
+    } catch (e) {
+      console.error("Error submitting comment:", e);
+      showSnackbar("Error posting comment", { customColor: "#dc2626" });
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white flex flex-col relative overflow-hidden">
-      
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-gradient-to-br from-[#ccfcff]/60 via-[#96a4ff]/20 to-[#96a4ff]">
       {/* Fixed admin button - absolutely positioned */}
       {canManageBlog && (
         <button
@@ -673,7 +830,7 @@ export default function Blog() {
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           {/* Admin Form */}
           {canManageBlog && showAdminForm && (
-            <div className="mb-8 bg-white rounded-xl border border-gray-200 shadow-lg p-6">
+            <div className="mb-8 rounded-2xl border border-white/60 shadow-xl backdrop-blur-xl bg-white/70 p-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
                 <div className="w-6 h-6 bg-[#007377] rounded flex items-center justify-center">
                   <svg
@@ -942,12 +1099,14 @@ export default function Blog() {
 
           {/* Blog Posts */}
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007377]"></div>
-              <span className="ml-3 text-gray-600">Loading blog posts...</span>
+            <div className="flex items-center justify-center py-16">
+              <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/60 backdrop-blur-md border border-white/60 shadow-lg">
+                <div className="animate-spin rounded-full h-6 w-6 border-2 border-teal-500/30 border-t-teal-500"></div>
+                <span className="text-slate-600 font-medium">Loading blog posts...</span>
+              </div>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {posts.map((post) => {
                 const needsTruncation = shouldTruncate(post.content);
                 const truncatedContent = needsTruncation
@@ -957,14 +1116,14 @@ export default function Blog() {
                 return (
                   <article
                     key={post.id}
-                    className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group"
+                    className="rounded-[2rem] overflow-hidden border border-white/60 shadow-xl shadow-black/5 backdrop-blur-xl bg-white/70 hover:bg-white/80 hover:shadow-2xl hover:shadow-teal-500/10 hover:-translate-y-0.5 transition-all duration-500 group"
                   >
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-[400px]">
                       {/* Left side - Images or Video Thumbnail */}
-                      <div className="relative">
+                      <div className="relative p-4 pr-2">
                         {post.post_type === "video" && post.video_thumbnail ? (
                           <div
-                            className="relative h-80 lg:h-full min-h-[400px] bg-gradient-to-br from-[#1c1c1c] to-[#2a2a2a] overflow-hidden group cursor-pointer"
+                            className="relative h-80 lg:h-full min-h-[360px] rounded-2xl overflow-hidden group cursor-pointer bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm border border-white/10"
                             onClick={() =>
                               window.open(post.video_link, "_blank")
                             }
@@ -979,7 +1138,7 @@ export default function Blog() {
                             />
                             {/* Video Play Button Overlay */}
                             <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
-                              <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <div className="w-16 h-16 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl border border-white/40">
                                 <svg
                                   className="w-8 h-8 text-gray-800 ml-1"
                                   fill="currentColor"
@@ -990,7 +1149,7 @@ export default function Blog() {
                               </div>
                             </div>
                             {/* Video Tag */}
-                            <div className="absolute top-3 left-3 bg-[#4c00c7] text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm">
+                            <div className="absolute top-3 left-3 bg-violet-500/80 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg border border-white/20">
                               VIDEO
                             </div>
                           </div>
@@ -1000,7 +1159,7 @@ export default function Blog() {
                             (url) => url && url.trim() !== ""
                           ) ? (
                           <div
-                            className="relative h-80 lg:h-full min-h-[400px] bg-gradient-to-br from-[#772583]/60 to-[#00629b]/60 overflow-hidden group"
+                            className="relative h-80 lg:h-full min-h-[360px] rounded-2xl overflow-hidden group bg-gradient-to-br from-[#772583]/10 to-[#00629b]/10 backdrop-blur-sm border border-white/20"
                             onMouseEnter={() => stopCarousel(post.id)}
                             onMouseLeave={() => {
                               if (post.image_urls.length > 1) {
@@ -1047,7 +1206,7 @@ export default function Blog() {
                                       post.image_urls.length
                                     )
                                   }
-                                  className="absolute left-3 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all duration-200 opacity-0 group-hover:opacity-100"
+                                  className="absolute left-3 top-1/2 transform -translate-y-1/2 z-20 w-10 h-10 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/30 transition-all duration-200 opacity-0 group-hover:opacity-100"
                                 >
                                   <svg
                                     className="w-4 h-4"
@@ -1070,7 +1229,7 @@ export default function Blog() {
                                       post.image_urls.length
                                     )
                                   }
-                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 z-20 w-8 h-8 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all duration-200 opacity-0 group-hover:opacity-100"
+                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 z-20 w-10 h-10 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/30 transition-all duration-200 opacity-0 group-hover:opacity-100"
                                 >
                                   <svg
                                     className="w-4 h-4"
@@ -1091,7 +1250,7 @@ export default function Blog() {
 
                             {/* Image indicators */}
                             {post.image_urls.length > 1 && (
-                              <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-20 flex gap-2 bg-black/20 backdrop-blur-sm rounded-full px-3 py-1">
+                              <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-20 flex gap-2 bg-white/20 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/30">
                                 {post.image_urls.map((_, index) => {
                                   const currentIndex =
                                     currentImageIndex[post.id] || 0;
@@ -1108,9 +1267,9 @@ export default function Blog() {
                                           post.image_urls.length
                                         );
                                       }}
-                                      className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                                      className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
                                         index === currentIndex
-                                          ? "bg-white scale-125"
+                                          ? "bg-white scale-125 shadow-md"
                                           : "bg-white/60 hover:bg-white/80"
                                       }`}
                                     />
@@ -1121,15 +1280,15 @@ export default function Blog() {
 
                             {/* Image counter */}
                             {post.image_urls.length > 1 && (
-                              <div className="absolute top-3 right-3 z-20 bg-black/20 backdrop-blur-sm rounded-full px-2 py-1 text-xs text-white">
+                              <div className="absolute top-3 right-3 z-20 bg-white/20 backdrop-blur-md rounded-full px-2.5 py-1 text-xs text-white border border-white/30">
                                 {(currentImageIndex[post.id] || 0) + 1} /{" "}
                                 {post.image_urls.length}
                               </div>
                             )}
                           </div>
                         ) : (
-                          <div className="h-80 lg:h-full min-h-[400px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                            <div className="text-center text-gray-400">
+                          <div className="h-80 lg:h-full min-h-[360px] rounded-2xl bg-gradient-to-br from-white/60 to-slate-100/80 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                            <div className="text-center text-slate-400">
                               <svg
                                 className="w-12 h-12 mx-auto mb-2"
                                 fill="none"
@@ -1150,10 +1309,10 @@ export default function Blog() {
                       </div>
 
                       {/* Right side - Content */}
-                      <div className="p-8 flex flex-col justify-between">
+                      <div className="p-8 pl-6 flex flex-col justify-between">
                         <div className="space-y-2">
-                          {/* Date and Reading Time */}
-                          <div className="flex items-center gap-2 text-gray-500 text-sm">
+                          {/* Date, Reading Time, Comments */}
+                          <div className="flex items-center gap-2 text-slate-500 text-sm flex-wrap">
                             <span className="font-medium">
                               {formatDate(post.event_date)}
                             </span>
@@ -1161,17 +1320,37 @@ export default function Blog() {
                             <span>
                               {Math.ceil(post.content.length / 450)} minute read
                             </span>
+                            <span>•</span>
+                            <button
+                              onClick={() => openCommentsPanel(post)}
+                              className="inline-flex items-center gap-1.5 hover:cursor-pointer hover:text-teal-600 transition-colors rounded-full px-2 py-0.5 hover:bg-teal-500/10"
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                                />
+                              </svg>
+                              <span>{commentCounts[post.id] ?? 0} comments</span>
+                            </button>
                           </div>
 
                           {/* Title with Edit Button */}
                           <div className="flex items-start justify-between gap-4">
-                            <h2 className="text-5xl font-light text-gray-900 leading-tight flex-1 group-hover:text-[#007377] transition-colors">
+                            <h2 className="text-5xl font-light text-slate-900 leading-tight flex-1 group-hover:text-teal-600 transition-colors">
                               {post.title}
                             </h2>
                             {canManageBlog && (
                               <button
                                 onClick={() => startEditingPost(post)}
-                                className="flex-shrink-0 w-8 h-8 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-300/30 hover:border-blue-400/50 rounded-lg transition-all duration-200 flex items-center justify-center group"
+                                className="flex-shrink-0 w-8 h-8 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-300/30 hover:border-blue-400/50 rounded-xl transition-all duration-200 flex items-center justify-center group backdrop-blur-sm"
                                 title="Edit post"
                               >
                                 <svg
@@ -1194,22 +1373,22 @@ export default function Blog() {
                           {/* Content */}
                           <div className="space-y-3">
                             <div className="relative">
-                              <p className="text-gray-600 leading-relaxed whitespace-pre-wrap italic font-light">
+                              <p className="text-slate-600 leading-relaxed whitespace-pre-wrap italic font-light">
                                 {truncatedContent}
                               </p>
                               {/* Fade gradient overlay */}
                               {needsTruncation && (
-                                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
+                                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/90 via-white/50 to-transparent pointer-events-none" />
                               )}
                             </div>
 
                             {/* See More Button */}
                             {needsTruncation && (
                               <div className="pt-0">
-                                <div className="border-t border-gray-400 mb-2"></div>
+                                <div className="border-t border-slate-200 mb-2"></div>
                                 <button
                                   onClick={() => openModal(post)}
-                                  className="inline-flex items-center gap-1 text-[#007377] hover:text-[#005c60] font-medium transition-all duration-200 group text-sm"
+                                  className="inline-flex items-center gap-1 text-teal-600 hover:text-teal-700 font-medium hover:cursor-pointer transition-all duration-200 group text-sm rounded-full px-3 py-1.5 hover:bg-teal-500/10"
                                 >
                                   <span>Read More</span>
                                   <svg
@@ -1235,6 +1414,22 @@ export default function Blog() {
                   </article>
                 );
               })}
+
+              {/* Infinite scroll sentinel - triggers load more when visible */}
+              {!loading && hasMore && (
+                <div
+                  ref={loadMoreSentinelRef}
+                  className="h-4 flex items-center justify-center py-8"
+                  aria-hidden="true"
+                >
+                  {loadingMore && (
+                    <div className="flex items-center gap-2 text-slate-500">
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-teal-500/30 border-t-teal-500" />
+                      <span className="text-sm">Loading more posts...</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1364,6 +1559,126 @@ export default function Blog() {
                   )
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Comments Panel */}
+      {commentsPanelPost && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={closeCommentsPanel}
+          />
+          <div className="relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-[#007377]/10 rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-4 h-4 text-[#007377]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">
+                    Comments on &ldquo;{commentsPanelPost.title}&rdquo;
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {(commentCounts[commentsPanelPost.id] ?? comments.length) || 0} comment
+                    {(commentCounts[commentsPanelPost.id] ?? comments.length) !== 1 ? "s" : ""}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={closeCommentsPanel}
+                className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+              >
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+              {loadingComments ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007377]" />
+                </div>
+              ) : comments.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">
+                  No comments yet. Be the first to share your thoughts!
+                </p>
+              ) : (
+                comments.map((c) => (
+                  <div
+                    key={c.id}
+                    className="bg-gray-50 rounded-lg p-3 border border-gray-100"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium text-gray-900 text-sm">
+                        {c.author_name}
+                      </span>
+                      <span className="text-gray-400 text-xs">
+                        {formatDate(c.created_at)}
+                      </span>
+                    </div>
+                    <p className="text-gray-600 text-sm whitespace-pre-wrap">
+                      {c.content}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="p-4 border-t border-gray-200 flex-shrink-0">
+              {user ? (
+                <form onSubmit={handleSubmitComment} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={commentInput}
+                    onChange={(e) => setCommentInput(e.target.value)}
+                    placeholder="Write a comment..."
+                    maxLength={1000}
+                    disabled={submittingComment}
+                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#007377] focus:border-[#007377] text-sm disabled:opacity-60"
+                  />
+                  <button
+                    type="submit"
+                    disabled={submittingComment || !commentInput.trim()}
+                    className="px-4 py-2.5 bg-[#007377] hover:bg-[#005c60] text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {submittingComment ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    ) : (
+                      "Post"
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <p className="text-gray-500 text-sm text-center py-2">
+                  Sign in to add a comment
+                </p>
+              )}
             </div>
           </div>
         </div>
