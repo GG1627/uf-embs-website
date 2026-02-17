@@ -1376,10 +1376,6 @@ export default function Blog() {
                               <p className="text-slate-600 leading-relaxed whitespace-pre-wrap italic font-light">
                                 {truncatedContent}
                               </p>
-                              {/* Fade gradient overlay */}
-                              {needsTruncation && (
-                                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/90 via-white/50 to-transparent pointer-events-none" />
-                              )}
                             </div>
 
                             {/* See More Button */}
