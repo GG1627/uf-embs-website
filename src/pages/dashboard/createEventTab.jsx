@@ -187,6 +187,135 @@ export default function CreateEventTab() {
     }
   };
 
+  // Simple string similarity check (Dice's coefficient)
+  const stringSimilarity = (a, b) => {
+    const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const s1 = normalize(a);
+    const s2 = normalize(b);
+    if (s1 === s2) return 1;
+    if (s1.length < 2 || s2.length < 2) return 0;
+
+    const bigrams = new Map();
+    for (let i = 0; i < s1.length - 1; i++) {
+      const pair = s1.substring(i, i + 2);
+      bigrams.set(pair, (bigrams.get(pair) || 0) + 1);
+    }
+
+    let matches = 0;
+    for (let i = 0; i < s2.length - 1; i++) {
+      const pair = s2.substring(i, i + 2);
+      const count = bigrams.get(pair) || 0;
+      if (count > 0) {
+        bigrams.set(pair, count - 1);
+        matches++;
+      }
+    }
+    return (2 * matches) / (s1.length - 1 + (s2.length - 1));
+  };
+
+  // Check Google Calendar for duplicates, then create if none found
+  const checkAndCreateGoogleCalendarEvent = async (
+    name, date, startTime, endTime, desc, loc
+  ) => {
+    const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+    const CALENDAR_ID = import.meta.env.VITE_CALENDAR_ID;
+
+    if (!API_KEY || !CALENDAR_ID) {
+      console.warn("Missing Google Calendar API key or Calendar ID");
+      return "error";
+    }
+
+    try {
+      // Fetch events for that specific day
+      const dayStart = `${date}T00:00:00-05:00`;
+      const dayEnd = `${date}T23:59:59-05:00`;
+
+      const params = new URLSearchParams({
+        key: API_KEY,
+        singleEvents: "true",
+        timeMin: new Date(dayStart).toISOString(),
+        timeMax: new Date(dayEnd).toISOString(),
+      });
+
+      const res = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
+          CALENDAR_ID
+        )}/events?${params}`
+      );
+
+      if (!res.ok) {
+        console.error("Error fetching calendar events for duplicate check");
+        // If we can't check, go ahead and create anyway
+        return await createGoogleCalendarEvent(name, date, startTime, endTime, desc, loc);
+      }
+
+      const data = await res.json();
+      const existingEvents = data.items || [];
+
+      // Check if any existing event is similar (60%+ name match)
+      const isDuplicate = existingEvents.some(
+        (event) => stringSimilarity(event.summary || "", name) >= 0.6
+      );
+
+      if (isDuplicate) {
+        console.log("Similar event found in Google Calendar, skipping creation");
+        return "skipped";
+      }
+
+      // No duplicate found — create the event
+      return await createGoogleCalendarEvent(name, date, startTime, endTime, desc, loc);
+    } catch (err) {
+      console.error("Duplicate check error:", err);
+      // If duplicate check fails, still try to create
+      return await createGoogleCalendarEvent(name, date, startTime, endTime, desc, loc);
+    }
+  };
+
+  // Create event in Google Calendar via edge function
+  const createGoogleCalendarEvent = async (
+    name, date, startTime, endTime, desc, loc
+  ) => {
+    try {
+      const gcalRes = await supabase.functions.invoke(
+        "create-google-calendar-event",
+        {
+          body: {
+            name,
+            date,
+            startTime,
+            endTime,
+            description: desc || "",
+            location: loc || "",
+          },
+        }
+      );
+
+      if (gcalRes.error || (gcalRes.data && !gcalRes.data.ok)) {
+        console.error(
+          "Google Calendar error:",
+          gcalRes.error || gcalRes.data?.error
+        );
+        showSnackbar("Event added but failed to sync to Google Calendar", {
+          customColor: "#f59e0b",
+        });
+        return "error";
+      }
+
+      // Clear Google Calendar cache so the new event shows up immediately
+      localStorage.removeItem("google_calendar_events");
+      showSnackbar("Event added & synced to Google Calendar!", {
+        customColor: "#007377",
+      });
+      return "created";
+    } catch (gcalErr) {
+      console.error("Google Calendar sync error:", gcalErr);
+      showSnackbar("Event added but failed to sync to Google Calendar", {
+        customColor: "#f59e0b",
+      });
+      return "error";
+    }
+  };
+
   // Function to add event to database
   const addEvent = async (e) => {
     e.preventDefault();
@@ -236,40 +365,23 @@ export default function CreateEventTab() {
     } else {
       console.log(data);
 
-      // Also create event in Google Calendar
-      try {
-        const gcalRes = await supabase.functions.invoke(
-          "create-google-calendar-event",
-          {
-            body: {
-              name: eventName,
-              date: eventDate,
-              startTime: eventStartTime,
-              endTime: eventEndTime,
-              description: description || "",
-              location: location || "",
-            },
-          }
-        );
+      // Check for duplicate in Google Calendar before creating
+      const shouldCreateInCalendar = await checkAndCreateGoogleCalendarEvent(
+        eventName,
+        eventDate,
+        eventStartTime,
+        eventEndTime,
+        description,
+        location
+      );
 
-        if (gcalRes.error || (gcalRes.data && !gcalRes.data.ok)) {
-          console.error("Google Calendar error:", gcalRes.error || gcalRes.data?.error);
-          showSnackbar("Event added but failed to sync to Google Calendar", {
-            customColor: "#f59e0b",
-          });
-        } else {
-          // Clear Google Calendar cache so the new event shows up immediately
-          localStorage.removeItem("google_calendar_events");
-          showSnackbar("Event added & synced to Google Calendar!", {
-            customColor: "#007377",
-          });
-        }
-      } catch (gcalErr) {
-        console.error("Google Calendar sync error:", gcalErr);
-        showSnackbar("Event added but failed to sync to Google Calendar", {
-          customColor: "#f59e0b",
-        });
+      if (shouldCreateInCalendar === "skipped") {
+        showSnackbar(
+          "Event saved — similar event already in Google Calendar, skipping calendar creation",
+          { customColor: "#f59e0b" }
+        );
       }
+
       setEventName("");
       setEventDate("");
       setEventPoints("");
