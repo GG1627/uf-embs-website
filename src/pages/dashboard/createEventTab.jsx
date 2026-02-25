@@ -235,7 +235,41 @@ export default function CreateEventTab() {
       showSnackbar("Error adding event", { customColor: "#dc2626" });
     } else {
       console.log(data);
-      showSnackbar("Event added successfully", { customColor: "#007377" });
+
+      // Also create event in Google Calendar
+      try {
+        const gcalRes = await supabase.functions.invoke(
+          "create-google-calendar-event",
+          {
+            body: {
+              name: eventName,
+              date: eventDate,
+              startTime: eventStartTime,
+              endTime: eventEndTime,
+              description: description || "",
+              location: location || "",
+            },
+          }
+        );
+
+        if (gcalRes.error || (gcalRes.data && !gcalRes.data.ok)) {
+          console.error("Google Calendar error:", gcalRes.error || gcalRes.data?.error);
+          showSnackbar("Event added but failed to sync to Google Calendar", {
+            customColor: "#f59e0b",
+          });
+        } else {
+          // Clear Google Calendar cache so the new event shows up immediately
+          localStorage.removeItem("google_calendar_events");
+          showSnackbar("Event added & synced to Google Calendar!", {
+            customColor: "#007377",
+          });
+        }
+      } catch (gcalErr) {
+        console.error("Google Calendar sync error:", gcalErr);
+        showSnackbar("Event added but failed to sync to Google Calendar", {
+          customColor: "#f59e0b",
+        });
+      }
       setEventName("");
       setEventDate("");
       setEventPoints("");
