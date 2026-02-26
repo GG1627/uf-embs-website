@@ -49,6 +49,30 @@
   display: none;
 }
 
+/* Dark scrollbar for dark-background containers */
+.scrollbar-dark::-webkit-scrollbar {
+  width: 5px;
+}
+
+.scrollbar-dark::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 99px;
+}
+
+.scrollbar-dark::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 99px;
+  transition: background 0.2s ease;
+}
+
+.scrollbar-dark::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.scrollbar-dark::-webkit-scrollbar-button {
+  display: none;
+}
+
 /* index.css */
 .backface-hidden {
   backface-visibility: hidden;

@@ -16,5 +16,7 @@ export const adminEmails = [
   
   "k.phy@ufl.edu",
   "f.mastantuono@ufl.edu",
-  "salma.ouaakki@ufl.edu"
+  "salma.ouaakki@ufl.edu",
+
+  "maymansy@ufl.edu",
 ];

@@ -4,6 +4,9 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import RadioGroup from "@mui/material/RadioGroup";
+import Radio from "@mui/material/Radio";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { PieChart } from "@mui/x-charts/PieChart";
@@ -12,6 +15,7 @@ import { ChartsYAxis } from "@mui/x-charts";
 import { useDrawingArea } from "@mui/x-charts/hooks";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
+import { RiRobot3Line } from "react-icons/ri";
 
 import React from "react";
 import { useState, useEffect, useRef } from "react";
@@ -49,6 +53,19 @@ const eventsColumns = [
     align: "left",
     headerAlign: "left",
     editable: true,
+  },
+  {
+    field: "cost",
+    headerName: "Cost ($)",
+    type: "number",
+    flex: 1,
+    align: "left",
+    headerAlign: "left",
+    editable: true,
+    valueFormatter: (value) => {
+      if (value === null || value === undefined) return "$0.00";
+      return `$${Number(value).toFixed(2)}`;
+    },
   },
   {
     field: "date",
@@ -134,6 +151,34 @@ const membersColumns = [
 
 // Events data will be fetched from Supabase
 
+// Helper functions for academic year filtering
+const getCurrentAcademicYear = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0-indexed, August = 7
+  if (month >= 7) return `${year}-${year + 1}`;
+  return `${year - 1}-${year}`;
+};
+
+// update this in the future for setting academic year
+const getAcademicYearOptions = () => {
+  const current = getCurrentAcademicYear();
+  const startYear = parseInt(current.split("-")[0]);
+  return [
+    `${startYear}-${startYear + 1}`,
+  ];
+};
+
+const getDateRange = (academicYear, semester) => {
+  const [startYear, endYear] = academicYear.split("-").map(Number);
+  if (semester === "fall") {
+    return { startDate: `${startYear}-08-01`, endDate: `${startYear}-12-31` };
+  } else if (semester === "spring") {
+    return { startDate: `${endYear}-01-01`, endDate: `${endYear}-07-31` };
+  }
+  return { startDate: `${startYear}-08-01`, endDate: `${endYear}-07-31` };
+};
+
 export default function StatsTab() {
   const [category, setCategory] = React.useState("events");
   const [membersData, setMembersData] = useState([]);
@@ -154,6 +199,10 @@ export default function StatsTab() {
   const chartContainerRef = useRef(null);
   const [upcomingEventsPredictions, setUpcomingEventsPredictions] = useState([]);
   const [loadingPredictions, setLoadingPredictions] = useState(false);
+
+  // Academic year and semester filter
+  const [academicYear, setAcademicYear] = useState(getCurrentAcademicYear());
+  const [selectedSemester, setSelectedSemester] = useState(null);
 
   const handleChange = (event) => {
     setCategory(event.target.value);
@@ -255,13 +304,58 @@ export default function StatsTab() {
     downloadCSV(data, filename.replace(".csv", ".xlsx"));
   };
 
+  // Download member info (uses already-filtered membersData)
+  const downloadMembers = (format) => {
+    if (!membersData || membersData.length === 0) {
+      alert("No member data to download.");
+      return;
+    }
+
+    const semesterLabel = selectedSemester
+      ? `_${selectedSemester}_${selectedSemester === "fall" ? academicYear.split("-")[0] : academicYear.split("-")[1]}`
+      : `_${academicYear}`;
+    const filename = `members${semesterLabel}`;
+
+    if (format === "TXT") {
+      const txtContent = membersData
+        .map((m) => `${m.name || ""} | ${m.email || ""} | Points: ${m.points ?? 0} | National: ${m.national_member === "yes" ? "Yes" : "No"}`)
+        .join("\n");
+      const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${filename}.txt`;
+      link.click();
+    } else if (format === "EXCEL") {
+      const headers = ["Name", "Email", "Points", "National Member"];
+      const csvContent = [
+        headers.join(","),
+        ...membersData.map((m) =>
+          [
+            `"${m.name || ""}"`,
+            `"${m.email || ""}"`,
+            m.points ?? 0,
+            `"${m.national_member === "yes" ? "Yes" : "No"}"`,
+          ].join(",")
+        ),
+      ].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${filename}.xlsx`;
+      link.click();
+    }
+  };
+
   // Fetch events data from Supabase with attendee counts
   const fetchEventsData = async () => {
     try {
       setLoadingEvents(true);
+      const { startDate, endDate } = getDateRange(academicYear, selectedSemester);
       const { data: events, error: eventsError } = await supabase
         .from("events")
-        .select("id, name, date, points, code, event_type, food_present")
+        .select("id, name, date, points, code, event_type, food_present, cost")
+        .gte("date", startDate)
+        .lte("date", endDate)
         .order("date", { ascending: false });
 
       if (eventsError) {
@@ -312,16 +406,20 @@ export default function StatsTab() {
   const fetchMembersData = async () => {
     try {
       setLoadingMembers(true);
-      const { data, error } = await supabase
-        .from("members")
-        .select("id, first_name, last_name, email, points, national_member")
-        .order("points", { ascending: false });
+      const { startDate, endDate } = getDateRange(academicYear, selectedSemester);
+
+      const { data, error } = await supabase.rpc(
+        "get_members_with_filtered_points",
+        {
+          start_date: new Date(startDate).toISOString(),
+          end_date: new Date(endDate + "T23:59:59").toISOString(),
+        }
+      );
 
       if (error) {
         console.error("Error fetching members:", error);
         setMembersData([]);
       } else {
-        // Transform data to include computed name field
         const transformedData = (data || []).map((member) => ({
           ...member,
           name: `${member.first_name || ""} ${member.last_name || ""}`.trim(),
@@ -342,9 +440,12 @@ export default function StatsTab() {
       setLoadingCharts(true);
       
       // Fetch events with attendance data
+      const { startDate, endDate } = getDateRange(academicYear, selectedSemester);
       const { data: events, error: eventsError } = await supabase
         .from("events")
         .select("id, name, date, event_type, food_present")
+        .gte("date", startDate)
+        .lte("date", endDate)
         .order("date", { ascending: true });
 
       if (eventsError) {
@@ -439,12 +540,34 @@ export default function StatsTab() {
       console.log("Event Type Analysis Data:", eventTypeAnalysis);
       console.log("Type Stats:", typeStats);
 
-      // 4. Member count over time (simulated - would need member registration dates)
-      const memberCountData = eventsWithAttendance.map((event, index) => ({
-        date: event.date,
-        memberCount: Number(50 + (index * 5) + Math.floor(Math.random() * 10)) || 0 // Simulated growth
-      }));
-      setMemberCountOverTimeData(memberCountData);
+      // 4. Member count over time — real cumulative growth from members.created_at
+      const { data: membersRaw, error: membersError } = await supabase
+        .from("members")
+        .select("created_at")
+        .order("created_at", { ascending: true });
+
+      if (!membersError && membersRaw && membersRaw.length > 0) {
+        // Build cumulative count: one data point per unique date
+        const countByDate = {};
+        membersRaw.forEach((m) => {
+          const day = m.created_at
+            ? new Date(m.created_at).toISOString().split("T")[0]
+            : null;
+          if (day) countByDate[day] = (countByDate[day] || 0) + 1;
+        });
+
+        let cumulative = 0;
+        const memberCountData = Object.entries(countByDate)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([day, count]) => {
+            cumulative += count;
+            return { date: new Date(day), memberCount: cumulative };
+          });
+
+        setMemberCountOverTimeData(memberCountData);
+      } else {
+        setMemberCountOverTimeData([]);
+      }
 
     } catch (error) {
       console.error("Error fetching charts data:", error);
@@ -491,27 +614,45 @@ export default function StatsTab() {
     }
   };
 
-  // Fetch upcoming events with AI predictions
+  // Fetch all events with AI predictions (past and future)
   const fetchUpcomingEventsPredictions = async () => {
     try {
       setLoadingPredictions(true);
-      const currentTime = new Date().toISOString();
+      const { startDate, endDate } = getDateRange(academicYear, selectedSemester);
 
       const { data: events, error } = await supabase
         .from("events")
         .select("id, name, date, start_time, end_time, points, code, event_type, predicted_attendance")
-        .gt("start_time", currentTime)
-        .order("start_time", { ascending: true });
+        .gte("date", startDate)
+        .lte("date", endDate)
+        .gt("predicted_attendance", 0)
+        .order("start_time", { ascending: false });
 
       if (error) {
-        console.error("Error fetching upcoming events predictions:", error);
+        console.error("Error fetching events predictions:", error);
         setUpcomingEventsPredictions([]);
         return;
       }
 
-      setUpcomingEventsPredictions(events || []);
+      // Fetch actual attendance counts for each event
+      const now = new Date();
+      const eventsWithActual = await Promise.all(
+        (events || []).map(async (event) => {
+          const isPast = new Date(event.start_time) < now;
+          if (!isPast) return { ...event, actual_attendance: null, is_past: false };
+
+          const { count } = await supabase
+            .from("event_attendance")
+            .select("*", { count: "exact", head: true })
+            .eq("event_id", event.id);
+
+          return { ...event, actual_attendance: count || 0, is_past: true };
+        })
+      );
+
+      setUpcomingEventsPredictions(eventsWithActual);
     } catch (error) {
-      console.error("Error fetching upcoming events predictions:", error);
+      console.error("Error fetching events predictions:", error);
       setUpcomingEventsPredictions([]);
     } finally {
       setLoadingPredictions(false);
@@ -550,7 +691,7 @@ export default function StatsTab() {
     };
   }, [category, selectedChart]);
 
-  // Fetch data when component mounts or category changes
+  // Fetch data when component mounts or filters change
   useEffect(() => {
     if (category === "members") {
       fetchMembersData();
@@ -562,7 +703,7 @@ export default function StatsTab() {
     } else if (category === "ai-predictions") {
       fetchUpcomingEventsPredictions();
     }
-  }, [category]);
+  }, [category, academicYear, selectedSemester]);
 
   // Get current data based on selection
   const getCurrentData = () => {
@@ -600,9 +741,38 @@ export default function StatsTab() {
       <div className="h-[calc(100vh-6.5rem)] flex flex-col overflow-hidden p-2">
         <div className="bg-[#000000]/0 rounded-xl flex-1 flex gap-3 p-2 overflow-hidden">
           <div className="bg-[#000000]/50 flex-[0.8] rounded-3xl p-4 flex flex-col overflow-hidden">
-            <h1 className="text-4xl font-bold italic text-[#8ed8f8] mb-2 flex-shrink-0">
-              {currentData.title}
-            </h1>
+            <div className="flex items-center justify-between mb-2 flex-shrink-0">
+              <h1 className="text-4xl font-bold italic text-[#8ed8f8]">
+                {currentData.title}
+              </h1>
+              {(category === "events" || category === "members" || category === "charts" || category === "ai-predictions") && (
+                <a
+                  href="https://drive.google.com/drive/folders/19__MFdwXfXCmIwoJ2Y4z2P1xdTxnjCGp?usp=drive_link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-gray-100 border border-gray-200 text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+                >
+                  {/* Google Drive logo */}
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 87.3 78" className="w-5 h-5 flex-shrink-0">
+                    <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0a15.92 15.92 0 001.95 8z" fill="#0066da"/>
+                    <path d="M43.65 25L29.9 1.2a15.4 15.4 0 00-3.3 3.3L1.95 48.55A15.92 15.92 0 000 56.5h27.5z" fill="#00ac47"/>
+                    <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25a15.92 15.92 0 001.95-8H60.8l5.85 11.65z" fill="#ea4335"/>
+                    <path d="M43.65 25L57.4 1.2C56.05.45 54.5 0 52.85 0H34.45c-1.65 0-3.2.45-4.55 1.2z" fill="#00832d"/>
+                    <path d="M60.8 56.5H27.5L13.75 80.1c1.35.75 2.9 1.2 4.55 1.2h50.7c1.65 0 3.2-.45 4.55-1.2z" fill="#2684fc"/>
+                    <path d="M73.4 26.45l-13-22.55a15.4 15.4 0 00-3.3-3.3L43.65 25l16.85 31.5H87.3a15.92 15.92 0 00-1.95-8z" fill="#ffba00"/>
+                  </svg>
+                  <span className="font-semibold tracking-tight">
+                    <span style={{ color: '#4285F4' }}>G</span>
+                    <span style={{ color: '#EA4335' }}>o</span>
+                    <span style={{ color: '#FBBC05' }}>o</span>
+                    <span style={{ color: '#4285F4' }}>g</span>
+                    <span style={{ color: '#34A853' }}>l</span>
+                    <span style={{ color: '#EA4335' }}>e</span>
+                    <span style={{ color: '#111827' }}> Drive</span>
+                  </span>
+                </a>
+              )}
+            </div>
             <div className="w-full h-px bg-white mb-2"></div>
             <div className="flex-1 min-h-0 w-full overflow-hidden">
               {category === "ai-predictions" ? (
@@ -617,27 +787,15 @@ export default function StatsTab() {
                         </div>
                       </div>
                     ) : upcomingEventsPredictions.length > 0 ? (
-                      <div className="space-y-4 overflow-y-auto">
+                      <div className="space-y-4 overflow-y-auto scrollbar-dark">
                         <div className="mb-6 flex-shrink-0">
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 bg-gradient-to-br from-white/20 to-white/10 rounded-xl flex items-center justify-center border border-white/30">
-                              <svg
-                                className="w-5 h-5 text-white"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                                />
-                              </svg>
+                              <RiRobot3Line className="h-5 w-5 text-white"/>
                             </div>
                             <h3 className="text-white text-2xl font-semibold">AI Predictions</h3>
                           </div>
-                          <p className="text-gray-400 text-sm ml-[52px]">Machine learning predictions for upcoming event attendance</p>
+                          <p className="text-gray-400 text-sm ml-[52px]">Machine learning predictions vs actual attendance</p>
                         </div>
                         <div className="space-y-3">
                         {upcomingEventsPredictions.map((event) => (
@@ -716,14 +874,42 @@ export default function StatsTab() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="flex-shrink-0">
-                                <div className="bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-sm border border-white/30 rounded-xl p-4 min-w-[120px] text-center shadow-lg">
-                                  <p className="text-gray-300 text-xs font-medium mb-1 uppercase tracking-wide">Prediction</p>
-                                  <p className="text-3xl font-bold text-white mb-1">
-                                    {event.predicted_attendance || 0}
-                                  </p>
-                                  <p className="text-gray-400 text-xs">attendees</p>
-                                </div>
+                              <div className="flex-shrink-0 flex flex-col gap-2">
+                                {event.is_past ? (
+                                  <>
+                                    <div className="flex gap-2">
+                                      <div className="bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-sm border border-white/30 rounded-xl p-3 min-w-[90px] text-center shadow-lg">
+                                        <p className="text-gray-300 text-xs font-medium mb-1 uppercase tracking-wide">Predicted</p>
+                                        <p className="text-2xl font-bold text-white mb-1">{event.predicted_attendance || 0}</p>
+                                        <p className="text-gray-400 text-xs">attendees</p>
+                                      </div>
+                                      <div className="bg-gradient-to-br from-[#8ed8f8]/20 to-[#8ed8f8]/10 backdrop-blur-sm border border-[#8ed8f8]/30 rounded-xl p-3 min-w-[90px] text-center shadow-lg">
+                                        <p className="text-[#8ed8f8] text-xs font-medium mb-1 uppercase tracking-wide">Actual</p>
+                                        <p className="text-2xl font-bold text-white mb-1">{event.actual_attendance}</p>
+                                        <p className="text-gray-400 text-xs">attendees</p>
+                                      </div>
+                                    </div>
+                                    {/* Accuracy badge */}
+                                    {(() => {
+                                      const pred = event.predicted_attendance || 0;
+                                      const actual = event.actual_attendance;
+                                      if (pred === 0) return null;
+                                      const accuracy = Math.max(0, Math.round((1 - Math.abs(actual - pred) / pred) * 100));
+                                      const color = accuracy >= 80 ? "text-green-400 border-green-400/30 bg-green-400/10" : accuracy >= 60 ? "text-yellow-400 border-yellow-400/30 bg-yellow-400/10" : "text-red-400 border-red-400/30 bg-red-400/10";
+                                      return (
+                                        <div className={`border rounded-lg px-3 py-1.5 text-center text-xs font-semibold ${color}`}>
+                                          {accuracy}% accurate
+                                        </div>
+                                      );
+                                    })()}
+                                  </>
+                                ) : (
+                                  <div className="bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-sm border border-white/30 rounded-xl p-4 min-w-[120px] text-center shadow-lg">
+                                    <p className="text-gray-300 text-xs font-medium mb-1 uppercase tracking-wide">Prediction</p>
+                                    <p className="text-3xl font-bold text-white mb-1">{event.predicted_attendance || 0}</p>
+                                    <p className="text-gray-400 text-xs">attendees</p>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -748,8 +934,8 @@ export default function StatsTab() {
                               />
                             </svg>
                           </div>
-                          <p className="text-white text-lg mb-2">No Upcoming Events</p>
-                          <p className="text-gray-400 text-sm">Create events to see AI predictions</p>
+                          <p className="text-white text-lg mb-2">No Events with Predictions</p>
+                          <p className="text-gray-400 text-sm">Run the AI model on events to see predictions here</p>
                         </div>
                       </div>
                     )}
@@ -1116,7 +1302,7 @@ export default function StatsTab() {
                   </div>
 
                   {/* Right side - Pie Chart (1/3 width) */}
-                  <div className="flex-[1] bg-gradient-to-br from-gray-900/50 to-gray-800/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex flex-col">
+                  <div className="flex-[1] bg-gradient-to-br from-gray-900/50 to-gray-800/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex flex-col overflow-y-auto scrollbar-dark">
                     <h3 className="text-white text-xl font-semibold mb-6 text-center tracking-tight">Major Distribution</h3>
                     <div className="flex-1 flex items-center justify-center">
                       {majorDistributionData.length > 0 ? (
@@ -1134,7 +1320,15 @@ export default function StatsTab() {
                                   '#C79AA9', // Dusty Rose
                                   '#8B7B6A', // Smoky Taupe
                                   '#2F3A4A', // Deep Slate Accent
-                                  '#A9B3C2', // Muted Cool Silver-Blue (new)
+                                  '#A9B3C2', // Muted Cool Silver-Blue
+                                  '#B8C9A3', // Sage Green
+                                  '#D4C5A9', // Warm Sand
+                                  '#7A8FA6', // Slate Teal
+                                  '#C2A8BF', // Lavender Mauve
+                                  '#A3B8B0', // Muted Seafoam
+                                  '#D6B89A', // Soft Terracotta
+                                  '#6E7B8B', // Denim Gray
+                                  '#BDB5A6', // Warm Greige
                                 ];                                
                                          
                                 const colorIndex = index % colors.length;
@@ -1299,13 +1493,13 @@ export default function StatsTab() {
             </div>
           </div>
           {/* RIGHT SIDEBAR */}
-          <div className="bg-[#000000]/50 flex-[0.2] rounded-3xl p-4 space-y-6">
+          <div className="bg-[#000000]/50 flex-[0.2] rounded-3xl p-4 space-y-3 overflow-y-auto scrollbar-dark">
             {/* Filter Section */}
             <div className="mt-3">
               <h2 className="text-xl font-bold text-white mb-2">
                 Filter by Category
               </h2>
-              <div className="w-full h-px bg-white mb-4"></div>
+              <div className="w-full h-[1px] bg-white mb-4"></div>
               <Box sx={{ minWidth: 120 }}>
                 <FormControl fullWidth>
                   <InputLabel
@@ -1350,6 +1544,109 @@ export default function StatsTab() {
               </Box>
             </div>
 
+            {/* Academic Year Filter */}
+            <div>
+              <h2 className="text-xl font-bold text-white mb-2">
+                Academic Year
+              </h2>
+              <div className="w-full h-[1px] bg-white mb-4"></div>
+              <Box sx={{ minWidth: 120 }}>
+                <FormControl fullWidth>
+                  <InputLabel
+                    id="academic-year-label"
+                    sx={{
+                      color: "white",
+                      "&.Mui-focused": {
+                        color: "white",
+                      },
+                    }}
+                  >
+                    Year
+                  </InputLabel>
+                  <Select
+                    labelId="academic-year-label"
+                    id="academic-year-select"
+                    value={academicYear}
+                    label="Year"
+                    onChange={(e) => setAcademicYear(e.target.value)}
+                    sx={{
+                      color: "white",
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "white",
+                      },
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "white",
+                      },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "white",
+                      },
+                      "& .MuiSelect-icon": {
+                        color: "white",
+                      },
+                    }}
+                  >
+                    {getAcademicYearOptions().map((year) => (
+                      <MenuItem key={year} value={year}>
+                        {year}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+
+              {/* Semester Radio Group */}
+              <div className="mt-4">
+                <FormControl component="fieldset">
+                  <RadioGroup
+                    value={selectedSemester || ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSelectedSemester(value === selectedSemester ? null : value);
+                    }}
+                  >
+                    <FormControlLabel
+                      value="spring"
+                      control={
+                        <Radio
+                          sx={{
+                            color: "rgba(255,255,255,0.5)",
+                            "&.Mui-checked": { color: "#8ed8f8" },
+                          }}
+                          onClick={() => {
+                            if (selectedSemester === "spring") setSelectedSemester(null);
+                          }}
+                        />
+                      }
+                      label={
+                        <span className="text-white text-sm">
+                          Spring {academicYear.split("-")[1]}
+                        </span>
+                      }
+                    />
+                    <FormControlLabel
+                      value="fall"
+                      control={
+                        <Radio
+                          sx={{
+                            color: "rgba(255,255,255,0.5)",
+                            "&.Mui-checked": { color: "#8ed8f8" },
+                          }}
+                          onClick={() => {
+                            if (selectedSemester === "fall") setSelectedSemester(null);
+                          }}
+                        />
+                      }
+                      label={
+                        <span className="text-white text-sm">
+                          Fall {academicYear.split("-")[0]}
+                        </span>
+                      }
+                    />
+                  </RadioGroup>
+                </FormControl>
+              </div>
+            </div>
+
             {/* Download Section - Only show for Events */}
             {category === "events" && (
               <div>
@@ -1366,6 +1663,30 @@ export default function StatsTab() {
                   </button>
                   <button
                     onClick={() => downloadAttendees("EXCEL")}
+                    className="w-full px-4 py-2 bg-[#121212]/90 hover:bg-[#121212] text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#00A3AD] focus:ring-offset-2 hover:cursor-pointer"
+                  >
+                    EXCEL
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Download Members - Only show for Members */}
+            {category === "members" && (
+              <div>
+                <h2 className="text-xl font-bold text-white mb-2">
+                  Download Members
+                </h2>
+                <div className="w-full h-px bg-white mb-4"></div>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => downloadMembers("TXT")}
+                    className="w-full px-4 py-2 bg-[#121212]/90 hover:bg-[#121212] text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#00A3AD] focus:ring-offset-2 hover:cursor-pointer"
+                  >
+                    TXT
+                  </button>
+                  <button
+                    onClick={() => downloadMembers("EXCEL")}
                     className="w-full px-4 py-2 bg-[#121212]/90 hover:bg-[#121212] text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#00A3AD] focus:ring-offset-2 hover:cursor-pointer"
                   >
                     EXCEL
@@ -1455,7 +1776,7 @@ export default function StatsTab() {
                 <div className="space-y-4">
                   <div className="bg-gradient-to-br from-white/20 to-white/10 border border-white/30 rounded-lg p-3">
                     <div className="text-sm text-gray-300 mb-1">
-                      Upcoming Events
+                      Events with Predictions
                     </div>
                     <div className="text-2xl font-bold text-white">
                       {upcomingEventsPredictions.length}
