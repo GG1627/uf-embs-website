@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 md:gap-16 lg:gap-20">
             {/* Brand Section - Wider on desktop */}
             <div className="col-span-1 md:col-span-2 lg:col-span-2">
-              <h2 className="text-[28px] md:text-[32px] font-semibold text-white mb-5 tracking-[-0.02em]">
+              <h2 className="text-[28px] md:text-[32px] font-semibold text-white mb-5 tracking-[-0.02em]" style={{ fontFamily: "'Georgia', serif" }}>
                 UF EMBS
               </h2>
               <p className="text-white/60 text-[15px] leading-[1.6] mb-8 max-w-sm font-light">
