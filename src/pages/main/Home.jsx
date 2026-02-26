@@ -21,18 +21,9 @@ import Image12 from "../../assets/grid/img12.avif";
 
 import { IoIosArrowDown } from "react-icons/io";
 import { useEffect, memo, useMemo, useCallback, useRef } from "react";
-import EventCard from "../../components/ui/EventCard";
-import EventModal from "../../components/ui/EventModal";
 import Footer from "../../components/layout/Footer";
 import ImageStack from "../../components/ui/ImageStack";
 import { Link, useNavigate } from "react-router-dom";
-import FlipCard from "../../components/ui/FlipCard";
-import ResearchIcon from "../../assets/icons/research-2.png";
-import ProjectsIcon from "../../assets/icons/projects-2.png";
-import OutreachIcon from "../../assets/icons/outreach-2.png";
-import WorkshopsIcon from "../../assets/icons/workshops-2.png";
-import IndustryIcon from "../../assets/icons/industry-2.png";
-import NetworkingIcon from "../../assets/icons/networking-2.png";
 import { useAuth } from "../../pages/auth/AuthContext";
 import { useSnackbar } from "../../components/ui/Snackbar";
 import { supabase } from "../../lib/supabase";
@@ -368,12 +359,12 @@ const GallerySection = memo(() => {
     return (
       <div 
         ref={galleryRef}
-        className="w-full bg-[#ffffff]/60 mt-16 py-12 md:py-16 h-auto min-h-[500px] overflow-hidden relative"
+        className="w-full bg-[#ffffff]/60 backdrop-blur-[10px] mt-16 py-6 md:py-16 h-auto md:min-h-[500px] overflow-hidden relative"
         style={{ contain: "layout style paint" }}
       >
-        <div className="max-w-7xl mx-auto relative h-full min-h-[500px]">
+        <div className="max-w-7xl mx-auto relative h-full md:min-h-[500px]">
           <div className="hidden md:block absolute top-1/2 -translate-y-1/2 left-4 md:left-6 lg:left-12 z-30 max-w-xs">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-3">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-black mb-3" style={{ fontFamily: "'Georgia', serif" }}>
               The EMBS Gallery
             </h2>
             <p className="text-black/80 text-base md:text-lg leading-relaxed">
@@ -390,13 +381,13 @@ const GallerySection = memo(() => {
   return (
     <div 
       ref={galleryRef}
-      className="w-full bg-[#ffffff]/60 mt-16 py-12 md:py-16 h-auto min-h-[500px] overflow-hidden relative"
+      className="w-full bg-[#ffffff]/60 backdrop-blur-[2px] mt-16 py-6 md:py-16 h-auto md:min-h-[500px] overflow-hidden relative"
       style={{ contain: "layout style paint" }}
     >
       {/* Gallery Title - Left Side */}
-      <div className="max-w-7xl mx-auto relative h-full min-h-[500px]">
+      <div className="max-w-7xl mx-auto relative h-full md:min-h-[500px]">
         <div className="hidden md:block absolute top-1/2 -translate-y-1/2 left-4 md:left-6 lg:left-12 z-30 max-w-xs">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black mb-3">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-black mb-3" style={{ fontFamily: "'Georgia', serif" }}>
             The EMBS Gallery
           </h2>
           <p className="text-black/80 text-base md:text-lg leading-relaxed">
@@ -405,34 +396,50 @@ const GallerySection = memo(() => {
         </div>
       </div>
       
-      {/* All images - First one starts immediately, others staggered */}
-      <FirstAnimatedImage
-        key={0}
-        image={firstItem.image}
-        description={firstItem.description}
-        width={firstItem.width}
-        height={firstItem.height}
-        offsetX={firstImageTransform.offsetX}
-        offsetY={firstImageTransform.offsetY}
-        rotation={firstImageTransform.rotation}
-        totalImages={bannerGrid.length}
-      />
-      
-      {/* Other images using AnimatedImageStack - lazy rendered individually */}
-      {bannerGrid.slice(1).map((item, index) => {
-        const actualIndex = index + 1;
-        return (
-          <LazyAnimatedImageStack
-            key={actualIndex}
-            image={item.image}
-            description={item.description}
-            index={actualIndex}
-            totalImages={bannerGrid.length}
-            width={item.width}
-            height={item.height}
+      {/* Mobile-only: single static polaroid */}
+      <div className="md:hidden flex items-center justify-center py-6">
+        <div style={{ transform: "rotate(-3deg)" }}>
+          <ImageStack
+            image={bannerGrid[1].image}
+            description={bannerGrid[1].description}
+            width="260px"
+            height="auto"
+            priority="high"
+            loading="eager"
           />
-        );
-      })}
+        </div>
+      </div>
+
+      {/* All animated images - desktop only */}
+      <div className="hidden md:block">
+        <FirstAnimatedImage
+          key={0}
+          image={firstItem.image}
+          description={firstItem.description}
+          width={firstItem.width}
+          height={firstItem.height}
+          offsetX={firstImageTransform.offsetX}
+          offsetY={firstImageTransform.offsetY}
+          rotation={firstImageTransform.rotation}
+          totalImages={bannerGrid.length}
+        />
+        
+        {/* Other images using AnimatedImageStack - lazy rendered individually */}
+        {bannerGrid.slice(1).map((item, index) => {
+          const actualIndex = index + 1;
+          return (
+            <LazyAnimatedImageStack
+              key={actualIndex}
+              image={item.image}
+              description={item.description}
+              index={actualIndex}
+              totalImages={bannerGrid.length}
+              width={item.width}
+              height={item.height}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 });
@@ -471,8 +478,10 @@ export default function Home() {
   const { user } = useAuth();
   const { showSnackbar } = useSnackbar();
   const [userRole, setUserRole] = useState("member");
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [expandedRibbon, setExpandedRibbon] = useState(null);
+  const [latestPost, setLatestPost] = useState(null);
+  const [loadingLatestPost, setLoadingLatestPost] = useState(true);
+  const [latestPostCommentCount, setLatestPostCommentCount] = useState(0);
 
   // Initialize performance monitoring
   useEffect(() => {
@@ -504,17 +513,6 @@ export default function Home() {
       minute: "2-digit",
     });
   }, []);
-
-  // Modal handlers
-  const handleEventCardClick = (event) => {
-    setSelectedEvent(event);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedEvent(null);
-  };
 
   // Advanced image preloading with priority queue
   useEffect(() => {
@@ -658,7 +656,34 @@ export default function Home() {
     fetchUserRole();
   }, [user, showSnackbar]);
 
-  //
+  // Fetch latest blog post
+  useEffect(() => {
+    const fetchLatestPost = async () => {
+      try {
+        setLoadingLatestPost(true);
+        const { data, error } = await supabase
+          .from("blog_posts")
+          .select("*")
+          .order("event_date", { ascending: false })
+          .limit(1)
+          .single();
+        if (!error && data) {
+          setLatestPost(data);
+          // Fetch comment count for this post
+          const { data: commentData } = await supabase
+            .from("blog_comments")
+            .select("id")
+            .eq("post_id", data.id);
+          setLatestPostCommentCount(commentData?.length ?? 0);
+        }
+      } catch (_) {
+        // silently fail
+      } finally {
+        setLoadingLatestPost(false);
+      }
+    };
+    fetchLatestPost();
+  }, []);
 
   return (
     <>
@@ -938,75 +963,140 @@ export default function Home() {
 
       {/* Rest of page content */}
       <div className="bg-none" style={{ contain: "layout style" }}>
-        {/* Upcoming Events */}
+        {/* Upcoming Events — Ribbon Style */}
         <div 
-          className="max-w-7xl mx-auto p-4 md:p-10 mt-16"
+          className="max-w-6xl mx-auto px-4 md:px-10 mt-16"
           style={{ contentVisibility: 'auto', contain: "layout style paint" }}
         >
-          <h1 className="text-4xl text-white font-bold text-center mb-8 italic">
+          <h1 className="text-4xl text-white font-bold text-center mb-10 italic" style={{ fontFamily: "'Georgia', serif" }}>
             Upcoming Events
           </h1>
+
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+            <div className="flex flex-col gap-0">
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className="rounded-xl bg-white/5 animate-pulse h-64 border border-white/10"
+                  className="h-24 animate-pulse border-t border-white/10"
+                  style={{ backdropFilter: "blur(20px)" }}
                 />
               ))}
-            </div>
-          ) : events.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-6 px-4">
-              <div
-                className="relative rounded-3xl overflow-hidden px-10 py-14 flex flex-col items-center gap-4 max-w-lg w-full text-center"
-                style={{
-                  background: "rgba(255, 255, 255, 0.95)",
-                  backdropFilter: "blur(40px)",
-                  WebkitBackdropFilter: "blur(40px)",
-                  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5), 0 0px 10px rgba(255, 255, 255, 0.4)",
-                }}
-              >
-                {/* Top gradient accent bar */}
-                <div
-                  className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl"
-                  style={{ background: "linear-gradient(90deg, #772583 0%, #9C1E96 100%)" }}
-                />
-                {/* Icon */}
-                <div
-                  className="flex items-center justify-center w-16 h-16 rounded-full mb-1"
-                  style={{ background: "rgba(119, 37, 131, 0.08)" }}
-                >
-                  <LuDna className="text-[#772583] text-3xl" />
-                </div>
-                <h3 className="text-gray-900 font-semibold text-xl tracking-tight">
-                  Nothing Scheduled Yet
-                </h3>
-                <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
-                  Something exciting is in the works! Check back soon to find out what's next for our community.                </p>
-                <Link
-                  to="/blog"
-                  className="mt-1 no-underline inline-flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium text-[#772583] transition-colors duration-200"
-                  style={{ background: "rgba(119, 37, 131, 0.08)" }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = "rgba(119, 37, 131, 0.14)"}
-                  onMouseLeave={(e) => e.currentTarget.style.background = "rgba(119, 37, 131, 0.08)"}
-                >
-                  Browse Past Events →
-                </Link>
-              </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
-              {events.slice(0, 3).map((event) => (
-                <EventCard
-                  key={event.id}
-                  eventName={event.summary}
-                  location={event.location || "TBD"}
-                  date={formatDate(event.start?.dateTime || event.start?.date)}
-                  time={formatTime(event.start?.dateTime)}
-                  description={event.description || "No description available"}
-                  onCardClick={() => handleEventCardClick(event)}
-                />
-              ))}
+            <div className="flex flex-col">
+              {[0, 1, 2].map((idx) => {
+                const event = events[idx];
+                const isExpanded = expandedRibbon === idx;
+                const isPlaceholder = !event;
+
+                const placeholderMessages = [
+                  "More events loading, check back soon",
+                  "Something big is brewing... trust",
+                  "Hold tight, more is on the way",
+                ];
+
+                return (
+                  <div
+                    key={idx}
+                    className={`border-t border-white/40 ${
+                      idx === 2 ? "border-b border-white/40" : ""
+                    } transition-all duration-500 ease-in-out overflow-hidden ${
+                      isPlaceholder ? "" : "cursor-pointer group"
+                    }`}
+                    style={{
+                      backdropFilter: "blur(40px)",
+                      WebkitBackdropFilter: "blur(40px)",
+                    }}
+                    onClick={() => {
+                      if (isPlaceholder) return;
+                      setExpandedRibbon(isExpanded ? null : idx);
+                    }}
+                  >
+                    {/* Collapsed Ribbon */}
+                    <div className={`relative z-10 flex items-center justify-between gap-6 py-7 md:py-9 px-4 md:px-8 transition-colors duration-300 ${
+                      isPlaceholder ? "opacity-35" : ""
+                    }`}>
+                      {/* Left: number + event name + mobile meta */}
+                      <div className="flex items-center gap-5 md:gap-8 min-w-0">
+                        <span
+                          className="text-white text-4xl md:text-6xl font-black leading-none flex-shrink-0 select-none"
+                          style={{ fontFamily: "'Georgia', serif" }}
+                        >
+                          {String(idx + 1).padStart(2, "0")}
+                        </span>
+                        {isPlaceholder ? (
+                          <p className="text-white text-xl md:text-2xl font-semibold italic">
+                            {placeholderMessages[idx]}
+                          </p>
+                        ) : (
+                          <div className="flex flex-col gap-2 min-w-0">
+                            <h2 className="text-white text-2xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight group-hover:text-white/80 transition-colors duration-300" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.5)" }}>
+                              {event.summary}
+                            </h2>
+                            {/* Mobile-only meta */}
+                            <div className="flex md:hidden flex-col gap-1 text-white text-xs font-medium">
+                              <span className="inline-flex items-center gap-1.5">
+                                <svg className="w-3 h-3 opacity-70 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                {formatDate(event.start?.dateTime || event.start?.date)}
+                              </span>
+                              <span className="inline-flex items-center gap-1.5">
+                                <svg className="w-3 h-3 opacity-70 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                {formatTime(event.start?.dateTime)}
+                              </span>
+                              <span className="inline-flex items-center gap-1.5">
+                                <svg className="w-3 h-3 opacity-70 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                {event.location || "TBD"}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right side: meta + chevron */}
+                      {!isPlaceholder && (
+                        <div className="flex items-center gap-6 flex-shrink-0">
+                          <div className="hidden md:flex flex-col items-end gap-1.5 text-white text-sm font-medium">
+                            <span className="inline-flex items-center gap-1.5">
+                              <svg className="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                              {formatDate(event.start?.dateTime || event.start?.date)}
+                            </span>
+                            <span className="inline-flex items-center gap-1.5">
+                              <svg className="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                              {formatTime(event.start?.dateTime)}
+                            </span>
+                            <span className="inline-flex items-center gap-1.5">
+                              <svg className="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                              {event.location || "TBD"}
+                            </span>
+                          </div>
+                          <div className={`text-white/25 group-hover:text-white/50 transition-all duration-300 ${isExpanded ? "rotate-180" : ""}`}>
+                            <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Expanded content */}
+                    <div
+                      className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                        isExpanded ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
+                      }`}
+                    >
+                      {event && (
+                        <div className="relative z-10 px-4 md:px-8 pb-8">
+                          <div className="border-t border-white/10 pt-5">
+                            <p className="text-white text-sm md:text-base leading-relaxed max-w-3xl whitespace-pre-line text-center mx-auto">
+                              {event.description || "More details coming soon!"}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -1015,86 +1105,130 @@ export default function Home() {
       {/* Image Stack - Polaroid Style - All Images */}
       <GallerySection />
 
-      {/* Branches Section */}
-      <div 
-        className="w-full mt-16 pb-26 px-4 md:px-0"
-        style={{ contentVisibility: 'auto', contain: "layout style paint" }}
-      >
-          <h1 className="text-4xl font-bold text-center text-white mb-8 italic">Our Branches</h1>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto items-stretch">
-            {useMemo(() => [
-              {
-                name: "RESEARCH",
-                icon: ResearchIcon,
-                page: "/research",
-                summary: "Conducting hands-on biomedical investigations.",
-              },
-              {
-                name: "PROJECTS",
-                icon: ProjectsIcon,
-                page: "/projects",
-                summary:
-                  "Collaborative engineering teams solving real-world problems.",
-              },
-              {
-                name: "OUTREACH",
-                icon: OutreachIcon,
-                page: "/outreach",
-                summary:
-                  "Connecting with the community through STEM initiatives.",
-              },
-              {
-                name: "WORKSHOPS",
-                icon: WorkshopsIcon,
-                page: "/workshops",
-                summary:
-                  "Skill-building events on hardware, software, and more.",
-              },
-              {
-                name: "INDUSTRY",
-                icon: IndustryIcon,
-                page: "/industry",
-                summary: "Professional development and career exploration.",
-              },
-              {
-                name: "NETWORKING",
-                icon: NetworkingIcon,
-                page: "/networking",
-                summary:
-                  "Building lasting relationships with peers and mentors.",
-              },
-            ], []).map(({ name, icon, page, summary }) => (
-              <div key={name} className="flex justify-center h-full">
-                <FlipCard
-                  name={name.toUpperCase()} // ✅ force uppercase
-                  imageSrc={icon}
-                  summary={summary}
-                  onClick={() => navigate(page)}
-                />
-              </div>
-            ))}
+      {/* Latest Blog Post Section */}
+      <div className="w-full mt-16 pb-20 px-4 md:px-8">
+        <div className="max-w-6xl mx-auto">
+
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold text-white italic leading-tight" style={{ fontFamily: "'Georgia', serif" }}>
+                Check Out Our Latest Post!
+              </h1>
+              <p className="text-white text-sm mt-2">Stay in the loop — see what we've been up to ✨</p>
+            </div>
+            <Link
+              to="/blog"
+              className="no-underline self-start md:self-auto inline-flex items-center gap-2 text-white/60 hover:text-white font-semibold text-sm uppercase tracking-wider transition-colors duration-200 group"
+            >
+              All Posts
+              <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
+            </Link>
           </div>
+
+          {/* Blog Card */}
+          {loadingLatestPost ? (
+            <div className="rounded-3xl bg-white/75 border border-white/10 h-72 md:h-80 animate-pulse" />
+          ) : latestPost ? (
+            <div
+              className="relative rounded-3xl overflow-hidden border border-white/10 bg-white/55 backdrop-blur-[10px] flex flex-col md:flex-row group hover:border-[#772583]/50 transition-all duration-500"
+              style={{
+                boxShadow: "0 0 0 1px rgba(119,37,131,0.1), 0 24px 64px rgba(0,0,0,0.45)",
+              }}
+            >
+              {/* Left gradient accent strip */}
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#772583] via-[#00629B] to-[#00A3AD] rounded-l-3xl" />
+
+              {/* Image Panel */}
+              {latestPost.image_urls && latestPost.image_urls.length > 0 && (
+                <div className="md:w-[42%] h-56 md:h-auto relative overflow-hidden flex-shrink-0">
+                  <img
+                    src={latestPost.image_urls[0]}
+                    alt={latestPost.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#1A1A1A]/70 hidden md:block" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/60 to-transparent md:hidden" />
+                </div>
+              )}
+
+              {/* Content Panel */}
+              <div className="flex-1 p-8 md:p-10 pl-10 md:pl-12 flex flex-col justify-between gap-5">
+                {/* Date + type badge row */}
+                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+                  <span className="text-[#00A3AD] uppercase tracking-widest">
+                    {latestPost.event_date
+                      ? new Date(latestPost.event_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+                      : new Date(latestPost.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  </span>
+                  <span className="text-black/30">•</span>
+                  <span className="text-black/50">{Math.ceil(latestPost.content.length / 450)} min read</span>
+                  <span className="text-black/30">•</span>
+                  <span className="text-black/50 inline-flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    {latestPostCommentCount} {latestPostCommentCount === 1 ? "comment" : "comments"}
+                  </span>
+                  {latestPost.post_type === "video" && (
+                    <>
+                      <span className="text-black/30">•</span>
+                      <span className="bg-[#00629B]/20 border border-[#00629B]/40 text-[#5BB8FF] text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full">
+                        Video
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                {/* Title */}
+                <h2 className="text-2xl md:text-3xl font-bold text-black leading-snug">
+                  {latestPost.title}
+                </h2>
+
+                {/* Content preview */}
+                <p className="text-black/60 text-sm md:text-base leading-relaxed line-clamp-4">
+                  {latestPost.content}
+                </p>
+
+                {/* CTA */}
+                <div className="flex items-center gap-4 pt-2">
+                  <Link
+                    to="/blog"
+                    className="no-underline inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#772583] hover:bg-[#8f2e9c] text-white text-sm font-semibold transition-colors duration-200 shadow-[0_0_16px_rgba(119,37,131,0.35)] hover:shadow-[0_0_24px_rgba(119,37,131,0.55)]"
+                  >
+                    Read More
+                    <span>→</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Decorative glow blob */}
+              <div
+                className="pointer-events-none absolute -top-20 -right-20 w-72 h-72 rounded-full opacity-20 blur-3xl"
+                style={{ background: "radial-gradient(circle, #772583 0%, transparent 70%)" }}
+              />
+            </div>
+          ) : (
+            <div
+              className="relative rounded-3xl overflow-hidden border border-white/10 bg-white/5 px-10 py-14 flex flex-col items-center gap-4 text-center"
+              style={{ boxShadow: "0 0 0 1px rgba(119,37,131,0.1), 0 20px 60px rgba(0,0,0,0.3)" }}
+            >
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#772583] via-[#00629B] to-[#00A3AD] rounded-l-3xl" />
+              <LuDna className="text-[#772583] text-4xl" />
+              <p className="text-white/50 text-base">No posts yet — something exciting is brewing!</p>
+              <Link to="/blog" className="no-underline text-[#C56FD1] font-semibold hover:text-white transition-colors duration-200">Check the Blog →</Link>
+            </div>
+          )}
         </div>
+      </div>
 
         <div className="mb-10 mt-[-60px]"></div>
         {/* Footer */}
         <Footer />
       </div>
 
-      {/* Event Modal */}
-      {selectedEvent && (
-        <EventModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          eventName={selectedEvent.summary}
-          location={selectedEvent.location || "TBD"}
-          date={formatDate(
-            selectedEvent.start?.dateTime || selectedEvent.start?.date
-          )}
-          time={formatTime(selectedEvent.start?.dateTime)}
-          description={selectedEvent.description || "No description available"}
-        />
-      )}
     </>
   );
 }

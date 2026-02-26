@@ -8,6 +8,26 @@ import GradientMesh from "../../components/ui/GradientMesh";
 
 const POSTS_PER_PAGE = 5;
 
+const EVENT_TYPES = [
+  { value: "gbm",               label: "GBM" },
+  { value: "industry_speaker",  label: "Industry Speaker" },
+  { value: "academia_speaker", label: "Academia Speaker" },
+  { value: "workshop",         label: "Workshop" },
+  { value: "competition",      label: "Competition" },
+  { value: "fundraiser",       label: "Fundraiser" },
+  { value: "social",           label: "Social" },
+];
+
+const EVENT_TYPE_STYLES = {
+  gbm:               "bg-teal-500/15 text-teal-700 border-teal-400/40",
+  industry_speaker:  "bg-orange-500/15 text-orange-700 border-orange-400/40",
+  academia_speaker:  "bg-purple-500/15 text-purple-700 border-purple-400/40",
+  workshop:          "bg-green-500/15 text-green-700 border-green-400/40",
+  competition:       "bg-red-500/15 text-red-700 border-red-400/40",
+  fundraiser:        "bg-yellow-500/15 text-yellow-700 border-yellow-400/40",
+  social:            "bg-pink-500/15 text-pink-700 border-pink-400/40",
+};
+
 export default function Blog() {
   const { user } = useAuth();
   const { showSnackbar } = useSnackbar();
@@ -30,6 +50,7 @@ export default function Blog() {
   const [eventDate, setEventDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [postType, setPostType] = useState("image"); // "image" or "video"
+  const [postEventType, setPostEventType] = useState("");
   const [videoLink, setVideoLink] = useState("");
   const [videoThumbnail, setVideoThumbnail] = useState(null);
   const [videoThumbnailPreview, setVideoThumbnailPreview] = useState("");
@@ -43,10 +64,15 @@ export default function Blog() {
   const [editEventDate, setEditEventDate] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editPostType, setEditPostType] = useState("image");
+  const [editEventType, setEditEventType] = useState("");
   const [editVideoLink, setEditVideoLink] = useState("");
   const [editVideoThumbnail, setEditVideoThumbnail] = useState(null);
   const [editVideoThumbnailPreview, setEditVideoThumbnailPreview] =
     useState("");
+
+  // Search & filter
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState(null);
 
   // Post expansion states
   const [expandedPosts, setExpandedPosts] = useState(new Set());
@@ -449,6 +475,7 @@ export default function Blog() {
             author_id: user.id,
             created_at: new Date().toISOString(),
             post_type: postType,
+            event_type: postEventType || null,
             video_link: postType === "video" ? videoLink.trim() : null,
             video_thumbnail: postType === "video" ? thumbnailUrl : null,
           },
@@ -471,6 +498,7 @@ export default function Blog() {
       setImagePreviews([]);
       setEventDate("");
       setPostType("image");
+      setPostEventType("");
       setVideoLink("");
       setVideoThumbnail(null);
       setVideoThumbnailPreview("");
@@ -501,6 +529,7 @@ export default function Blog() {
         : ""
     );
     setEditPostType(post.post_type || "image");
+    setEditEventType(post.event_type || "");
     setEditVideoLink(post.video_link || "");
     setEditVideoThumbnail(null);
     setEditVideoThumbnailPreview(post.video_thumbnail || "");
@@ -517,6 +546,7 @@ export default function Blog() {
     setEditImagePreviews([]);
     setEditEventDate("");
     setEditPostType("image");
+    setEditEventType("");
     setEditVideoLink("");
     setEditVideoThumbnail(null);
     setEditVideoThumbnailPreview("");
@@ -568,6 +598,7 @@ export default function Blog() {
           event_date: new Date(`${editEventDate}T12:00:00.000Z`).toISOString(),
           updated_at: new Date().toISOString(),
           post_type: editPostType,
+          event_type: editEventType || null,
           video_link: editPostType === "video" ? editVideoLink.trim() : null,
           video_thumbnail: editPostType === "video" ? thumbnailUrl : null,
         })
@@ -828,6 +859,94 @@ export default function Blog() {
       {/* Main content */}
       <div className="flex-1 pt-20 pb-12 relative z-10">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
+
+          {/* ── Newspaper Masthead ── */}
+          <div className="mb-10 border-b-2 border-slate-800/20 pb-6">
+            {/* Top rule */}
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-[2px] flex-1 bg-slate-800/20" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">Est. University of Florida · IEEE EMBS</span>
+              <div className="h-[2px] flex-1 bg-slate-800/20" />
+            </div>
+
+            {/* Title row */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div>
+                <h1
+                  className="text-5xl md:text-7xl font-black tracking-tighter text-slate-900 leading-none select-none"
+                  style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
+                >
+                  The EMBS Gazette
+                </h1>
+                <p className="text-xs uppercase tracking-[0.25em] text-slate-500 mt-1 font-semibold">
+                  Your source for all things biomedical engineering at UF
+                </p>
+              </div>
+
+              {/* Date + Issue */}
+              <div className="text-right hidden md:block">
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                  {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+                </p>
+                <p className="text-[10px] uppercase tracking-widest text-slate-400 mt-0.5">Volume I &nbsp;·&nbsp; UF Biomedical Engineering Society</p>
+              </div>
+            </div>
+
+            {/* Bottom rule + search */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mt-5">
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => setActiveFilter(null)}
+                  className={`text-[10px] font-bold uppercase hover:cursor-pointer tracking-widest px-2.5 py-0.5 rounded border transition-colors duration-150 ${
+                    activeFilter === null
+                      ? "bg-slate-800 text-white border-slate-800"
+                      : "text-slate-500 border-slate-300 hover:border-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  All
+                </button>
+                {EVENT_TYPES.map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => setActiveFilter(activeFilter === value ? null : value)}
+                    className={`text-[10px] font-bold hover:cursor-pointer uppercase tracking-widest px-2.5 py-0.5 rounded border transition-colors duration-150 ${
+                      activeFilter === value
+                        ? "bg-slate-800 text-white border-slate-800"
+                        : "text-slate-500 border-slate-300 hover:border-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Search bar */}
+              <div className="relative w-full md:w-72">
+                <svg
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search posts…"
+                  className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/70 backdrop-blur-md border border-slate-300/60 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500/60 shadow-sm transition-all duration-200"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Admin Form */}
           {canManageBlog && showAdminForm && (
             <div className="mb-8 rounded-2xl border border-white/60 shadow-xl backdrop-blur-xl bg-white/70 p-6">
@@ -942,6 +1061,27 @@ export default function Blog() {
                         onChange={(e) => setEventDate(e.target.value)}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#007377] focus:border-[#007377] transition-colors"
                       />
+                    </div>
+
+                    {/* Event Type */}
+                    <div>
+                      <label
+                        htmlFor="event-type"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        Event Type
+                      </label>
+                      <select
+                        id="event-type"
+                        value={postEventType}
+                        onChange={(e) => setPostEventType(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#007377] focus:border-[#007377] transition-colors bg-white"
+                      >
+                        <option value="">— None —</option>
+                        {EVENT_TYPES.map(({ value, label }) => (
+                          <option key={value} value={value}>{label}</option>
+                        ))}
+                      </select>
                     </div>
 
                     {/* Image Upload - Only for Image Posts */}
@@ -1107,7 +1247,27 @@ export default function Blog() {
             </div>
           ) : (
             <div className="space-y-8">
-              {posts.map((post) => {
+              {(() => {
+                const filtered = posts.filter((p) => {
+                  const matchesSearch = searchQuery.trim()
+                    ? p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      p.content?.toLowerCase().includes(searchQuery.toLowerCase())
+                    : true;
+                  const matchesFilter = activeFilter ? p.event_type === activeFilter : true;
+                  return matchesSearch && matchesFilter;
+                });
+                if (filtered.length === 0) return (
+                  <div className="flex flex-col items-center justify-center py-16 gap-3">
+                    <svg className="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                    </svg>
+                    <p className="text-slate-500 font-medium">
+                      {searchQuery.trim() ? <>No posts matched <span className="font-bold text-slate-700">"{searchQuery}"</span></> : "No posts in this category yet."}
+                    </p>
+                    <button onClick={() => { setSearchQuery(""); setActiveFilter(null); }} className="text-sm text-teal-600 hover:underline">Clear filters</button>
+                  </div>
+                );
+                return filtered.map((post) => {
                 const needsTruncation = shouldTruncate(post.content);
                 const truncatedContent = needsTruncation
                   ? post.content.substring(0, 420) + "..."
@@ -1313,6 +1473,11 @@ export default function Blog() {
                         <div className="space-y-2">
                           {/* Date, Reading Time, Comments */}
                           <div className="flex items-center gap-2 text-slate-500 text-sm flex-wrap">
+                            {post.event_type && (
+                              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${EVENT_TYPE_STYLES[post.event_type] ?? "bg-slate-100 text-slate-600 border-slate-300"}`}>
+                                {EVENT_TYPES.find((t) => t.value === post.event_type)?.label ?? post.event_type}
+                              </span>
+                            )}
                             <span className="font-medium">
                               {formatDate(post.event_date)}
                             </span>
@@ -1409,7 +1574,8 @@ export default function Blog() {
                     </div>
                   </article>
                 );
-              })}
+              });
+            })()}
 
               {/* Infinite scroll sentinel - triggers load more when visible */}
               {!loading && hasMore && (
@@ -1780,6 +1946,27 @@ export default function Blog() {
                         onChange={(e) => setEditEventDate(e.target.value)}
                         className="block w-full px-4 py-4 border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-0 focus:border-blue-600 transition-all duration-200 bg-white/80 backdrop-blur-sm text-gray-800"
                       />
+                    </div>
+
+                    {/* Event Type */}
+                    <div className="group">
+                      <label
+                        htmlFor="edit-event-type"
+                        className="block text-sm font-semibold text-gray-700 mb-3 group-focus-within:text-blue-600 transition-colors duration-200"
+                      >
+                        Event Type
+                      </label>
+                      <select
+                        id="edit-event-type"
+                        value={editEventType}
+                        onChange={(e) => setEditEventType(e.target.value)}
+                        className="block w-full px-4 py-4 border-2 border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-0 focus:border-blue-600 transition-all duration-200 bg-white/80 backdrop-blur-sm text-gray-800"
+                      >
+                        <option value="">— None —</option>
+                        {EVENT_TYPES.map(({ value, label }) => (
+                          <option key={value} value={value}>{label}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 
