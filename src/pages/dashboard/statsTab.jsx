@@ -1,4 +1,5 @@
 import Box from "@mui/material/Box";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { DataGrid } from "@mui/x-data-grid";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -10,37 +11,37 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { PieChart } from "@mui/x-charts/PieChart";
-import { ScatterChart } from "@mui/x-charts/ScatterChart";
-import { ChartsYAxis } from "@mui/x-charts";
 import { useDrawingArea } from "@mui/x-charts/hooks";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { RiRobot3Line } from "react-icons/ri";
+import { VscPerson } from "react-icons/vsc";
 
 import React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { supabase } from "../../lib/supabase";
 
-// Center label component for donut chart
-function PieCenterLabel() {
+// Center icon component for donut chart
+function PieCenterLabel({ size = 32 }) {
   const { width, height, left, top } = useDrawingArea();
   const centerX = left + width / 2;
   const centerY = top + height / 2;
-  
   return (
-    <g>
-      {/* Stick figure person icon */}
-      {/* Head */}
-      <circle cx={centerX} cy={centerY - 15} r="8" fill="rgba(255,255,255,0.85)" />
-      {/* Body */}
-      <line x1={centerX} y1={centerY - 7} x2={centerX} y2={centerY + 10} stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round" />
-      {/* Arms */}
-      <line x1={centerX} y1={centerY - 2} x2={centerX - 10} y2={centerY - 7} stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round" />
-      <line x1={centerX} y1={centerY - 2} x2={centerX + 10} y2={centerY - 7} stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round" />
-      {/* Legs */}
-      <line x1={centerX} y1={centerY + 10} x2={centerX - 10} y2={centerY + 20} stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round" />
-      <line x1={centerX} y1={centerY + 10} x2={centerX + 10} y2={centerY + 20} stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round" />
-    </g>
+    <foreignObject
+      x={centerX - size / 2}
+      y={centerY - size / 2}
+      width={size}
+      height={size}
+      style={{ overflow: 'visible', pointerEvents: 'none' }}
+    >
+      <div
+        // @ts-ignore
+        xmlns="http://www.w3.org/1999/xhtml"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: size, height: size }}
+      >
+        <VscPerson style={{ color: 'rgba(255,255,255,0.85)', width: size, height: size }} />
+      </div>
+    </foreignObject>
   );
 }
 
@@ -197,6 +198,13 @@ export default function StatsTab() {
   const [showFoodLines, setShowFoodLines] = useState(true);
   const [chartHeight, setChartHeight] = useState(400);
   const chartContainerRef = useRef(null);
+  const isXs = useMediaQuery('(max-width:480px)');
+  const isSm = useMediaQuery('(max-width:768px)');
+  const isMd = useMediaQuery('(max-width:1380px)');
+  const isLg = useMediaQuery('(max-width:1540px)');
+  const isXl = useMediaQuery('(max-width:1930px)');
+  const pieChartSize = isXs ? 180 : isSm ? 200 : isMd ? 200 : isLg ? 260 : isXl ? 320 : 340;
+  const radiusSize   = isXs ? 40  : isSm ? 50  : isMd ? 55  : isLg ? 70  : isXl ? 80  : 90;
   const [upcomingEventsPredictions, setUpcomingEventsPredictions] = useState([]);
   const [loadingPredictions, setLoadingPredictions] = useState(false);
 
@@ -364,35 +372,25 @@ export default function StatsTab() {
         return;
       }
 
-      // Get attendee counts for each event
-      const eventsWithAttendees = await Promise.all(
-        (events || []).map(async (event) => {
-          const { count, error: attendanceError } = await supabase
-            .from("event_attendance")
-            .select("*", { count: "exact", head: true })
-            .eq("event_id", event.id);
+      // Batch fetch all attendance counts in a single query (instead of N+1)
+      const eventIds = (events || []).map(e => e.id);
+      const attendanceCountMap = {};
+      if (eventIds.length > 0) {
+        const { data: attendanceRows } = await supabase
+          .from("event_attendance")
+          .select("event_id")
+          .in("event_id", eventIds);
+        (attendanceRows || []).forEach(row => {
+          attendanceCountMap[row.event_id] = (attendanceCountMap[row.event_id] || 0) + 1;
+        });
+      }
 
-          if (attendanceError) {
-            console.error(
-              `Error fetching attendance for event ${event.id}:`,
-              attendanceError
-            );
-            return {
-              ...event,
-              eventName: event.name,
-              attendees: 0,
-            };
-          }
+      const eventsWithAttendees = (events || []).map(event => ({
+        ...event,
+        eventName: event.name,
+        attendees: attendanceCountMap[event.id] || 0,
+      }));
 
-          return {
-            ...event,
-            eventName: event.name,
-            attendees: count || 0,
-          };
-        })
-      );
-
-      console.log("Events data:", eventsWithAttendees);
       setEventsData(eventsWithAttendees);
     } catch (error) {
       console.error("Error fetching events:", error);
@@ -453,21 +451,24 @@ export default function StatsTab() {
         return;
       }
 
-      // Get attendance data for each event
-      const eventsWithAttendance = await Promise.all(
-        (events || []).map(async (event) => {
-          const { count, error: attendanceError } = await supabase
-            .from("event_attendance")
-            .select("*", { count: "exact", head: true })
-            .eq("event_id", event.id);
+      // Batch fetch all attendance counts in a single query (instead of N+1)
+      const chartEventIds = (events || []).map(e => e.id);
+      const chartAttendanceMap = {};
+      if (chartEventIds.length > 0) {
+        const { data: chartAttendanceRows } = await supabase
+          .from("event_attendance")
+          .select("event_id")
+          .in("event_id", chartEventIds);
+        (chartAttendanceRows || []).forEach(row => {
+          chartAttendanceMap[row.event_id] = (chartAttendanceMap[row.event_id] || 0) + 1;
+        });
+      }
 
-          return {
-            ...event,
-            attendance: count || 0,
-            date: new Date(event.date),
-          };
-        })
-      );
+      const eventsWithAttendance = (events || []).map(event => ({
+        ...event,
+        attendance: chartAttendanceMap[event.id] || 0,
+        date: new Date(event.date),
+      }));
 
       // Calculate various attendance metrics
       const eventTypes = [...new Set(eventsWithAttendance.map(e => e.event_type || 'Unknown'))];
@@ -536,9 +537,6 @@ export default function StatsTab() {
 
       setAttendanceOverTimeData(attendanceOverTime);
       setEventTypeData(eventTypeAnalysis);
-
-      console.log("Event Type Analysis Data:", eventTypeAnalysis);
-      console.log("Type Stats:", typeStats);
 
       // 4. Member count over time — real cumulative growth from members.created_at
       const { data: membersRaw, error: membersError } = await supabase
@@ -634,21 +632,29 @@ export default function StatsTab() {
         return;
       }
 
-      // Fetch actual attendance counts for each event
+      // Batch fetch actual attendance counts in a single query (instead of N+1)
       const now = new Date();
-      const eventsWithActual = await Promise.all(
-        (events || []).map(async (event) => {
-          const isPast = new Date(event.start_time) < now;
-          if (!isPast) return { ...event, actual_attendance: null, is_past: false };
+      const pastEvents = (events || []).filter(e => new Date(e.start_time) < now);
+      const pastEventIds = pastEvents.map(e => e.id);
+      const predAttendanceMap = {};
+      if (pastEventIds.length > 0) {
+        const { data: predAttendanceRows } = await supabase
+          .from("event_attendance")
+          .select("event_id")
+          .in("event_id", pastEventIds);
+        (predAttendanceRows || []).forEach(row => {
+          predAttendanceMap[row.event_id] = (predAttendanceMap[row.event_id] || 0) + 1;
+        });
+      }
 
-          const { count } = await supabase
-            .from("event_attendance")
-            .select("*", { count: "exact", head: true })
-            .eq("event_id", event.id);
-
-          return { ...event, actual_attendance: count || 0, is_past: true };
-        })
-      );
+      const eventsWithActual = (events || []).map(event => {
+        const isPast = new Date(event.start_time) < now;
+        return {
+          ...event,
+          actual_attendance: isPast ? (predAttendanceMap[event.id] || 0) : null,
+          is_past: isPast,
+        };
+      });
 
       setUpcomingEventsPredictions(eventsWithActual);
     } catch (error) {
@@ -659,16 +665,19 @@ export default function StatsTab() {
     }
   };
 
-  // Update chart height based on container size
+  // Update chart height based on container size (debounced with rAF)
   useEffect(() => {
+    let rafId = null;
     const updateChartHeight = () => {
-      if (chartContainerRef.current && category === "charts") {
-        const height = chartContainerRef.current.clientHeight;
-        if (height > 0) {
-          // Subtract space for tabs (~64px) and padding (~48px)
-          setChartHeight(Math.max(300, height - 120));
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (chartContainerRef.current && category === "charts") {
+          const height = chartContainerRef.current.clientHeight;
+          if (height > 0) {
+            setChartHeight(Math.max(300, height - 120));
+          }
         }
-      }
+      });
     };
 
     // Initial measurement
@@ -683,6 +692,7 @@ export default function StatsTab() {
     }
 
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
       clearTimeout(timeoutId);
       window.removeEventListener('resize', updateChartHeight);
       if (resizeObserver && chartContainerRef.current) {
@@ -704,6 +714,35 @@ export default function StatsTab() {
       fetchUpcomingEventsPredictions();
     }
   }, [category, academicYear, selectedSemester]);
+
+  // Memoize PieChart series to avoid expensive re-computation every render
+  const pieChartSeries = useMemo(() => {
+    if (majorDistributionData.length === 0) return [];
+    const colors = [
+      '#E4E4DE', '#C4C5BA', '#8AA5C4', '#D9B18E',
+      '#C79AA9', '#8B7B6A', '#2F3A4A', '#A9B3C2',
+      '#B8C9A3', '#D4C5A9', '#7A8FA6', '#C2A8BF',
+      '#A3B8B0', '#D6B89A', '#6E7B8B', '#BDB5A6',
+    ];
+    const totalMembers = majorDistributionData.reduce((sum, item) => sum + item.value, 0);
+    return [{
+      innerRadius: radiusSize,
+      data: majorDistributionData.map((item, index) => ({
+        id: item.id,
+        value: item.value,
+        label: item.label,
+        color: colors[index % colors.length],
+      })),
+      valueFormatter: ({ value }) => {
+        const percentage = totalMembers > 0 ? Math.round((value / totalMembers) * 100) : 0;
+        return `${value} members (${percentage}%)`;
+      },
+      highlightScope: { fade: 'global', highlight: 'item' },
+      highlighted: { additionalRadius: 2 },
+      cornerRadius: 3,
+      paddingAngle: 1,
+    }];
+  }, [majorDistributionData, radiusSize]);
 
   // Get current data based on selection
   const getCurrentData = () => {
@@ -1307,51 +1346,9 @@ export default function StatsTab() {
                     <div className="flex-1 flex items-center justify-center">
                       {majorDistributionData.length > 0 ? (
                         <PieChart
-                          series={[
-                            {
-                              innerRadius: 50,
-                              data: majorDistributionData.map((item, index) => {
-                                // Cohesive palette with increased contrast: wider spacing between colors for better differentiation
-                                const colors = [
-                                  '#E4E4DE', // Soft Ivory
-                                  '#C4C5BA', // Sophisticated Sage Gray
-                                  '#8AA5C4', // Muted Steel Blue
-                                  '#D9B18E', // Muted Champagne
-                                  '#C79AA9', // Dusty Rose
-                                  '#8B7B6A', // Smoky Taupe
-                                  '#2F3A4A', // Deep Slate Accent
-                                  '#A9B3C2', // Muted Cool Silver-Blue
-                                  '#B8C9A3', // Sage Green
-                                  '#D4C5A9', // Warm Sand
-                                  '#7A8FA6', // Slate Teal
-                                  '#C2A8BF', // Lavender Mauve
-                                  '#A3B8B0', // Muted Seafoam
-                                  '#D6B89A', // Soft Terracotta
-                                  '#6E7B8B', // Denim Gray
-                                  '#BDB5A6', // Warm Greige
-                                ];                                
-                                         
-                                const colorIndex = index % colors.length;
-                                return {
-                                  id: item.id,
-                                  value: item.value,
-                                  label: item.label,
-                                  color: colors[colorIndex],
-                                };
-                              }),
-                              valueFormatter: ({ value }) => {
-                                const totalMembers = majorDistributionData.reduce((sum, item) => sum + item.value, 0);
-                                const percentage = totalMembers > 0 ? Math.round((value / totalMembers) * 100) : 0;
-                                return `${value} members (${percentage}%)`;
-                              },
-                              highlightScope: { fade: 'global', highlight: 'item' },
-                              highlighted: { additionalRadius: 2 },
-                              cornerRadius: 3,
-                              paddingAngle: 1,
-                            },
-                          ]}
-                          width={280}
-                          height={280}
+                          series={pieChartSeries}
+                          width={pieChartSize}
+                          height={pieChartSize}
                           slotProps={{
                             legend: {
                               direction: 'row',
@@ -1389,7 +1386,7 @@ export default function StatsTab() {
                             },
                           }}
                         >
-                          <PieCenterLabel />
+                          <PieCenterLabel size={Math.round(pieChartSize * 32 / 100)} />
                         </PieChart>
                       ) : (
                         <div className="text-center">
