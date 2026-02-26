@@ -152,6 +152,35 @@ const membersColumns = [
 
 // Events data will be fetched from Supabase
 
+// Major abbreviation map (case-insensitive, covers common UF EMBS member majors)
+const MAJOR_ABBREVIATIONS = {
+  'biomedical engineering': 'BME',
+  'computer science': 'CS',
+  'computer engineering': 'CpE',
+  'electrical engineering': 'EE',
+  'mechanical engineering': 'MechE',
+  'chemical engineering': 'ChemE',
+  'civil engineering': 'CivilE',
+  'environmental engineering': 'EnvE',
+  'aerospace engineering': 'AeroE',
+  'industrial engineering': 'IndustrialE',
+  'industrial and systems engineering': 'ISE',
+  'materials science and engineering': 'MSE',
+  'nuclear engineering': 'NucE',
+  'biology': 'Bio',
+  'biotechnology': 'Biotech',
+  'microbiology': 'Micro',
+  'biochemistry': 'Biochem',
+  'chemistry': 'Chem',
+  'neuroscience': 'Neuro',
+};
+
+/** Returns the abbreviation for a major name, or the original if not found */
+const abbreviateMajor = (major) => {
+  if (!major) return major;
+  return MAJOR_ABBREVIATIONS[major.trim().toLowerCase()] || major;
+};
+
 // Helper functions for academic year filtering
 const getCurrentAcademicYear = () => {
   const now = new Date();
@@ -203,8 +232,8 @@ export default function StatsTab() {
   const isMd = useMediaQuery('(max-width:1380px)');
   const isLg = useMediaQuery('(max-width:1540px)');
   const isXl = useMediaQuery('(max-width:1930px)');
-  const pieChartSize = isXs ? 180 : isSm ? 200 : isMd ? 200 : isLg ? 260 : isXl ? 320 : 340;
-  const radiusSize   = isXs ? 40  : isSm ? 50  : isMd ? 55  : isLg ? 70  : isXl ? 80  : 90;
+  const pieChartSize = isXs ? 180 : isSm ? 200 : isMd ? 280 : isLg ? 320 : isXl ? 370 : 360;
+  const radiusSize   = isXs ? 40  : isSm ? 50  : isMd ? 65  : isLg ? 80  : isXl ? 90  : 90;
   const [upcomingEventsPredictions, setUpcomingEventsPredictions] = useState([]);
   const [loadingPredictions, setLoadingPredictions] = useState(false);
 
@@ -730,12 +759,12 @@ export default function StatsTab() {
       data: majorDistributionData.map((item, index) => ({
         id: item.id,
         value: item.value,
-        label: item.label,
+        label: abbreviateMajor(item.label),
         color: colors[index % colors.length],
       })),
-      valueFormatter: ({ value }) => {
+      valueFormatter: ({ id, value }) => {
         const percentage = totalMembers > 0 ? Math.round((value / totalMembers) * 100) : 0;
-        return `${value} members (${percentage}%)`;
+        return `${id} — ${value} members (${percentage}%)`;
       },
       highlightScope: { fade: 'global', highlight: 'item' },
       highlighted: { additionalRadius: 2 },
@@ -1341,8 +1370,8 @@ export default function StatsTab() {
                   </div>
 
                   {/* Right side - Pie Chart (1/3 width) */}
-                  <div className="flex-[1] bg-gradient-to-br from-gray-900/50 to-gray-800/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex flex-col overflow-y-auto scrollbar-dark">
-                    <h3 className="text-white text-xl font-semibold mb-6 text-center tracking-tight">Major Distribution</h3>
+                  <div className="flex-[1] bg-gradient-to-br from-gray-900/50 to-gray-800/40 backdrop-blur-xl border border-white/10 rounded-3xl px-6 pb-12 pt-6 flex flex-col overflow-y-auto scrollbar-dark">
+                    <h3 className="text-white text-xl font-semibold mb-3 text-center tracking-tight">Major Distribution</h3>
                     <div className="flex-1 flex items-center justify-center">
                       {majorDistributionData.length > 0 ? (
                         <PieChart
@@ -1363,6 +1392,7 @@ export default function StatsTab() {
                           sx={{
                             '& .MuiChartsLegend-root': {
                               fill: 'rgba(255,255,255,0.85)',
+                              transform: 'translateY(26px)',
                             },
                             '& .MuiChartsLegend-mark': {
                               fill: 'rgba(255,255,255,0.85)',
