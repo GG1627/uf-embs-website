@@ -36,6 +36,13 @@ export default function MemberDashboard() {
   const [eventsLoading, setEventsLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(true);
   const [favoritesLoading, setFavoritesLoading] = useState(true);
+  const [semesterStats, setSemesterStats] = useState({
+    fallPoints: 0,
+    springPoints: 0,
+    fallEvents: 0,
+    springEvents: 0,
+    loading: true,
+  });
 
   // Major options
   const majorOptions = [
@@ -57,6 +64,7 @@ export default function MemberDashboard() {
       fetchEventsAttended();
       checkNationalMemberStatus();
       checkMajorStatus();
+      fetchSemesterStats();
     } else {
       console.log("⚠️ Dashboard useEffect triggered but no user found");
     }
@@ -136,6 +144,42 @@ export default function MemberDashboard() {
       });
     } finally {
       setStatsLoading(false);
+    }
+  };
+
+  // Fetch semester breakdown (Fall 2025 / Spring 2026)
+  const fetchSemesterStats = async () => {
+    try {
+      setSemesterStats((prev) => ({ ...prev, loading: true }));
+      // Spring 2026 starts Jan 1 2026
+      const springCutoff = new Date("2026-01-01T00:00:00.000Z");
+
+      const { data, error } = await supabase
+        .from("event_attendance")
+        .select("claimed_at, events(points)")
+        .eq("member_id", user.id);
+
+      if (error || !data) {
+        setSemesterStats({ fallPoints: 0, springPoints: 0, fallEvents: 0, springEvents: 0, loading: false });
+        return;
+      }
+
+      let fallPoints = 0, springPoints = 0, fallEvents = 0, springEvents = 0;
+      data.forEach((record) => {
+        const pts = record.events?.points || 0;
+        if (record.claimed_at && new Date(record.claimed_at) >= springCutoff) {
+          springPoints += pts;
+          springEvents += 1;
+        } else {
+          fallPoints += pts;
+          fallEvents += 1;
+        }
+      });
+
+      setSemesterStats({ fallPoints, springPoints, fallEvents, springEvents, loading: false });
+    } catch (err) {
+      console.error("Error fetching semester stats:", err);
+      setSemesterStats({ fallPoints: 0, springPoints: 0, fallEvents: 0, springEvents: 0, loading: false });
     }
   };
 
@@ -655,6 +699,41 @@ export default function MemberDashboard() {
             </p>
           </div>
 
+          {/* Officer Eligibility Badge */}
+          {!semesterStats.loading && semesterStats.fallPoints >= 7 && semesterStats.springPoints >= 12 && (
+            <div className="w-full max-w-7xl px-2 sm:px-4 md:px-0 mb-6">
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#005a5e] via-[#007377] to-[#009ca6] p-px shadow-xl">
+                <div className="relative rounded-2xl bg-gradient-to-r from-[#005a5e]/95 via-[#007377]/90 to-[#009ca6]/85 px-6 py-5 flex flex-col sm:flex-row items-center gap-4">
+                  {/* Animated glow ring */}
+                  <div className="flex-shrink-0 relative">
+                    <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
+                      <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center">
+                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118L10 15.347l-3.95 2.878c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Text */}
+                  <div className="flex-1 text-center sm:text-left">
+                    <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-0.5">
+                      🎉 Milestone Reached
+                    </p>
+                    <h2 className="text-white text-xl sm:text-2xl font-bold leading-snug">
+                      You're eligible to apply for an Officer position!
+                    </h2>
+                    <p className="text-white/70 text-sm mt-1">
+                      You've met the points requirement — keep an eye out for officer applications when they open!
+                    </p>
+                  </div>
+                  {/* Decorative circles */}
+                  <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
+                  <div className="absolute -bottom-8 -right-2 w-32 h-32 rounded-full bg-white/5 pointer-events-none" />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* National Member Status Update Section */}
           {showNationalMemberUpdate && (
             <div className="w-full max-w-7xl px-2 sm:px-4 md:px-0 mb-6">
@@ -846,7 +925,7 @@ export default function MemberDashboard() {
                       placeholder="Enter event code"
                       value={eventCode}
                       onChange={(e) => setEventCode(e.target.value)}
-                      className="w-full px-4 py-3 border bg-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#009ca6] focus:border-[#009ca6] border-gray-300 text-base"
+                      className="w-full px-4 py-3 border bg-gray-100 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#009ca6] focus:border-[#009ca6] border-gray-300 text-base"
                     />
                   </div>
                   <div className="flex gap-3 sm:flex-shrink-0">
@@ -954,7 +1033,7 @@ export default function MemberDashboard() {
             <div className="flex flex-col gap-4 w-full md:w-2/3">
               {/* Top row - 2 boxes */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex flex-col gap-2 bg-[#c5ebec] border-2 border-[#87d7db] p-4 sm:p-6 rounded-lg w-full sm:w-1/2 min-h-[120px] sm:h-52 items-center sm:items-start justify-center">
+                <div className="flex flex-col gap-2 bg-[#c5ebec] border-2 border-[#87d7db] p-4 sm:p-6 rounded-lg w-full sm:w-1/2 min-h-[120px] items-center sm:items-start justify-center">
                   <h1 className="text-[#009ca6] text-xl sm:text-2xl md:text-3xl font-bold uppercase text-center sm:text-left">
                     Points
                   </h1>
@@ -985,13 +1064,36 @@ export default function MemberDashboard() {
                       </div>
                     </div>
                   ) : (
-                    <h1 className="text-[#009ca6] text-3xl sm:text-5xl md:text-8xl font-bold leading-none">
-                      {userStats.points.toLocaleString()}
-                    </h1>
+                    <>
+                      <h1 className="text-[#009ca6] text-3xl sm:text-5xl md:text-8xl font-bold leading-none">
+                        {userStats.points.toLocaleString()}
+                      </h1>
+                      {!semesterStats.loading && (
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          {(() => {
+                            const total = userStats.points;
+                            const spring = semesterStats.springPoints;
+                            const rawFall = semesterStats.fallPoints;
+                            const remainder = Math.max(0, total - (rawFall + spring));
+                            const fall = rawFall + remainder;
+                            return (
+                              <>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#007377]/15 border border-[#007377]/30 text-[#005a5e] text-xs font-semibold">
+                                  Fall '25: {fall.toLocaleString()}
+                                </span>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#009ca6]/15 border border-[#009ca6]/30 text-[#007377] text-xs font-semibold">
+                                  Spring '26: {spring.toLocaleString()}
+                                </span>
+                              </>
+                            );
+                          })()}
+                        </div>
+                      )}
+                    </>
                   )}
                   <div className="w-full h-1 bg-[#007377] rounded"></div>
                 </div>
-                <div className="flex flex-col gap-2 bg-[#c5ebec] border-2 border-[#87d7db] p-4 sm:p-6 rounded-lg w-full sm:w-1/2 min-h-[120px] sm:h-52 items-center sm:items-start justify-center">
+                <div className="flex flex-col gap-2 bg-[#c5ebec] border-2 border-[#87d7db] p-4 sm:p-6 rounded-lg w-full sm:w-1/2 min-h-[120px] items-center sm:items-start justify-center">
                   <h1 className="text-[#009ca6] text-xl sm:text-2xl md:text-3xl font-bold uppercase text-center sm:text-left leading-tight">
                     Events Attended
                   </h1>
@@ -1022,9 +1124,21 @@ export default function MemberDashboard() {
                       </div>
                     </div>
                   ) : (
-                    <h1 className="text-[#009ca6] text-3xl sm:text-5xl md:text-8xl font-bold leading-none">
-                      {userStats.events_attended}
-                    </h1>
+                    <>
+                      <h1 className="text-[#009ca6] text-3xl sm:text-5xl md:text-8xl font-bold leading-none">
+                        {userStats.events_attended}
+                      </h1>
+                      {!semesterStats.loading && (
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#007377]/15 border border-[#007377]/30 text-[#005a5e] text-xs font-semibold">
+                            Fall '25: {semesterStats.fallEvents}
+                          </span>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#009ca6]/15 border border-[#009ca6]/30 text-[#007377] text-xs font-semibold">
+                            Spring '26: {semesterStats.springEvents}
+                          </span>
+                        </div>
+                      )}
+                    </>
                   )}
                   <div className="w-full h-1 bg-[#007377] rounded"></div>
                 </div>
