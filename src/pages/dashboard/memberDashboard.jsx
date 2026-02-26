@@ -700,7 +700,14 @@ export default function MemberDashboard() {
           </div>
 
           {/* Officer Eligibility Badge */}
-          {!semesterStats.loading && semesterStats.fallPoints >= 7 && semesterStats.springPoints >= 12 && (
+          {!semesterStats.loading && !statsLoading && (() => {
+            const total = userStats.points;
+            const spring = semesterStats.springPoints;
+            const rawFall = semesterStats.fallPoints;
+            const remainder = Math.max(0, total - (rawFall + spring));
+            const fall = rawFall + remainder;
+            return fall >= 7 || spring >= 12;
+          })() && (
             <div className="w-full max-w-7xl px-2 sm:px-4 md:px-0 mb-6">
               <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#005a5e] via-[#007377] to-[#009ca6] p-px shadow-xl">
                 <div className="relative rounded-2xl bg-gradient-to-r from-[#005a5e]/95 via-[#007377]/90 to-[#009ca6]/85 px-6 py-5 flex flex-col sm:flex-row items-center gap-4">
