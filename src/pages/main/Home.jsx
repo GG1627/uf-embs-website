@@ -946,20 +946,69 @@ export default function Home() {
           <h1 className="text-4xl text-white font-bold text-center mb-8 italic">
             Upcoming Events
           </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
-            {/* Event Cards */}
-            {events.slice(0, 3).map((event, index) => (
-              <EventCard
-                key={event.id}
-                eventName={event.summary}
-                location={event.location || "TBD"}
-                date={formatDate(event.start?.dateTime || event.start?.date)}
-                time={formatTime(event.start?.dateTime)}
-                description={event.description || "No description available"}
-                onCardClick={() => handleEventCardClick(event)}
-              />
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="rounded-xl bg-white/5 animate-pulse h-64 border border-white/10"
+                />
+              ))}
+            </div>
+          ) : events.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-6 px-4">
+              <div
+                className="relative rounded-3xl overflow-hidden px-10 py-14 flex flex-col items-center gap-4 max-w-lg w-full text-center"
+                style={{
+                  background: "rgba(255, 255, 255, 0.95)",
+                  backdropFilter: "blur(40px)",
+                  WebkitBackdropFilter: "blur(40px)",
+                  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5), 0 0px 10px rgba(255, 255, 255, 0.4)",
+                }}
+              >
+                {/* Top gradient accent bar */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl"
+                  style={{ background: "linear-gradient(90deg, #772583 0%, #9C1E96 100%)" }}
+                />
+                {/* Icon */}
+                <div
+                  className="flex items-center justify-center w-16 h-16 rounded-full mb-1"
+                  style={{ background: "rgba(119, 37, 131, 0.08)" }}
+                >
+                  <LuDna className="text-[#772583] text-3xl" />
+                </div>
+                <h3 className="text-gray-900 font-semibold text-xl tracking-tight">
+                  Nothing Scheduled Yet
+                </h3>
+                <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
+                  Something exciting is in the works! Check back soon to find out what's next for our community.                </p>
+                <Link
+                  to="/blog"
+                  className="mt-1 no-underline inline-flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium text-[#772583] transition-colors duration-200"
+                  style={{ background: "rgba(119, 37, 131, 0.08)" }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = "rgba(119, 37, 131, 0.14)"}
+                  onMouseLeave={(e) => e.currentTarget.style.background = "rgba(119, 37, 131, 0.08)"}
+                >
+                  Browse Past Events →
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+              {events.slice(0, 3).map((event) => (
+                <EventCard
+                  key={event.id}
+                  eventName={event.summary}
+                  location={event.location || "TBD"}
+                  date={formatDate(event.start?.dateTime || event.start?.date)}
+                  time={formatTime(event.start?.dateTime)}
+                  description={event.description || "No description available"}
+                  onCardClick={() => handleEventCardClick(event)}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
 
