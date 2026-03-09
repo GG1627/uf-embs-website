@@ -26,6 +26,12 @@ export default function CreateEventTab() {
   const [flyerUrl, setFlyerUrl] = useState("");
   const [uploadingFlyer, setUploadingFlyer] = useState(false);
 
+  // Edit modal state
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [editFlyerFile, setEditFlyerFile] = useState(null);
+
   const { showSnackbar } = useSnackbar();
   const { user } = useAuth();
 
@@ -406,6 +412,86 @@ export default function CreateEventTab() {
     }
   };
 
+  // Open edit modal with event data pre-populated
+  const openEditModal = (event) => {
+    // Extract time from ISO timestamps
+    const startDate = new Date(event.start_time);
+    const endDate = new Date(event.end_time);
+    const pad = (n) => n.toString().padStart(2, "0");
+
+    setEditForm({
+      name: event.name || "",
+      date: event.date || "",
+      points: event.points?.toString() || "",
+      code: event.code || "",
+      startTime: `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}`,
+      endTime: `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`,
+      eventType: event.event_type || "",
+      foodPresent: event.food_present ? "yes" : "no",
+      isVirtual: event.is_virtual ? "yes" : "no",
+      description: event.description || "",
+      location: event.location || "",
+      flyerUrl: event.flyer_url || "",
+    });
+    setEditFlyerFile(null);
+    setEditingEvent(event);
+  };
+
+  // Save edited event to Supabase
+  const saveEventEdit = async (e) => {
+    e.preventDefault();
+    if (!editingEvent) return;
+
+    setSavingEdit(true);
+    try {
+      // Upload new flyer if one was selected
+      let uploadedFlyerUrl = editForm.flyerUrl;
+      if (editFlyerFile) {
+        uploadedFlyerUrl = await uploadFlyer(editFlyerFile);
+      }
+
+      const startDateTime = new Date(
+        `${editForm.date}T${editForm.startTime}:00`
+      ).toISOString();
+      const endDateTime = new Date(
+        `${editForm.date}T${editForm.endTime}:00`
+      ).toISOString();
+
+      const { error } = await supabase
+        .from("events")
+        .update({
+          name: editForm.name,
+          date: editForm.date,
+          points: parseInt(editForm.points),
+          code: editForm.code,
+          start_time: startDateTime,
+          end_time: endDateTime,
+          event_type: editForm.eventType,
+          food_present: editForm.foodPresent === "yes",
+          is_virtual: editForm.isVirtual === "yes",
+          description: editForm.description || null,
+          location: editForm.location || null,
+          flyer_url: uploadedFlyerUrl || null,
+        })
+        .eq("id", editingEvent.id);
+
+      if (error) {
+        console.error("Error updating event:", error);
+        showSnackbar("Error updating event", { customColor: "#dc2626" });
+      } else {
+        showSnackbar("Event updated successfully!", { customColor: "#007377" });
+        setEditingEvent(null);
+        fetchActiveEvents();
+        fetchUpcomingEvents();
+      }
+    } catch (error) {
+      console.error("Error updating event:", error);
+      showSnackbar("Error updating event", { customColor: "#dc2626" });
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   // Function to generate random code
   const generateRandomCode = () => {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -507,6 +593,264 @@ export default function CreateEventTab() {
 
   return (
     <>
+      {/* Edit Event Modal */}
+      {editingEvent && (
+        <div className="fixed inset-0 z-[10001] flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setEditingEvent(null)}
+          />
+          <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-sleek mx-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                  <svg
+                    className="w-5 h-5 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                </div>
+                Edit Event
+              </h2>
+              <button
+                onClick={() => setEditingEvent(null)}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100 cursor-pointer"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={saveEventEdit} className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Type
+                  </label>
+                  <select
+                    required
+                    value={editForm.eventType}
+                    onChange={(e) => {
+                      const newType = e.target.value;
+                      const selectedType = eventTypeOptions.find((o) => o.value === newType);
+                      setEditForm({
+                        ...editForm,
+                        eventType: newType,
+                        points:
+                          selectedType && selectedType.points !== null
+                            ? selectedType.points.toString()
+                            : editForm.points,
+                      });
+                    }}
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200"
+                  >
+                    <option value="">Select event type</option>
+                    {eventTypeOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Food Provided
+                  </label>
+                  <select
+                    required
+                    value={editForm.foodPresent}
+                    onChange={(e) => setEditForm({ ...editForm, foodPresent: e.target.value })}
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200"
+                  >
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Virtual or In-Person
+                  </label>
+                  <select
+                    required
+                    value={editForm.isVirtual}
+                    onChange={(e) => setEditForm({ ...editForm, isVirtual: e.target.value })}
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200"
+                  >
+                    <option value="yes">Virtual</option>
+                    <option value="no">In-Person</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={editForm.date}
+                    onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Points
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={editForm.points}
+                    onChange={(e) => setEditForm({ ...editForm, points: e.target.value })}
+                    disabled={editForm.eventType && editForm.eventType !== "fundraising"}
+                    className={`block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 ${
+                      editForm.eventType && editForm.eventType !== "fundraising"
+                        ? "bg-gray-100 cursor-not-allowed"
+                        : ""
+                    }`}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Start Time
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    value={editForm.startTime}
+                    onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    End Time
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    value={editForm.endTime}
+                    onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    rows={3}
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 resize-none"
+                    placeholder="Event description (optional)"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.location}
+                    onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200"
+                    placeholder="Event location (optional)"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Code
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.code}
+                    onChange={(e) => setEditForm({ ...editForm, code: e.target.value })}
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 font-mono"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Flyer
+                    <span className="text-xs text-gray-500 ml-2">(Optional)</span>
+                  </label>
+                  {editForm.flyerUrl && !editFlyerFile && (
+                    <div className="mb-3">
+                      <p className="text-xs text-gray-500 mb-2">Current flyer:</p>
+                      <img
+                        src={editForm.flyerUrl}
+                        alt="Current flyer"
+                        className="max-w-full h-auto rounded-lg border border-gray-200 max-h-32 object-contain"
+                      />
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) setEditFlyerFile(file);
+                    }}
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 file:cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingEvent(null)}
+                  className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all duration-200 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingEdit}
+                  className={`flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all duration-200 shadow-lg ${
+                    savingEdit ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                  }`}
+                >
+                  {savingEdit ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -565,7 +909,7 @@ export default function CreateEventTab() {
                   </span>
                 </div>
               ) : activeEvents.length > 0 ? (
-                <div className="space-y-6 max-h-[600px] overflow-y-auto">
+                <div className="space-y-6 max-h-[600px] overflow-y-auto scrollbar-sleek">
                   {activeEvents.map((event) => (
                     <div
                       key={event.id}
@@ -666,28 +1010,50 @@ export default function CreateEventTab() {
                           <p className="mt-2 text-xs text-gray-500 text-center font-medium">
                             Scan to check in
                           </p>
-                          <button
-                            onClick={() =>
-                              downloadQRCode(event.code, event.name)
-                            }
-                            className="mt-2 px-4 py-2 bg-gray-800 text-white text-xs font-medium rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-offset-1 transition-all duration-200 hover:cursor-pointer flex items-center gap-2"
-                            title="Download QR code"
-                          >
-                            <svg
-                              className="w-3 h-3"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
+                          <div className="flex gap-2 mt-2">
+                            <button
+                              onClick={() =>
+                                downloadQRCode(event.code, event.name)
+                              }
+                              className="px-4 py-2 bg-gray-800 text-white text-xs font-medium rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-offset-1 transition-all duration-200 hover:cursor-pointer flex items-center gap-2"
+                              title="Download QR code"
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"
-                              />
-                            </svg>
-                            Download
-                          </button>
+                              <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+                                />
+                              </svg>
+                              Download
+                            </button>
+                            <button
+                              onClick={() => openEditModal(event)}
+                              className="px-4 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-1 transition-all duration-200 hover:cursor-pointer flex items-center gap-2"
+                              title="Edit event"
+                            >
+                              <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
+                              </svg>
+                              Edit
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -751,7 +1117,7 @@ export default function CreateEventTab() {
                   </span>
                 </div>
               ) : upcomingEvents.length > 0 ? (
-                <div className="space-y-6 max-h-[600px] overflow-y-auto">
+                <div className="space-y-6 max-h-[600px] overflow-y-auto scrollbar-sleek">
                   {upcomingEvents.map((event) => (
                     <div
                       key={event.id}
@@ -838,7 +1204,27 @@ export default function CreateEventTab() {
                             </p>
                           </div>
 
-                          <div className="flex justify-center lg:justify-start">
+                          <div className="flex flex-wrap justify-center lg:justify-start gap-2">
+                            <button
+                              onClick={() => openEditModal(event)}
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-colors duration-200 hover:cursor-pointer"
+                              title="Edit event"
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
+                              </svg>
+                              Edit
+                            </button>
                             <span className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
                               <svg
                                 className="w-4 h-4"
