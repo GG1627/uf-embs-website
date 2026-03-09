@@ -73,6 +73,29 @@
   display: none;
 }
 
+/* Sleek scrollbar for light-background containers */
+.scrollbar-sleek::-webkit-scrollbar {
+  width: 5px;
+}
+
+.scrollbar-sleek::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-sleek::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 99px;
+  transition: background 0.2s ease;
+}
+
+.scrollbar-sleek::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.scrollbar-sleek::-webkit-scrollbar-button {
+  display: none;
+}
+
 /* index.css */
 .backface-hidden {
   backface-visibility: hidden;
