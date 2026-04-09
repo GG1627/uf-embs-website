@@ -127,7 +127,7 @@ export default function Navbar() {
                 <button
                   onClick={() => navigate(role === "admin" ? "/admin-dashboard" : "/dashboard")}
                   title={`Go to ${role === "admin" ? "Admin" : "Member"} Dashboard`}
-                  className="w-7 h-7 rounded-full bg-[#1A1A1A] hover:bg-[#00629B] flex items-center justify-center transition-colors duration-200 shrink-0"
+                  className="w-7 h-7 rounded-full bg-[#1A1A1A] hover:bg-[#00629B] flex items-center justify-center transition-colors duration-200 shrink-0 cursor-pointer"
                 >
                   <span className="text-white text-[0.6875rem] font-semibold tracking-wide">
                     {userInitials}
