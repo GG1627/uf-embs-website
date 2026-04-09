@@ -644,31 +644,31 @@ export default function Home() {
       {/* Desktop Hero Section */}
       <div className="hidden md:block relative">
         {/* Full-width background extensions - desktop only */}
-        <div className="absolute inset-0 h-[100dvh] bg-[#D9D9D9]" />
+        <div className="absolute inset-0 h-[100dvh] bg-[#efefef]" />
         <div className="fixed z-[-10] inset-0 h-[100dvh] w-full">
           <div className="absolute inset-0 h-[100dvh] w-full bg-gradient-to-b from-[#772583]/30 to-[#00629b]/30" />
           <img src={UF_Skyline} alt="UF Skyline" className="h-full w-full object-cover opacity-20" />
         </div>
         <div
-          className="absolute top-0 bottom-0 right-0 bg-[#D9D9D9] h-[100dvh]"
+          className="absolute top-0 bottom-0 right-0 bg-[#efefef] h-[100dvh]"
           style={{ left: "60%" }}
         />
 
         {/* Centered content container */}
-        <div className="relative min-h-[100dvh] max-w-[1600px] mx-auto overflow-hidden bg-[#D9D9D9]">
+        <div className="relative min-h-[100dvh] max-w-[1600px] mx-auto overflow-hidden bg-[#efefef]">
           {/* Right half overlay - positioned relative to container */}
-          <div className="absolute inset-y-0 right-0 w-[44.5%] bg-[#D9D9D9] z-0" />
+          <div className="absolute inset-y-0 right-0 w-[44.5%] bg-[#efefef] z-0" />
 
           {/* Layer 1: Filler background */}
           <div className="absolute inset-0 z-10 pointer-events-none mt-4 ml-12">
-            <img
+            {/* <img
               src={DesktopBackgroundFiller}
               alt="Background Filler"
               loading="lazy"
               decoding="async"
               fetchPriority="low"
               className="absolute left-1/2 top-1/2 -translate-x-[30%] -translate-y-1/2 h-screen w-auto"
-            />
+            /> */}
           </div>
 
           {/* Layer 2: Particles — above filler, below DNA */}
