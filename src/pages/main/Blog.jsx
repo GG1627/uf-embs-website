@@ -579,11 +579,11 @@ export default function Blog() {
         <div className="max-w-5xl mx-auto">
           {/* Top rule */}
           <div className="flex items-center gap-4 mb-6">
-            <div className="h-px flex-1 bg-[#D0CCC4]" />
+            <div className="h-px flex-1" style={{ background: "linear-gradient(to right, transparent, #772583, transparent)" }} />
             <p className="text-[10px] font-semibold tracking-[0.28em] uppercase text-[#9A9A9A]">
               University of Florida · IEEE EMBS
             </p>
-            <div className="h-px flex-1 bg-[#D0CCC4]" />
+            <div className="h-px flex-1" style={{ background: "linear-gradient(to right, transparent, #00629B, transparent)" }} />
           </div>
 
           {/* Title row */}
@@ -593,7 +593,7 @@ export default function Blog() {
                 style={{ fontFamily: "'Lora', Georgia, serif" }}
                 className="text-5xl md:text-[4.5rem] font-medium leading-[1.08] tracking-[-0.02em] text-[#1A1A1A]"
               >
-                The EMBS Gazette
+                The EMBS <em className="not-italic text-[#772583]">Gazette</em>
               </h1>
               <p className="text-[0.8125rem] text-[#8A8A8A] mt-2 font-light tracking-wide">
                 Your source for all things biomedical engineering at UF

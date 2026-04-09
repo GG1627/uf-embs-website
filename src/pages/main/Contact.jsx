@@ -101,7 +101,7 @@ export default function Contact() {
               style={{ fontFamily: "'Lora', Georgia, serif" }}
               className="text-5xl md:text-[4rem] font-medium leading-[1.1] tracking-[-0.01em] text-[#1A1A1A]"
             >
-              Get in Touch
+              Get <em className="not-italic text-[#00629B]">in Touch</em>
             </h1>
             <p className="text-[1rem] text-[#4A4A4A] font-light leading-[1.75] max-w-sm md:text-right md:pb-1">
               Questions, feedback, or interested in partnering? We would love to hear from you.
@@ -228,7 +228,7 @@ export default function Contact() {
           </div>
 
           {/* Contact info */}
-          <div className="flex flex-col justify-between gap-12">
+          <div className="flex flex-col justify-between gap-12 pl-6 border-l-2 border-[#00629B]/20">
             <div>
               <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#00629B] mb-5">
                 Contact Info

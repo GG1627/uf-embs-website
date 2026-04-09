@@ -284,7 +284,7 @@ export default function Resources() {
               style={{ fontFamily: "'Lora', Georgia, serif" }}
               className="text-5xl md:text-[4rem] font-medium leading-[1.1] tracking-[-0.01em] text-[#1A1A1A]"
             >
-              Career Fields
+              Career <em className="not-italic text-[#00629B]">Fields</em>
             </h1>
             <p className="text-[1rem] text-[#4A4A4A] font-light leading-[1.75] max-w-sm md:text-right md:pb-1">
               Explore {careerFields.length} biomedical engineering specializations and the opportunities each one opens.
@@ -309,8 +309,8 @@ export default function Resources() {
                   onClick={() => setSelectedField(index)}
                   className={`text-[0.8125rem] font-medium px-4 py-2 border transition-colors duration-200 cursor-pointer ${
                     selectedField === index
-                      ? "bg-[#1A1A1A] text-white border-[#1A1A1A]"
-                      : "bg-white text-[#4A4A4A] border-[#D0CCC4] hover:border-[#1A1A1A] hover:text-[#1A1A1A]"
+                      ? "bg-[#772583] text-white border-[#772583]"
+                      : "bg-white text-[#4A4A4A] border-[#D0CCC4] hover:border-[#772583] hover:text-[#772583]"
                   }`}
                 >
                   {field.name}
@@ -339,8 +339,8 @@ export default function Resources() {
             </div>
 
             <div
-              className="border border-[#E8E4DD] bg-white flex flex-col"
-              style={{ height: "520px", boxShadow: "0 2px 24px rgba(26,26,26,0.06)" }}
+              className="border border-[#00629B]/20 border-l-[3px] border-l-[#00629B] flex flex-col"
+              style={{ height: "520px", background: "linear-gradient(to bottom, #F0F7FC, #ffffff)", boxShadow: "0 2px 24px rgba(0,98,155,0.08)" }}
             >
               <AdvisorChat />
             </div>

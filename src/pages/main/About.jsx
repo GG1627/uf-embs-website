@@ -69,11 +69,11 @@ export default function About() {
       {/* ── Stats ─────────────────────────────────────────────────────────── */}
       <section className="border-t border-[#E8E4DD] bg-white">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-[#E8E4DD]">
-          {stats.map(({ value, label }) => (
+          {stats.map(({ value, label }, i) => (
             <div key={label} className="flex flex-col items-center py-12 px-6">
               <span
                 style={{ fontFamily: "'Lora', Georgia, serif" }}
-                className="text-[2.75rem] font-medium text-[#1A1A1A] leading-none mb-2"
+                className={`text-[2.75rem] font-medium leading-none mb-2 ${i % 2 === 0 ? "text-[#00629B]" : "text-[#772583]"}`}
               >
                 {value}
               </span>
@@ -98,7 +98,7 @@ export default function About() {
             >
               Building the next generation of biomedical engineers at UF.
             </h2>
-            <p className="text-[#4A4A4A] text-[1rem] leading-[1.8] font-light mb-5">
+            <p className="text-[#4A4A4A] text-[1rem] leading-[1.8] font-light mb-5 pl-4 border-l-2 border-[#00629B]/30">
               The EMBS chapter at the University of Florida is a student-led
               organization focused on empowering engineers to innovate at the
               intersection of healthcare and technology. Our mission is to
@@ -198,12 +198,14 @@ export default function About() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#E8E4DD]">
-            {pillars.map(({ icon, title, body }) => (
+            {pillars.map(({ icon, title, body }, i) => (
               <div
                 key={title}
-                className="bg-white p-8 flex flex-col gap-5 hover:bg-[#F8F6F1] transition-colors duration-300 group"
+                className="bg-white p-8 flex flex-col gap-5 hover:bg-[#F8F6F1] transition-colors duration-300 group relative overflow-hidden"
               >
-                <div className="text-[#00629B] text-[1.25rem] opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+                {/* Colored top accent line on hover */}
+                <div className={`absolute top-0 left-0 right-0 h-[2px] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left ${i % 2 === 0 ? "bg-[#00629B]" : "bg-[#772583]"}`} />
+                <div className={`w-9 h-9 flex items-center justify-center text-[1rem] ${i % 2 === 0 ? "bg-[#00629B]/8 text-[#00629B]" : "bg-[#772583]/8 text-[#772583]"} group-hover:bg-opacity-100 transition-colors duration-300`}>
                   {icon}
                 </div>
                 <div>

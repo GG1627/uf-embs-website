@@ -16,7 +16,7 @@ export default function Events() {
               style={{ fontFamily: "'Lora', Georgia, serif" }}
               className="text-5xl md:text-[4rem] font-medium leading-[1.12] tracking-[-0.01em] text-[#1A1A1A]"
             >
-              Events &amp; Calendar
+              Events &amp; <em className="not-italic text-[#772583]">Calendar</em>
             </h1>
             <p className="text-[1rem] text-[#4A4A4A] font-light leading-[1.75] max-w-sm md:text-right md:pb-1">
               Workshops, networking nights, design challenges, and more. All in one place.
@@ -39,7 +39,7 @@ export default function Events() {
 
           {/* Calendar embed */}
           <div
-            className="overflow-hidden border border-[#E8E4DD]"
+            className="overflow-hidden border border-[#E8E4DD] border-l-[3px] border-l-[#772583]"
             style={{ boxShadow: "0 2px 24px rgba(26,26,26,0.06)" }}
           >
             <iframe

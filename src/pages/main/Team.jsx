@@ -13,6 +13,7 @@ import {
 const sections = [
   {
     label:       "Leadership",
+    labelColor:  "text-[#772583]",
     title:       "Executive Board",
     description: "The leadership team guiding strategy, community, and vision.",
     members:     executiveBoard,
@@ -20,6 +21,7 @@ const sections = [
   },
   {
     label:       "Technical",
+    labelColor:  "text-[#00629B]",
     title:       "Tech Leads",
     description: "Engineers and researchers driving our technical initiatives.",
     members:     techLeads,
@@ -27,6 +29,7 @@ const sections = [
   },
   {
     label:       "Creative",
+    labelColor:  "text-[#772583]",
     title:       "Digital Media",
     description: "Building and shaping the digital presence of UF EMBS.",
     members:     digitalMedia,
@@ -34,6 +37,7 @@ const sections = [
   },
   {
     label:       "Community",
+    labelColor:  "text-[#00629B]",
     title:       "Outreach and Operations",
     description: "Connecting our community and expanding our reach on campus.",
     members:     outreachAndOperations,
@@ -41,6 +45,7 @@ const sections = [
   },
   {
     label:       "Faculty",
+    labelColor:  "text-[#772583]",
     title:       "Advisors",
     description: "Faculty and industry mentors who guide our work and growth.",
     members:     advisors,
@@ -63,7 +68,7 @@ export default function Team() {
               style={{ fontFamily: "'Lora', Georgia, serif" }}
               className="text-5xl md:text-[4rem] font-medium leading-[1.1] tracking-[-0.01em] text-[#1A1A1A]"
             >
-              Meet the Team
+              Meet <em className="not-italic text-[#772583]">the Team</em>
             </h1>
             <p className="text-[1rem] text-[#4A4A4A] font-light leading-[1.75] max-w-sm md:text-right md:pb-1">
               The people who make UF EMBS run, from the executive board to faculty advisors.
@@ -74,7 +79,7 @@ export default function Team() {
 
       {/* ── Member sections ───────────────────────────────────────────────── */}
       <div className="flex-1">
-        {sections.map(({ label, title, description, members, cols }, si) => (
+        {sections.map(({ label, labelColor, title, description, members, cols }, si) => (
           <section
             key={title}
             className={`py-20 px-6 ${si % 2 === 0 ? "bg-[#F8F6F1]" : "bg-white"}`}
@@ -83,7 +88,7 @@ export default function Team() {
               {/* Section header */}
               <div className="mb-12 grid md:grid-cols-5 gap-6 items-end">
                 <div className="md:col-span-3">
-                  <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-4">
+                  <p className={`text-[11px] font-semibold tracking-[0.22em] uppercase mb-4 ${labelColor}`}>
                     {label}
                   </p>
                   <h2
@@ -137,11 +142,11 @@ export default function Team() {
                 <div className="flex items-center gap-4 mb-10">
                   <span
                     style={{ fontFamily: "'Lora', Georgia, serif" }}
-                    className="text-[1.125rem] font-medium text-[#1A1A1A] shrink-0"
+                    className="text-[1.125rem] font-medium text-[#00629B] shrink-0"
                   >
                     {year}
                   </span>
-                  <div className="h-px flex-1 bg-[#E8E4DD]" />
+                  <div className="h-px flex-1" style={{ background: "linear-gradient(to right, #00629B30, #E8E4DD)" }} />
                 </div>
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
