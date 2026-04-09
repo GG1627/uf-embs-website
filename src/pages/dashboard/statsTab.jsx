@@ -805,14 +805,18 @@ export default function StatsTab() {
   const currentData = getCurrentData();
 
   return (
-    <div className="mx-auto">
-      <div className="h-[calc(100vh-6.5rem)] flex flex-col overflow-hidden p-2">
-        <div className="bg-[#000000]/0 rounded-xl flex-1 flex gap-3 p-2 overflow-hidden">
-          <div className="bg-[#000000]/50 flex-[0.8] rounded-3xl p-4 flex flex-col overflow-hidden">
+    <div className="mx-auto" style={{ fontFamily: "'Inter', sans-serif" }}>
+      <div className="h-[calc(100vh-3.5rem)] flex flex-col overflow-hidden p-2 pt-19">
+        <div className="bg-[#000000]/0 flex-1 flex gap-2 p-2 overflow-hidden">
+          <div className="bg-[#111110] border border-white/[0.06] flex-[0.8] p-4 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-2 flex-shrink-0">
-              <h1 className="text-4xl font-bold italic text-[#8ed8f8]">
-                {currentData.title}
-              </h1>
+              <div>
+                <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-1">Admin</p>
+                <h1 style={{ fontFamily: "'Lora', Georgia, serif" }}
+                  className="text-2xl font-medium text-white">
+                  {currentData.title}
+                </h1>
+              </div>
               {(category === "events" || category === "members" || category === "charts" || category === "ai-predictions") && (
                 <a
                   href="https://drive.google.com/drive/folders/19__MFdwXfXCmIwoJ2Y4z2P1xdTxnjCGp?usp=drive_link"
@@ -841,7 +845,7 @@ export default function StatsTab() {
                 </a>
               )}
             </div>
-            <div className="w-full h-px bg-white mb-2"></div>
+            <div className="w-full h-px bg-white/[0.07] mb-2"></div>
             <div className="flex-1 min-h-0 w-full overflow-hidden">
               {category === "ai-predictions" ? (
                 <div className="h-full flex gap-4">
@@ -1520,13 +1524,12 @@ export default function StatsTab() {
             </div>
           </div>
           {/* RIGHT SIDEBAR */}
-          <div className="bg-[#000000]/50 flex-[0.2] rounded-3xl p-4 space-y-3 overflow-y-auto scrollbar-dark">
+          <div className="bg-[#111110] border border-white/[0.06] flex-[0.2] p-4 space-y-5 overflow-y-auto scrollbar-dark">
             {/* Filter Section */}
-            <div className="mt-3">
-              <h2 className="text-xl font-bold text-white mb-2">
-                Filter by Category
-              </h2>
-              <div className="w-full h-[1px] bg-white mb-4"></div>
+            <div className="mt-2">
+              <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-1">Filter</p>
+              <h2 className="text-[0.9375rem] font-medium text-white mb-3">Category</h2>
+              <div className="w-full h-px bg-white/[0.07] mb-4"></div>
               <Box sx={{ minWidth: 120 }}>
                 <FormControl fullWidth>
                   <InputLabel
@@ -1573,10 +1576,9 @@ export default function StatsTab() {
 
             {/* Academic Year Filter */}
             <div>
-              <h2 className="text-xl font-bold text-white mb-2">
-                Academic Year
-              </h2>
-              <div className="w-full h-[1px] bg-white mb-4"></div>
+              <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#00629B] mb-1">Filter</p>
+              <h2 className="text-[0.9375rem] font-medium text-white mb-3">Academic Year</h2>
+              <div className="w-full h-px bg-white/[0.07] mb-4"></div>
               <Box sx={{ minWidth: 120 }}>
                 <FormControl fullWidth>
                   <InputLabel
@@ -1677,21 +1679,16 @@ export default function StatsTab() {
             {/* Download Section - Only show for Events */}
             {category === "events" && (
               <div>
-                <h2 className="text-xl font-bold text-white mb-2">
-                  Download Attendance
-                </h2>
-                <div className="w-full h-px bg-white mb-4"></div>
+                <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-1">Export</p>
+                <h2 className="text-[0.9375rem] font-medium text-white mb-3">Download Attendance</h2>
+                <div className="w-full h-px bg-white/[0.07] mb-4"></div>
                 <div className="space-y-3">
-                  <button
-                    onClick={() => downloadAttendees("TXT")}
-                    className="w-full px-4 py-2 bg-[#121212]/90 hover:bg-[#121212] text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#00A3AD] focus:ring-offset-2 hover:cursor-pointer"
-                  >
+                  <button onClick={() => downloadAttendees("TXT")}
+                    className="w-full px-4 py-2 border border-white/10 hover:border-white/30 text-white/50 hover:text-white text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
                     TXT
                   </button>
-                  <button
-                    onClick={() => downloadAttendees("EXCEL")}
-                    className="w-full px-4 py-2 bg-[#121212]/90 hover:bg-[#121212] text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#00A3AD] focus:ring-offset-2 hover:cursor-pointer"
-                  >
+                  <button onClick={() => downloadAttendees("EXCEL")}
+                    className="w-full px-4 py-2 border border-white/10 hover:border-white/30 text-white/50 hover:text-white text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
                     EXCEL
                   </button>
                 </div>
@@ -1701,21 +1698,16 @@ export default function StatsTab() {
             {/* Download Members - Only show for Members */}
             {category === "members" && (
               <div>
-                <h2 className="text-xl font-bold text-white mb-2">
-                  Download Members
-                </h2>
-                <div className="w-full h-px bg-white mb-4"></div>
+                <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-1">Export</p>
+                <h2 className="text-[0.9375rem] font-medium text-white mb-3">Download Members</h2>
+                <div className="w-full h-px bg-white/[0.07] mb-4"></div>
                 <div className="space-y-3">
-                  <button
-                    onClick={() => downloadMembers("TXT")}
-                    className="w-full px-4 py-2 bg-[#121212]/90 hover:bg-[#121212] text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#00A3AD] focus:ring-offset-2 hover:cursor-pointer"
-                  >
+                  <button onClick={() => downloadMembers("TXT")}
+                    className="w-full px-4 py-2 border border-white/10 hover:border-white/30 text-white/50 hover:text-white text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
                     TXT
                   </button>
-                  <button
-                    onClick={() => downloadMembers("EXCEL")}
-                    className="w-full px-4 py-2 bg-[#121212]/90 hover:bg-[#121212] text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#00A3AD] focus:ring-offset-2 hover:cursor-pointer"
-                  >
+                  <button onClick={() => downloadMembers("EXCEL")}
+                    className="w-full px-4 py-2 border border-white/10 hover:border-white/30 text-white/50 hover:text-white text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
                     EXCEL
                   </button>
                 </div>
@@ -1725,29 +1717,18 @@ export default function StatsTab() {
             {/* Extra Stats Section - Only show for Members */}
             {category === "members" && (
               <div>
-                <h2 className="text-xl font-bold text-white mb-2">
-                  Extra Stats
-                </h2>
-                <div className="w-full h-px bg-white mb-4"></div>
-                <div className="space-y-4">
-                  <div className="bg-[#121212]/50 rounded-lg p-3">
-                    <div className="text-sm text-gray-300 mb-1">
-                      Total Members
-                    </div>
-                    <div className="text-2xl font-bold text-white">
-                      {membersData.length}
-                    </div>
+                <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#00629B] mb-1">Overview</p>
+                <h2 className="text-[0.9375rem] font-medium text-white mb-3">Extra Stats</h2>
+                <div className="w-full h-px bg-white/[0.07] mb-4"></div>
+                <div className="space-y-3">
+                  <div className="border border-white/[0.07] p-3">
+                    <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/30 mb-1">Total Members</div>
+                    <div className="text-2xl font-medium text-white" style={{ fontFamily: "'Lora', Georgia, serif" }}>{membersData.length}</div>
                   </div>
-                  <div className="bg-[#121212]/50 rounded-lg p-3">
-                    <div className="text-sm text-gray-300 mb-1">
-                      National Members
-                    </div>
-                    <div className="text-2xl font-bold text-white">
-                      {
-                        membersData.filter(
-                          (member) => member.national_member === "yes"
-                        ).length
-                      }
+                  <div className="border border-white/[0.07] p-3">
+                    <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/30 mb-1">National Members</div>
+                    <div className="text-2xl font-medium text-white" style={{ fontFamily: "'Lora', Georgia, serif" }}>
+                      {membersData.filter((m) => m.national_member === "yes").length}
                     </div>
                   </div>
                 </div>
@@ -1757,38 +1738,20 @@ export default function StatsTab() {
             {/* Charts Info Section - Only show for Charts */}
             {category === "charts" && (
               <div>
-                <h2 className="text-xl font-bold text-white mb-2">
-                  Analytics Overview
-                </h2>
-                <div className="w-full h-px bg-white mb-4"></div>
-                <div className="space-y-4">
-                  <div className="bg-[#121212]/50 rounded-lg p-3">
-                    <div className="text-sm text-gray-300 mb-1">
-                      Total Events
+                <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#00629B] mb-1">Overview</p>
+                <h2 className="text-[0.9375rem] font-medium text-white mb-3">Analytics</h2>
+                <div className="w-full h-px bg-white/[0.07] mb-4"></div>
+                <div className="space-y-3">
+                  {[
+                    { label: "Total Events", value: attendanceOverTimeData.length },
+                    { label: "Total Attendance", value: attendanceOverTimeData.reduce((s, e) => s + e.attendance, 0) },
+                    { label: "Avg. Attendance", value: attendanceOverTimeData.length > 0 ? Math.round(attendanceOverTimeData.reduce((s, e) => s + e.attendance, 0) / attendanceOverTimeData.length) : 0 },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="border border-white/[0.07] p-3">
+                      <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/30 mb-1">{label}</div>
+                      <div className="text-2xl font-medium text-white" style={{ fontFamily: "'Lora', Georgia, serif" }}>{value}</div>
                     </div>
-                    <div className="text-2xl font-bold text-white">
-                      {attendanceOverTimeData.length}
-                    </div>
-                  </div>
-                  <div className="bg-[#121212]/50 rounded-lg p-3">
-                    <div className="text-sm text-gray-300 mb-1">
-                      Total Attendance
-                    </div>
-                    <div className="text-2xl font-bold text-white">
-                      {attendanceOverTimeData.reduce((sum, event) => sum + event.attendance, 0)}
-                    </div>
-                  </div>
-                  <div className="bg-[#121212]/50 rounded-lg p-3">
-                    <div className="text-sm text-gray-300 mb-1">
-                      Avg. Attendance
-                    </div>
-                    <div className="text-2xl font-bold text-white">
-                      {attendanceOverTimeData.length > 0 
-                        ? Math.round(attendanceOverTimeData.reduce((sum, event) => sum + event.attendance, 0) / attendanceOverTimeData.length)
-                        : 0
-                      }
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -1796,46 +1759,20 @@ export default function StatsTab() {
             {/* AI Predictions Info Section */}
             {category === "ai-predictions" && (
               <div>
-                <h2 className="text-xl font-bold text-white mb-2">
-                  Predictions Overview
-                </h2>
-                <div className="w-full h-px bg-white mb-4"></div>
-                <div className="space-y-4">
-                  <div className="bg-gradient-to-br from-white/20 to-white/10 border border-white/30 rounded-lg p-3">
-                    <div className="text-sm text-gray-300 mb-1">
-                      Events with Predictions
+                <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-1">AI</p>
+                <h2 className="text-[0.9375rem] font-medium text-white mb-3">Predictions Overview</h2>
+                <div className="w-full h-px bg-white/[0.07] mb-4"></div>
+                <div className="space-y-3">
+                  {[
+                    { label: "Events w/ Predictions", value: upcomingEventsPredictions.length },
+                    { label: "Avg. Predicted", value: upcomingEventsPredictions.length > 0 ? Math.round(upcomingEventsPredictions.reduce((s, e) => s + (e.predicted_attendance || 0), 0) / upcomingEventsPredictions.length) : 0 },
+                    { label: "Total Predicted", value: upcomingEventsPredictions.reduce((s, e) => s + (e.predicted_attendance || 0), 0) },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="border border-white/[0.07] p-3">
+                      <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/30 mb-1">{label}</div>
+                      <div className="text-2xl font-medium text-white" style={{ fontFamily: "'Lora', Georgia, serif" }}>{value}</div>
                     </div>
-                    <div className="text-2xl font-bold text-white">
-                      {upcomingEventsPredictions.length}
-                    </div>
-                  </div>
-                  <div className="bg-gradient-to-br from-white/20 to-white/10 border border-white/30 rounded-lg p-3">
-                    <div className="text-sm text-gray-300 mb-1">
-                      Avg. Predicted Attendance
-                    </div>
-                    <div className="text-2xl font-bold text-white">
-                      {upcomingEventsPredictions.length > 0
-                        ? Math.round(
-                            upcomingEventsPredictions.reduce(
-                              (sum, event) => sum + (event.predicted_attendance || 0),
-                              0
-                            ) / upcomingEventsPredictions.length
-                          )
-                        : 0
-                      }
-                    </div>
-                  </div>
-                  <div className="bg-gradient-to-br from-white/20 to-white/10 border border-white/30 rounded-lg p-3">
-                    <div className="text-sm text-gray-300 mb-1">
-                      Total Predicted
-                    </div>
-                    <div className="text-2xl font-bold text-white">
-                      {upcomingEventsPredictions.reduce(
-                        (sum, event) => sum + (event.predicted_attendance || 0),
-                        0
-                      )}
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             )}

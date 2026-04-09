@@ -687,7 +687,7 @@ export default function Home() {
               decoding="async"
               fetchPriority="low"
               className="h-screen w-auto"
-              style={{ filter: "blur(0.6px) contrast(0.88) brightness(1.06) saturate(0.85)" }}
+              style={{ filter: "blur(0.8px) contrast(0.70) brightness(1.26) saturate(0.85)" }}
             />
           </div>
 
