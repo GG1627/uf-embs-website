@@ -31,6 +31,7 @@ export default function SponsorshipPacketBook() {
 
   return (
     <div className="relative w-full h-full flex flex-col items-center overflow-hidden">
+      <div className="border border-[#1A1A1A]/20" style={{ boxShadow: "0 2px 24px rgba(26,26,26,0.10)" }}>
       <HTMLFlipBook
         ref={bookRef}
         width={520}
@@ -58,50 +59,43 @@ export default function SponsorshipPacketBook() {
         <div><img src={Page6} alt="Page 6" className="w-full h-full object-contain" /></div>
         <div><img src={Page7} alt="Page 7" className="w-full h-full object-contain" /></div>
       </HTMLFlipBook>
+      </div>
 
-      {/* Navigation Arrows and Download Button */}
-      <div className="relative flex items-center justify-center w-full mt-4">
-        <div className="flex gap-4">
-          <button
-            onClick={prevPage}
-            disabled={currentPage === 0}
-            className={`p-3 rounded-full transition-colors duration-200 ${
-              currentPage === 0
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-[#772583] text-white hover:bg-[#5a1c62]"
-            }`}
-            aria-label="Previous page"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={nextPage}
-            disabled={currentPage === totalPages - 1}
-            className={`p-3 rounded-full transition-colors duration-200 ${
-              currentPage === totalPages - 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-[#772583] text-white hover:bg-[#5a1c62]"
-            }`}
-            aria-label="Next page"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-        
-        <a
-          href="/Sponsorship_Packet.pdf"
-          download="IEEE_EMBS_Sponsorship_Packet.pdf"
-          className="mr-4 md:mr-0 absolute right-0 inline-flex items-center gap-1.5 px-3 py-2 bg-[#772583] text-white rounded-md text-sm font-medium hover:bg-[#5a1c62] transition-colors duration-200"
+      {/* Navigation arrows */}
+      <div className="flex items-center gap-3 mt-5">
+        <button
+          onClick={prevPage}
+          disabled={currentPage === 0}
+          aria-label="Previous page"
+          className={`w-9 h-9 border flex items-center justify-center transition-colors duration-200 ${
+            currentPage === 0
+              ? "border-[#E8E4DD] text-[#D0CCC4] cursor-not-allowed"
+              : "border-[#D0CCC4] text-[#4A4A4A] hover:border-[#1A1A1A] hover:text-[#1A1A1A]"
+          }`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 19l-7-7 7-7" />
           </svg>
-          Download
-        </a>
+        </button>
+
+        <span style={{ fontFamily: "'Inter', sans-serif" }} className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#8A8A8A] min-w-[4rem] text-center">
+          {currentPage + 1} / {totalPages}
+        </span>
+
+        <button
+          onClick={nextPage}
+          disabled={currentPage === totalPages - 1}
+          aria-label="Next page"
+          className={`w-9 h-9 border flex items-center justify-center transition-colors duration-200 ${
+            currentPage === totalPages - 1
+              ? "border-[#E8E4DD] text-[#D0CCC4] cursor-not-allowed"
+              : "border-[#D0CCC4] text-[#4A4A4A] hover:border-[#1A1A1A] hover:text-[#1A1A1A]"
+          }`}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
     </div>
   );

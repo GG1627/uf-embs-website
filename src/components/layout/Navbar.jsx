@@ -6,334 +6,203 @@ import { FaUserCircle } from "react-icons/fa";
 import { useAuth } from "../../pages/auth/AuthContext";
 import { supabase } from "../../lib/supabase";
 
+const NAV_LINKS = [
+  { label: "Home",       to: "/" },
+  { label: "About",      to: "/about" },
+  { label: "Events",     to: "/events" },
+  { label: "Resources",  to: "/resources" },
+  { label: "Blog",       to: "/blog" },
+  { label: "Team",       to: "/team" },
+  { label: "Contact",    to: "/contact" },
+];
+
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [userInitials, setUserInitials] = useState("");
-  const [role, setRole] = useState("member");
-  const [isMenuTransitioning, setIsMenuTransitioning] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [userInitials, setUserInitials]         = useState("");
+  const [role, setRole]                         = useState("member");
+  const [scrolled, setScrolled]                 = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  const { user } = useAuth();
+  const navigate  = useNavigate();
+  const { user }  = useAuth();
 
-  // Always use light navbar (white background)
-  const isDarkNavbar = false;
-
-  // helper function to check active path for link styling
-  const linkClass = (path) => {
-    const isActive = path === "/" 
-      ? location.pathname === "/"
-      : location.pathname.startsWith(path);
-    
-    const baseClasses = "text-xl underline-offset-4 decoration-2 font-[700] transition-all duration-300 italic";
-    
-    if (isDarkNavbar) {
-      // Dark navbar state: white links, active link is #5d9cc3
-      return isActive
-        ? `text-[#5d9cc3] ${baseClasses} underline`
-        : `text-white ${baseClasses} hover:text-white/80 hover:underline`;
-    } else {
-      // Light navbar state: black links, active link is #772583
-      return isActive
-        ? `text-[#772583] ${baseClasses} underline`
-        : `text-black ${baseClasses} hover:text-[#772583] hover:underline`;
-    }
-  };
-
-  // mobile detection effect
+  // Collapse mobile menu on route change
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // md breakpoint
-    };
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
-    checkMobile(); // Check on mount
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+  // Add a subtle bottom-border when scrolled
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-
-  // get the users initials
+  // Resolve user initials
   useEffect(() => {
     if (user?.user_metadata) {
-      const firstName = user.user_metadata.first_name || "";
-      const lastName = user.user_metadata.last_name || "";
-
-      if (firstName && lastName) {
-        setUserInitials(
-          firstName.charAt(0).toUpperCase() + lastName.charAt(0).toUpperCase()
-        );
-      } else {
-        setUserInitials("NA");
-      }
+      const first = user.user_metadata.first_name || "";
+      const last  = user.user_metadata.last_name  || "";
+      setUserInitials(
+        first && last
+          ? first.charAt(0).toUpperCase() + last.charAt(0).toUpperCase()
+          : "NA"
+      );
     } else {
       setUserInitials("");
     }
   }, [user]);
 
-  // Always use white background
-  const navbarBgClass = "bg-white shadow-[0_2px_10px_rgba(0,0,0,0.4)] backdrop-blur-sm";
-
-  // determine transition class - no transition during menu toggle, smooth for scroll
-  const transitionClass = isMenuTransitioning
-    ? "transition-none"
-    : "transition-all duration-300";
-
-  // Always use black text
-  const titleTextColor = "text-black";
-
-  // check if the user is a "member" or "admin" from supabase members table
-  const fetchRole = async () => {
-    if (user) {
-      try {
-        console.log("👤 Navbar fetching user role for:", user.email);
-        const { data, error } = await supabase
-          .from("members")
-          .select("role")
-          .eq("user_id", user.id)
-          .single();
-
-        if (error) {
-          console.error("❌ Navbar error fetching user role:", error);
-          setRole("member"); // Default to member on error
-        } else {
-          console.log("✅ Navbar user role fetched:", data?.role || "member");
-          setRole(data?.role || "member");
-        }
-      } catch (error) {
-        console.error("❌ Navbar exception fetching user role:", error);
-        setRole("member"); // Default to member on error
-      }
-    } else {
-      setRole("member"); // Reset to default when no user
-    }
-  };
-
-  // Fetch user role when user changes
+  // Resolve user role
   useEffect(() => {
-    fetchRole();
+    if (!user) { setRole("member"); return; }
+    supabase
+      .from("members")
+      .select("role")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data, error }) => {
+        if (!error) setRole(data?.role || "member");
+      });
   }, [user]);
+
+  const isActive = (to) =>
+    to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
 
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-10000 ${transitionClass} ${navbarBgClass}`}
+        style={{ fontFamily: "'Inter', sans-serif" }}
+        className={`fixed top-0 left-0 right-0 z-[10000] bg-white transition-shadow duration-300 ${
+          scrolled ? "shadow-[0_1px_0_0_#E8E4DD]" : "shadow-[0_1px_0_0_transparent]"
+        }`}
       >
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo - Desktop always visible, Mobile only when menu open */}
-            <div className="flex-shrink-0 items-center flex-row flex">
-              <Link to="/" className="flex items-center">
-                <div
-                  className={`relative w-10 h-10 md:w-12 md:h-12 ${
-                    isMobileMenuOpen ? "block md:block" : "hidden md:block"
-                  }`}
-                >
-                  <img
-                    src={EMBSLogoOuter}
-                    alt="EMBS Logo Outer"
-                    className="absolute w-full h-full animate-spin-slow"
-                  />
-                  <img
-                    src={EMBSLogoInner}
-                    alt="EMBS Logo Inner"
-                    className="absolute w-full h-full"
-                  />
-                </div>
-                {/* <img
-                  src={EMBSLogo}
-                  alt="UF Logo"
-                  className={`w-10 h-10 md:w-12 md:h-12 ${
-                    isMobileMenuOpen ? "block md:block" : "hidden md:block"
-                  }`}
-                /> */}
-              </Link>
-              <h1
-                className={`text-2xl font-bold ml-6 italic transition-all duration-300 ${titleTextColor} hidden md:block`}
-              >
-                EMBS - University of Florida
-              </h1>
-            </div>
+        <div className="max-w-[1600px] mx-auto px-6 lg:px-10">
+          <div className="flex items-center justify-between h-[64px]">
 
-            {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center space-x-8">
-              <Link to="/" className={linkClass("/")}>
-                Home
-              </Link>
-              <Link to="/about" className={linkClass("/about")}>
-                About
-              </Link>
-              <Link to="/events" className={linkClass("/events")}>
-                Events
-              </Link>
-              <Link to="/resources" className={linkClass("/resources")}>
-                Resources
-              </Link>
-              <Link to="/blog" className={linkClass("/blog")}>
-                Blog
-              </Link>
-              <Link to="/team" className={linkClass("/team")}>
-                Team
-              </Link>
-              <Link to="/contact" className={linkClass("/contact")}>
-                Contact Us
-              </Link>
-              {user ? (
-                <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-colors duration-300 ${
-                    isDarkNavbar
-                      ? "bg-[#5d9cc3] hover:bg-[#4a8ba8]"
-                      : "bg-[#772583] hover:bg-[#5a1c62]"
+            {/* ── Brand ─────────────────────────────────────────────── */}
+            <Link to="/" className="flex items-center gap-3.5 shrink-0 group">
+              <div className="relative w-9 h-9">
+                <img
+                  src={EMBSLogoOuter}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute w-full h-full animate-spin-slow"
+                />
+                <img
+                  src={EMBSLogoInner}
+                  alt="UF EMBS"
+                  className="absolute w-full h-full"
+                />
+              </div>
+              <span
+                style={{ fontFamily: "'Lora', Georgia, serif" }}
+                className="hidden md:block text-[1.0625rem] font-medium text-[#1A1A1A] tracking-[-0.01em] leading-none"
+              >
+                UF EMBS
+              </span>
+            </Link>
+
+            {/* ── Desktop links ──────────────────────────────────────── */}
+            <div className="hidden md:flex items-center gap-7">
+              {NAV_LINKS.map(({ label, to }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className={`text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 relative pb-0.5 ${
+                    isActive(to)
+                  ? "text-[#772583]"
+                  : "text-[#4A4A4A] hover:text-[#1A1A1A]"
                   }`}
-                  onClick={() =>
-                    navigate(
-                      role === "admin" ? "/admin-dashboard" : "/dashboard"
-                    )
-                  }
-                  title={`Go to ${
-                    role === "admin" ? "Admin" : "Member"
-                  } Dashboard`}
                 >
-                  <span className="text-white text-xs font-semibold">
+                  {label}
+                  {/* Active underline */}
+                  {isActive(to) && (
+                    <span className="absolute bottom-0 left-0 right-0 h-px bg-[#772583]" />
+                  )}
+                </Link>
+              ))}
+
+              {/* User avatar / login icon */}
+              {user ? (
+                <button
+                  onClick={() => navigate(role === "admin" ? "/admin-dashboard" : "/dashboard")}
+                  title={`Go to ${role === "admin" ? "Admin" : "Member"} Dashboard`}
+                  className="w-7 h-7 rounded-full bg-[#1A1A1A] hover:bg-[#00629B] flex items-center justify-center transition-colors duration-200 shrink-0"
+                >
+                  <span className="text-white text-[0.6875rem] font-semibold tracking-wide">
                     {userInitials}
                   </span>
-                </div>
+                </button>
               ) : (
-                <FaUserCircle
+                <button
                   onClick={() => navigate("/auth/login")}
-                  className={`w-5 h-5 cursor-pointer transition-colors duration-300 ${
-                    isDarkNavbar
-                      ? "text-white hover:text-white/80"
-                      : "text-black hover:text-[#772583]"
-                  }`}
-                />
+                  aria-label="Login"
+                  className="text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors duration-200"
+                >
+                  <FaUserCircle className="w-[1.125rem] h-[1.125rem]" />
+                </button>
               )}
             </div>
 
-            {/* Mobile Menu Button - Centered on mobile */}
-            <div className="md:hidden flex-1 flex justify-end">
-              <button
-                onClick={() => {
-                  setIsMenuTransitioning(true);
-                  setIsMobileMenuOpen(!isMobileMenuOpen);
-                  // Reset transition state after a brief moment
-                  setTimeout(() => setIsMenuTransitioning(false), 50);
-                }}
-                className={`transition-colors duration-300 p-2 ${
-                  isDarkNavbar
-                    ? "text-white hover:text-white/80"
-                    : "text-black hover:text-[#772583]"
-                }`}
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d={
-                      isMobileMenuOpen
-                        ? "M6 18L18 6M6 6l12 12"
-                        : "M4 6h16M4 12h16M4 18h16"
-                    }
-                  />
-                </svg>
-              </button>
-            </div>
+            {/* ── Mobile hamburger ───────────────────────────────────── */}
+            <button
+              className="md:hidden text-[#1A1A1A] p-1 -mr-1"
+              onClick={() => setIsMobileMenuOpen((o) => !o)}
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.75}
+                  d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                />
+              </svg>
+            </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* ── Mobile menu ─────────────────────────────────────────────── */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200 shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <Link
-                to="/"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-black hover:text-[#772583] block px-3 py-2 font-medium transition-colors duration-300"
-              >
-                Home
-              </Link>
-              <Link
-                to="/about"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-black hover:text-[#772583] block px-3 py-2 font-medium transition-colors duration-300"
-              >
-                About
-              </Link>
-              <Link
-                to="/events"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-black hover:text-[#772583] block px-3 py-2 font-medium transition-colors duration-300"
-              >
-                Events
-              </Link>
-              <Link
-                to="/resources"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-black hover:text-[#772583] block px-3 py-2 font-medium transition-colors duration-300"
-              >
-                Resources
-              </Link>
-              <Link
-                to="/blog"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-black hover:text-[#772583] block px-3 py-2 font-medium transition-colors duration-300"
-              >
-                Blog
-              </Link>
-              <Link
-                to="/team"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-black hover:text-[#772583] block px-3 py-2 font-medium transition-colors duration-300"
-              >
-                Team
-              </Link>
-              <Link
-                to="/contact"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-black hover:text-[#772583] block px-3 py-2 font-medium transition-colors duration-300"
-              >
-                Contact Us
-              </Link>
+          <div className="md:hidden border-t border-[#E8E4DD] bg-white">
+            <div className="px-6 py-5 flex flex-col gap-1">
+              {NAV_LINKS.map(({ label, to }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`py-2.5 text-[0.9375rem] font-medium transition-colors duration-200 ${
+                    isActive(to) ? "text-[#772583]" : "text-[#1A1A1A]"
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
 
-              {/* Mobile User Profile Section */}
-              <div className="border-t border-gray-200 pt-3 mt-3">
+              <div className="border-t border-[#E8E4DD] mt-3 pt-4">
                 {user ? (
-                  <div
-                    className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors duration-300"
+                  <button
+                    className="flex items-center gap-3 w-full text-left"
                     onClick={() => {
                       setIsMobileMenuOpen(false);
-                      navigate(
-                        role === "admin" ? "/admin-dashboard" : "/dashboard"
-                      );
+                      navigate(role === "admin" ? "/admin-dashboard" : "/dashboard");
                     }}
                   >
-                    <div className="w-8 h-8 bg-[#772583] rounded-full flex items-center justify-center mr-3">
-                      <span className="text-white text-sm font-semibold">
-                        {userInitials}
-                      </span>
+                    <div className="w-8 h-8 bg-[#1A1A1A] rounded-full flex items-center justify-center shrink-0">
+                      <span className="text-white text-xs font-semibold">{userInitials}</span>
                     </div>
-                    <span className="text-black font-medium">
-                      {role === "admin"
-                        ? "Admin Dashboard"
-                        : "Member Dashboard"}
+                    <span className="text-[0.9375rem] font-medium text-[#1A1A1A]">
+                      {role === "admin" ? "Admin Dashboard" : "Member Dashboard"}
                     </span>
-                  </div>
+                  </button>
                 ) : (
-                  <div
-                    className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors duration-300"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      navigate("/auth/login");
-                    }}
+                  <button
+                    className="flex items-center gap-3"
+                    onClick={() => { setIsMobileMenuOpen(false); navigate("/auth/login"); }}
                   >
-                    <FaUserCircle className="w-6 h-6 mr-3 text-gray-600" />
-                    <span className="text-black font-medium">Login</span>
-                  </div>
+                    <FaUserCircle className="w-5 h-5 text-[#4A4A4A]" />
+                    <span className="text-[0.9375rem] font-medium text-[#1A1A1A]">Login</span>
+                  </button>
                 )}
               </div>
             </div>

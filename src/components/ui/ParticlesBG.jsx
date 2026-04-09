@@ -1,15 +1,15 @@
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
+import { loadEmojiShape } from "@tsparticles/shape-emoji";
 import { useEffect, useState, useMemo } from "react";
 import { getOptimizedParticleCount } from "../../lib/browserDetection";
 
 export default function ParticlesBg({
   id = "particles",
-  particleCount = 220,
+  particleCount = 120,
 } = {}) {
   const [init, setInit] = useState(false);
   
-  // Optimize particle count based on browser and device performance
   const optimizedParticleCount = useMemo(() => {
     return getOptimizedParticleCount(particleCount);
   }, [particleCount]);
@@ -17,6 +17,7 @@ export default function ParticlesBg({
   useEffect(() => {
     initParticlesEngine(async (engine) => {
       await loadSlim(engine);
+      await loadEmojiShape(engine);
     }).then(() => {
       setInit(true);
     });
@@ -37,16 +38,34 @@ export default function ParticlesBg({
         particles: {
           number: {
             value: optimizedParticleCount,
-            density: { enable: true, area: 800 },
+            density: { enable: true, area: 900 },
           },
-          size: { value: { min: 1, max: 4 } },
-          opacity: { value: 0.6 },
-          color: {
-            value: ["#96529a", "#007dae", "#772583", "#00629b"],
+          size: { value: { min: 10, max: 18 } },
+          opacity: {
+            value: { min: 0.25, max: 0.55 },
+            animation: { enable: true, speed: 0.35, minimumValue: 0.2, sync: false },
           },
-          move: { enable: true, speed: 1.2, outModes: { default: "out" } },
-          shape: { type: "circle" },
-          links: { enable: false }, // no connecting lines
+          move: {
+            enable: true,
+            speed: 1.1,
+            direction: "none",
+            random: true,
+            straight: false,
+            outModes: { default: "out" },
+          },
+          rotate: {
+            value: { min: 0, max: 360 },
+            animation: { enable: true, speed: 4, sync: false },
+          },
+          shape: {
+            type: "emoji",
+            options: {
+              emoji: {
+                value: ["🧬"],
+              },
+            },
+          },
+          links: { enable: false },
         },
         interactivity: {
           events: { onHover: { enable: false } },
