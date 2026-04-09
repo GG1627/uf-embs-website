@@ -39,7 +39,7 @@ function PieCenterLabel({ size = 32 }) {
         xmlns="http://www.w3.org/1999/xhtml"
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: size, height: size }}
       >
-        <VscPerson style={{ color: 'rgba(255,255,255,0.85)', width: size, height: size }} />
+        <VscPerson style={{ color: 'rgba(255,255,255,0.35)', width: size, height: size }} />
       </div>
     </foreignObject>
   );
@@ -748,10 +748,10 @@ export default function StatsTab() {
   const pieChartSeries = useMemo(() => {
     if (majorDistributionData.length === 0) return [];
     const colors = [
-      '#E4E4DE', '#C4C5BA', '#8AA5C4', '#D9B18E',
-      '#C79AA9', '#8B7B6A', '#2F3A4A', '#A9B3C2',
-      '#B8C9A3', '#D4C5A9', '#7A8FA6', '#C2A8BF',
-      '#A3B8B0', '#D6B89A', '#6E7B8B', '#BDB5A6',
+      '#772583', '#00629B', '#5A5A5A', '#9A7598',
+      '#4A7A9A', '#8A8A8A', '#6B4A6B', '#3D7A9E',
+      '#A090A8', '#5C7D8C', '#7A6B8A', '#4A6B7A',
+      '#9A8A78', '#6A5A72', '#5A6B78', '#8A7A88',
     ];
     const totalMembers = majorDistributionData.reduce((sum, item) => sum + item.value, 0);
     return [{
@@ -764,7 +764,7 @@ export default function StatsTab() {
       })),
       valueFormatter: ({ id, value }) => {
         const percentage = totalMembers > 0 ? Math.round((value / totalMembers) * 100) : 0;
-        return `${id} — ${value} members (${percentage}%)`;
+        return `${id}, ${value} members (${percentage}%)`;
       },
       highlightScope: { fade: 'global', highlight: 'item' },
       highlighted: { additionalRadius: 2 },
@@ -848,101 +848,62 @@ export default function StatsTab() {
             <div className="w-full h-px bg-white/[0.07] mb-2"></div>
             <div className="flex-1 min-h-0 w-full overflow-hidden">
               {category === "ai-predictions" ? (
-                <div className="h-full flex gap-4">
-                  {/* Left side - Predictions List (2/3 width) */}
-                  <div className="flex-[2] bg-gradient-to-br from-gray-900/50 to-gray-800/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex flex-col min-h-0">
+                <div className="h-full flex gap-3">
+                  <div className="flex-[2] bg-[#141414] border border-white/[0.06] p-6 flex flex-col min-h-0">
                     {loadingPredictions ? (
                       <div className="flex items-center justify-center h-full">
                         <div className="text-center">
-                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-                          <p className="text-white text-lg">Loading predictions...</p>
+                          <div className="animate-spin rounded-full h-8 w-8 border-2 border-white/10 border-t-[#772583] mx-auto mb-3"></div>
+                          <p className="text-white/50 text-[0.9375rem] font-light">Loading predictions…</p>
                         </div>
                       </div>
                     ) : upcomingEventsPredictions.length > 0 ? (
                       <div className="space-y-4 overflow-y-auto scrollbar-dark">
-                        <div className="mb-6 flex-shrink-0">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 bg-gradient-to-br from-white/20 to-white/10 rounded-xl flex items-center justify-center border border-white/30">
-                              <RiRobot3Line className="h-5 w-5 text-white"/>
+                        <div className="mb-6 flex-shrink-0 border-b border-white/[0.07] pb-5">
+                          <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-2">AI / ML</p>
+                          <div className="flex items-start gap-3">
+                            <div className="w-9 h-9 bg-[#772583]/10 flex items-center justify-center border border-[#772583]/25 shrink-0">
+                              <RiRobot3Line className="h-4 w-4 text-[#772583]" />
                             </div>
-                            <h3 className="text-white text-2xl font-semibold">AI Predictions</h3>
+                            <div>
+                              <h3 style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-xl font-medium text-white">Predictions</h3>
+                              <p className="text-white/40 text-[0.8125rem] font-light mt-1">Model output compared to actual turnout</p>
+                            </div>
                           </div>
-                          <p className="text-gray-400 text-sm ml-[52px]">Machine learning predictions vs actual attendance</p>
                         </div>
                         <div className="space-y-3">
                         {upcomingEventsPredictions.map((event) => (
                           <div
                             key={event.id}
-                            className="bg-gradient-to-br from-gray-800/50 to-gray-900/40 backdrop-blur-sm border border-white/10 rounded-xl p-5 hover:border-white/20 transition-all duration-200 hover:shadow-lg"
+                            className="border border-white/[0.07] bg-[#111110] p-5 hover:border-white/[0.12] transition-colors duration-200"
                           >
                             <div className="flex items-start justify-between gap-4">
-                              <div className="flex-1">
-                                <h4 className="text-white text-lg font-semibold mb-3">{event.name}</h4>
-                                <div className="grid grid-cols-2 gap-3 text-sm text-gray-300">
+                              <div className="flex-1 min-w-0">
+                                <h4 style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-white text-[1.0625rem] font-medium mb-3 leading-snug">{event.name}</h4>
+                                <div className="grid grid-cols-2 gap-3 text-[0.8125rem] text-white/50">
                                   <div className="flex items-center gap-2">
-                                    <svg
-                                      className="w-4 h-4 text-gray-400"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                      />
+                                    <svg className="w-3.5 h-3.5 text-white/25 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    <span>
-                                      {new Date(event.start_time).toLocaleDateString()}
-                                    </span>
+                                    <span>{new Date(event.start_time).toLocaleDateString()}</span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <svg
-                                      className="w-4 h-4 text-gray-400"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                      />
+                                    <svg className="w-3.5 h-3.5 text-white/25 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span>
-                                      {new Date(event.start_time).toLocaleTimeString([], {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                      })}
-                                    </span>
+                                    <span>{new Date(event.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <svg
-                                      className="w-4 h-4 text-yellow-500"
-                                      fill="currentColor"
-                                      viewBox="0 0 20 20"
-                                    >
+                                    <svg className="w-3.5 h-3.5 text-[#00629B]/80 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.518 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                                     </svg>
                                     <span>{event.points} points</span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <svg
-                                      className="w-4 h-4 text-gray-400"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                                      />
+                                    <svg className="w-3.5 h-3.5 text-white/25 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                                     </svg>
-                                    <span className="uppercase font-medium">{event.event_type?.replace('_', ' ') || 'UNKNOWN'}</span>
+                                    <span className="uppercase tracking-wide text-[11px] font-medium text-white/45">{event.event_type?.replace('_', ' ') || 'UNKNOWN'}</span>
                                   </div>
                                 </div>
                               </div>
@@ -950,36 +911,39 @@ export default function StatsTab() {
                                 {event.is_past ? (
                                   <>
                                     <div className="flex gap-2">
-                                      <div className="bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-sm border border-white/30 rounded-xl p-3 min-w-[90px] text-center shadow-lg">
-                                        <p className="text-gray-300 text-xs font-medium mb-1 uppercase tracking-wide">Predicted</p>
-                                        <p className="text-2xl font-bold text-white mb-1">{event.predicted_attendance || 0}</p>
-                                        <p className="text-gray-400 text-xs">attendees</p>
+                                      <div className="border border-[#772583]/30 bg-[#772583]/5 p-3 min-w-[88px] text-center">
+                                        <p className="text-[#772583] text-[11px] font-semibold tracking-[0.14em] uppercase mb-1">Predicted</p>
+                                        <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-2xl font-medium text-white mb-0.5">{event.predicted_attendance || 0}</p>
+                                        <p className="text-white/35 text-[11px]">attendees</p>
                                       </div>
-                                      <div className="bg-gradient-to-br from-[#8ed8f8]/20 to-[#8ed8f8]/10 backdrop-blur-sm border border-[#8ed8f8]/30 rounded-xl p-3 min-w-[90px] text-center shadow-lg">
-                                        <p className="text-[#8ed8f8] text-xs font-medium mb-1 uppercase tracking-wide">Actual</p>
-                                        <p className="text-2xl font-bold text-white mb-1">{event.actual_attendance}</p>
-                                        <p className="text-gray-400 text-xs">attendees</p>
+                                      <div className="border border-[#00629B]/30 bg-[#00629B]/5 p-3 min-w-[88px] text-center">
+                                        <p className="text-[#00629B] text-[11px] font-semibold tracking-[0.14em] uppercase mb-1">Actual</p>
+                                        <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-2xl font-medium text-white mb-0.5">{event.actual_attendance}</p>
+                                        <p className="text-white/35 text-[11px]">attendees</p>
                                       </div>
                                     </div>
-                                    {/* Accuracy badge */}
                                     {(() => {
                                       const pred = event.predicted_attendance || 0;
                                       const actual = event.actual_attendance;
                                       if (pred === 0) return null;
                                       const accuracy = Math.max(0, Math.round((1 - Math.abs(actual - pred) / pred) * 100));
-                                      const color = accuracy >= 80 ? "text-green-400 border-green-400/30 bg-green-400/10" : accuracy >= 60 ? "text-yellow-400 border-yellow-400/30 bg-yellow-400/10" : "text-red-400 border-red-400/30 bg-red-400/10";
+                                      const color = accuracy >= 80
+                                        ? "text-emerald-400/90 border-emerald-400/25 bg-emerald-400/5"
+                                        : accuracy >= 60
+                                          ? "text-amber-400/90 border-amber-400/25 bg-amber-400/5"
+                                          : "text-rose-400/90 border-rose-400/25 bg-rose-400/5";
                                       return (
-                                        <div className={`border rounded-lg px-3 py-1.5 text-center text-xs font-semibold ${color}`}>
-                                          {accuracy}% accurate
+                                        <div className={`border px-3 py-1.5 text-center text-[11px] font-semibold tracking-wide ${color}`}>
+                                          {accuracy}% match
                                         </div>
                                       );
                                     })()}
                                   </>
                                 ) : (
-                                  <div className="bg-gradient-to-br from-white/20 to-white/10 backdrop-blur-sm border border-white/30 rounded-xl p-4 min-w-[120px] text-center shadow-lg">
-                                    <p className="text-gray-300 text-xs font-medium mb-1 uppercase tracking-wide">Prediction</p>
-                                    <p className="text-3xl font-bold text-white mb-1">{event.predicted_attendance || 0}</p>
-                                    <p className="text-gray-400 text-xs">attendees</p>
+                                  <div className="border border-white/15 bg-[#1A1A1A] p-4 min-w-[120px] text-center">
+                                    <p className="text-white/45 text-[11px] font-semibold tracking-[0.14em] uppercase mb-1">Prediction</p>
+                                    <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-3xl font-medium text-white mb-0.5">{event.predicted_attendance || 0}</p>
+                                    <p className="text-white/35 text-[11px]">attendees</p>
                                   </div>
                                 )}
                               </div>
@@ -990,102 +954,70 @@ export default function StatsTab() {
                       </div>
                     ) : (
                       <div className="flex items-center justify-center h-full">
-                        <div className="text-center">
-                          <div className="text-gray-300 mb-4">
-                            <svg
-                              className="mx-auto h-16 w-16"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={1.5}
-                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                              />
+                        <div className="text-center px-4">
+                          <div className="text-white/20 mb-4">
+                            <svg className="mx-auto h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.25}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                             </svg>
                           </div>
-                          <p className="text-white text-lg mb-2">No Events with Predictions</p>
-                          <p className="text-gray-400 text-sm">Run the AI model on events to see predictions here</p>
+                          <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-white text-lg font-medium mb-2">No predictions yet</p>
+                          <p className="text-white/40 text-[0.8125rem] font-light">Run the model on events with prediction fields to populate this list.</p>
                         </div>
                       </div>
                     )}
                   </div>
 
-                  {/* Right side - Coming Soon (1/3 width) */}
-                  <div className="flex-[1] bg-gradient-to-br from-gray-900/50 to-gray-800/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-20 h-20 bg-gradient-to-br from-white/20 to-white/10 rounded-2xl flex items-center justify-center border border-white/30 mx-auto mb-6">
-                        <svg
-                          className="w-10 h-10 text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1.5}
-                            d="M13 10V3L4 14h7v7l9-11h-7z"
-                          />
+                  <div className="flex-[1] bg-[#141414] border border-white/[0.06] p-6 flex flex-col justify-center min-h-0 overflow-y-auto scrollbar-dark">
+                    <div className="text-center max-w-[240px] mx-auto">
+                      <div className="w-14 h-14 bg-[#00629B]/10 flex items-center justify-center border border-[#00629B]/25 mx-auto mb-5">
+                        <svg className="w-7 h-7 text-[#00629B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                       </div>
-                      <h3 className="text-white text-2xl font-semibold mb-3">More Cool AI Features</h3>
-                      <p className="text-gray-400 text-lg mb-6">Coming Soon</p>
-                      <div className="mt-6 space-y-3 text-left">
-                        <div className="flex items-center gap-2 text-gray-300 text-sm">
-                          <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <span>Attendance trend analysis</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-300 text-sm">
-                          <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <span>Optimal event timing suggestions</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-300 text-sm">
-                          <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <span>Member engagement insights</span>
-                        </div>
+                      <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#00629B] mb-2">Roadmap</p>
+                      <h3 style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-white text-xl font-medium mb-2">More AI tools</h3>
+                      <p className="text-white/40 text-[0.8125rem] font-light mb-6">Coming soon</p>
+                      <div className="space-y-2.5 text-left border-t border-white/[0.07] pt-5">
+                        {['Attendance trend analysis', 'Optimal event timing', 'Member engagement insights'].map((label) => (
+                          <div key={label} className="flex items-start gap-2.5 text-white/50 text-[0.8125rem]">
+                            <svg className="w-3.5 h-3.5 text-[#772583]/70 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="font-light">{label}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
                 </div>
               ) : category === "charts" ? (
-                <div className="h-full flex gap-4">
-                  {/* Left side - Charts (2/3 width) */}
-                    <div className="flex-[2] bg-gradient-to-br from-gray-900/50 to-gray-800/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex flex-col min-h-0">
-                    {/* Chart Selection Tabs */}
+                <div className="h-full flex gap-3">
+                    <div className="flex-[2] bg-[#141414] border border-white/[0.06] p-6 flex flex-col min-h-0">
                     <Tabs
                       value={selectedChart}
                       onChange={(e, newValue) => setSelectedChart(newValue)}
                       sx={{
-                        mb: 4,
+                        mb: 3,
                         flexShrink: 0,
+                        fontFamily: "'Inter', sans-serif",
                         '& .MuiTab-root': {
-                          color: 'rgba(255,255,255,0.5)',
-                          fontSize: '14px',
-                          fontWeight: '500',
+                          color: 'rgba(255,255,255,0.4)',
+                          fontSize: '13px',
+                          fontWeight: 500,
                           textTransform: 'none',
-                          minHeight: '48px',
+                          minHeight: '44px',
                           transition: 'color 0.2s ease',
                           '&.Mui-selected': {
-                            color: 'white',
-                            fontWeight: '600',
+                            color: '#ffffff',
+                            fontWeight: 600,
                           },
                           '&:hover': {
-                            color: 'rgba(255,255,255,0.75)',
+                            color: 'rgba(255,255,255,0.7)',
                           },
                         },
                         '& .MuiTabs-indicator': {
-                          backgroundColor: 'white',
+                          backgroundColor: '#772583',
                           height: '2px',
-                          borderRadius: '1px',
                         },
                       }}
                     >
@@ -1094,33 +1026,33 @@ export default function StatsTab() {
                       <Tab label="Member Growth" />
                     </Tabs>
 
-                    {/* Chart Container */}
-                    <div ref={chartContainerRef} className="flex-1 relative bg-gradient-to-br from-white/[0.03] to-white/[0.01] rounded-2xl border border-white/10 min-h-0 backdrop-blur-sm">
+                    <div ref={chartContainerRef} className="flex-1 relative bg-[#111110] border border-white/[0.07] min-h-0">
                       {selectedChart === 0 && (
                         <div className="absolute inset-0 flex flex-col">
                           <div className="mb-3 mt-3 flex justify-between gap-3 px-4">
-                            <div className="bg-gradient-to-br from-[#c4b5fd]/20 to-[#c4b5fd]/8 backdrop-blur-sm border border-[#c4b5fd]/30 p-3 rounded-xl flex-1 shadow-sm">
-                              <h3 className="text-white/90 text-xs font-medium mb-1.5 uppercase tracking-wide">Avg. with Food</h3>
-                              <p className="text-xl font-semibold text-[#e9d5ff]">
+                            <div className="border border-[#772583]/25 bg-[#772583]/5 p-3 flex-1">
+                              <h3 className="text-white/45 text-[11px] font-semibold mb-1.5 uppercase tracking-[0.14em]">Avg. with food</h3>
+                              <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-xl font-medium text-[#772583]">
                                 {attendanceOverTimeData[0]?.overallAvgWithFood || 0}
                               </p>
                             </div>
-                            <div className="bg-gradient-to-br from-[#06b6d4]/20 to-[#06b6d4]/8 backdrop-blur-sm border border-[#06b6d4]/30 p-3 rounded-xl flex-1 shadow-sm">
-                              <h3 className="text-white/90 text-xs font-medium mb-1.5 uppercase tracking-wide">Avg. without Food</h3>
-                              <p className="text-xl font-semibold text-[#67e8f9]">
+                            <div className="border border-[#00629B]/25 bg-[#00629B]/5 p-3 flex-1">
+                              <h3 className="text-white/45 text-[11px] font-semibold mb-1.5 uppercase tracking-[0.14em]">Avg. without food</h3>
+                              <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-xl font-medium text-[#6B9FC4]">
                                 {attendanceOverTimeData[0]?.overallAvgWithoutFood || 0}
                               </p>
                             </div>
                             <div className="flex items-center">
                               <button
+                                type="button"
                                 onClick={() => setShowFoodLines(!showFoodLines)}
-                                className={`max-w-24 px-4 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
-                                  showFoodLines 
-                                    ? 'bg-gradient-to-br from-[#10b981]/20 to-[#10b981]/8 border border-[#10b981]/30 text-white/85 hover:border-[#10b981]/40 hover:cursor-pointer' 
-                                    : 'bg-gradient-to-br from-gray-700/20 to-gray-800/10 border border-gray-600/20 text-gray-500 hover:border-gray-600/30 hover:cursor-pointer'
+                                className={`max-w-28 px-3 py-2 border text-[11px] font-semibold tracking-wide transition-colors duration-200 cursor-pointer ${
+                                  showFoodLines
+                                    ? 'border-white/20 text-white/70 hover:border-white/35 bg-white/[0.04]'
+                                    : 'border-white/10 text-white/40 hover:border-white/25 hover:text-white/60'
                                 }`}
                               >
-                                {showFoodLines ? 'Hide Food Lines' : 'Show Food Lines'}
+                                {showFoodLines ? 'Hide food lines' : 'Show food lines'}
                               </button>
                             </div>
                           </div>
@@ -1143,7 +1075,7 @@ export default function StatsTab() {
                                 {
                                   dataKey: 'attendance',
                                   label: 'Event Attendance',
-                                  color: '#c4b5fd',
+                                  color: '#772583',
                                   showMark: true,
                                   curve: 'linear',
                                   strokeWidth: 2.5,
@@ -1157,7 +1089,7 @@ export default function StatsTab() {
                                   {
                                     dataKey: 'overallAvgWithFood',
                                     label: 'Avg. with Food',
-                                    color: '#06b6d4',
+                                    color: '#00629B',
                                     showMark: false,
                                     curve: 'linear',
                                     strokeWidth: 2,
@@ -1167,7 +1099,7 @@ export default function StatsTab() {
                                   {
                                     dataKey: 'overallAvgWithoutFood',
                                     label: 'Avg. without Food',
-                                    color: '#10b981',
+                                    color: '#8A8A8A',
                                     showMark: false,
                                     curve: 'linear',
                                     strokeWidth: 2,
@@ -1222,17 +1154,17 @@ export default function StatsTab() {
                       {selectedChart === 1 && (
                         <div className="absolute inset-0 flex flex-col">
                           <div className="mb-3 mt-3 flex justify-between gap-3 px-4">
-                            <div className="bg-gradient-to-br from-[#fca5a5]/20 to-[#fca5a5]/8 backdrop-blur-sm border border-[#fca5a5]/30 p-3 rounded-xl flex-1 shadow-sm">
-                              <h3 className="text-white/90 text-xs font-medium mb-1.5 uppercase tracking-wide">Most Popular</h3>
-                              <p className="text-xl font-semibold text-[#fca5a5] truncate">
-                                {eventTypeData.length > 0 ? eventTypeData.reduce((max, type) => 
+                            <div className="border border-[#772583]/25 bg-[#772583]/5 p-3 flex-1 min-w-0">
+                              <h3 className="text-white/45 text-[11px] font-semibold mb-1.5 uppercase tracking-[0.14em]">Most popular</h3>
+                              <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-xl font-medium text-[#772583] truncate">
+                                {eventTypeData.length > 0 ? eventTypeData.reduce((max, type) =>
                                   type.avgAttendance > max.avgAttendance ? type : max
                                 ).type : 'None'}
                               </p>
                             </div>
-                            <div className="bg-gradient-to-br from-[#06b6d4]/20 to-[#06b6d4]/8 backdrop-blur-sm border border-[#06b6d4]/30 p-3 rounded-xl flex-1 shadow-sm">
-                              <h3 className="text-white/90 text-xs font-medium mb-1.5 uppercase tracking-wide">Total Types</h3>
-                              <p className="text-xl font-semibold text-[#67e8f9]">
+                            <div className="border border-[#00629B]/25 bg-[#00629B]/5 p-3 flex-1">
+                              <h3 className="text-white/45 text-[11px] font-semibold mb-1.5 uppercase tracking-[0.14em]">Total types</h3>
+                              <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-xl font-medium text-[#6B9FC4]">
                                 {eventTypeData.length}
                               </p>
                             </div>
@@ -1255,7 +1187,7 @@ export default function StatsTab() {
                                 series={[{
                                   dataKey: 'avgAttendance',
                                   label: 'Average Attendance',
-                                  color: '#c4b5fd',
+                                  color: '#772583',
                                   valueFormatter: (value) => `${value} attendees`,
                                 }]}
                                 dataset={eventTypeData}
@@ -1291,9 +1223,9 @@ export default function StatsTab() {
                               />
                             ) : (
                               <div className="flex items-center justify-center h-full">
-                                <div className="text-center">
-                                  <p className="text-white text-lg mb-2">No Event Data Available</p>
-                                  <p className="text-gray-400 text-sm">Add some events with attendance to see the chart</p>
+                                <div className="text-center px-4">
+                                  <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-white text-lg font-medium mb-2">No event data</p>
+                                  <p className="text-white/40 text-[0.8125rem] font-light">Add events with attendance to populate this chart.</p>
                                 </div>
                               </div>
                             )}
@@ -1321,7 +1253,7 @@ export default function StatsTab() {
                               series={[{
                                 dataKey: 'memberCount',
                                 label: 'Total Members',
-                                color: '#c4b5fd',
+                                color: '#772583',
                                 showMark: true,
                                 curve: 'linear',
                                 strokeWidth: 2.5,
@@ -1373,9 +1305,9 @@ export default function StatsTab() {
                     </div>
                   </div>
 
-                  {/* Right side - Pie Chart (1/3 width) */}
-                  <div className="flex-[1] bg-gradient-to-br from-gray-900/50 to-gray-800/40 backdrop-blur-xl border border-white/10 rounded-3xl px-6 pb-12 pt-6 flex flex-col overflow-y-auto scrollbar-dark">
-                    <h3 className="text-white text-xl font-semibold mb-3 text-center tracking-tight">Major Distribution</h3>
+                  <div className="flex-[1] bg-[#141414] border border-white/[0.06] px-5 py-6 flex flex-col overflow-y-auto scrollbar-dark min-h-0">
+                    <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#00629B] mb-2 text-center">Analytics</p>
+                    <h3 style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-white text-lg font-medium mb-4 text-center">Major distribution</h3>
                     <div className="flex-1 flex items-center justify-center">
                       {majorDistributionData.length > 0 ? (
                         <PieChart
@@ -1423,9 +1355,9 @@ export default function StatsTab() {
                           <PieCenterLabel size={Math.round(pieChartSize * 32 / 100)} />
                         </PieChart>
                       ) : (
-                        <div className="text-center">
-                          <p className="text-white text-lg mb-2">No Major Data Available</p>
-                          <p className="text-gray-400 text-sm">Members need to set their major to see distribution</p>
+                        <div className="text-center px-2">
+                          <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-white text-lg font-medium mb-2">No major data</p>
+                          <p className="text-white/40 text-[0.8125rem] font-light">Members can set a major on the member dashboard to fill this chart.</p>
                         </div>
                       )}
                     </div>
