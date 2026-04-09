@@ -1,7 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { supabase } from "../../lib/supabase";
+
+const inputCls =
+  "w-full px-3 py-2.5 text-[0.9375rem] border border-[#D0CCC4] bg-white text-[#1A1A1A] placeholder-[#AAAAAA] focus:outline-none focus:border-[#1A1A1A] transition-colors duration-200";
+
+const selectCls =
+  "w-full px-3 py-2.5 text-[0.9375rem] border border-[#D0CCC4] bg-white text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors duration-200 appearance-none";
 
 export default function Register() {
   const [loading, setLoading] = useState(false);
@@ -16,23 +22,21 @@ export default function Register() {
   const location = useLocation();
   const { signUp } = useAuth();
 
-  // Major options
   const majorOptions = [
     "Biomedical Engineering",
-    "Electrical Engineering", 
+    "Electrical Engineering",
     "Computer Science",
     "Computer Engineering",
     "Biology",
     "Biochemistry",
     "Mechanical Engineering",
-    "Other"
+    "Other",
   ];
 
   async function handleSignUp(e) {
     e.preventDefault();
     if (loading) return;
 
-    // Validate email domain
     if (!email.toLowerCase().endsWith("@ufl.edu")) {
       setMessage("Error: Please use your @ufl.edu email address");
       return;
@@ -41,9 +45,7 @@ export default function Register() {
     setLoading(true);
     setMessage("");
 
-    // if user exists in members table, redirect to login
     try {
-      // First, check if the user exists in the members table
       const { data: existingMember, error: checkError } = await supabase
         .from("members")
         .select("*")
@@ -51,35 +53,26 @@ export default function Register() {
         .single();
 
       if (checkError && checkError.code !== "PGRST116") {
-        // PGRST116 is "not found"
         setMessage("Error: " + checkError.message);
         return;
       }
 
-      // If user already exists in members table, redirect to login
       if (existingMember) {
         setMessage("You already have an account. Redirecting to login...");
         setTimeout(() => {
-          navigate("/auth/login", { state: { email: email } });
+          navigate("/auth/login", { state: { email } });
         }, 1750);
         return;
       }
 
-      // Determine the final major value
       const finalMajor = major === "Other" ? customMajor : major;
-      
-      const { data, error } = await signUp(email, firstName, lastName, finalMajor, nationalMember);
+      const { error } = await signUp(email, firstName, lastName, finalMajor, nationalMember);
 
       if (error) {
         setMessage("Error: " + error.message);
       } else {
-        setMessage(
-          "Account created successfully! You are now logged in. Redirecting to home page..."
-        );
-        // Redirect to home page after successful registration
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
+        setMessage("Account created! Redirecting to home...");
+        setTimeout(() => navigate("/"), 2000);
       }
     } catch (error) {
       setMessage("Error: " + error.message);
@@ -88,198 +81,210 @@ export default function Register() {
     }
   }
 
+  const isError = message.startsWith("Error");
+
   return (
-    <>
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <div className="flex-1 flex items-center justify-center">
-          <div className="max-w-7xl w-full space-y-8 p-8">
+    <div
+      className="min-h-screen flex bg-[#F8F6F1]"
+      style={{ fontFamily: "'Inter', sans-serif" }}
+    >
+      {/* ── Left brand panel ── */}
+      <div className="hidden lg:flex lg:w-[44%] bg-[#1A1A1A] flex-col justify-center p-14">
+        <div>
+          <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#6B9FC4] mb-5">
+            University of Florida · IEEE EMBS
+          </p>
+          <h2
+            className="text-3xl md:text-[2.25rem] font-medium leading-[1.25] tracking-[-0.01em] text-white mb-6"
+            style={{ fontFamily: "'Lora', Georgia, serif" }}
+          >
+            Join the chapter. Shape the future of biomedical engineering at UF.
+          </h2>
+          <p className="text-white/45 text-[0.9375rem] leading-[1.75] font-light">
+            Create your account to access events, resources, and connect with students across 11+ majors.
+          </p>
+        </div>
+
+      </div>
+
+      {/* ── Right form panel ── */}
+      <div className="flex-1 flex items-center justify-center px-6 py-16">
+        <div className="w-full max-w-md">
+
+          <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#00629B] mb-4">
+            Get started
+          </p>
+          <h1
+            className="text-3xl font-medium text-[#1A1A1A] mb-2 tracking-[-0.01em]"
+            style={{ fontFamily: "'Lora', Georgia, serif" }}
+          >
+            Create your account
+          </h1>
+          <p className="text-[0.9375rem] text-[#6B7280] font-light mb-10">
+            Use your <span className="text-[#00629B] font-medium">@ufl.edu</span> email to get started instantly.
+          </p>
+
+          {/* Message */}
+          {message && (
+            <div
+              className={`mb-6 px-4 py-3 text-[0.875rem] border-l-[3px] ${
+                isError
+                  ? "border-l-red-500 bg-red-50 text-red-700"
+                  : "border-l-[#00629B] bg-[#F0F7FC] text-[#1A1A1A]"
+              }`}
+              dangerouslySetInnerHTML={{ __html: message }}
+            />
+          )}
+
+          <form onSubmit={handleSignUp} className="space-y-5">
+            {/* Email */}
             <div>
-              <h2 className="text-center text-3xl font-bold text-gray-900">
-                Register your account with UF EMBS
-              </h2>
-              <p className="mt-2 text-center text-gray-600">
-                Create your account and get started instantly
-              </p>
+              <label className="block text-[11px] font-semibold tracking-[0.14em] uppercase text-[#6B7280] mb-2">
+                Email address
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="yourname@ufl.edu"
+                className={`${inputCls} ${
+                  email && !email.toLowerCase().endsWith("@ufl.edu")
+                    ? "border-red-400 focus:border-red-500"
+                    : ""
+                }`}
+              />
+              {email && !email.toLowerCase().endsWith("@ufl.edu") && (
+                <p className="mt-1.5 text-[0.8125rem] text-red-600">Must be a @ufl.edu address</p>
+              )}
             </div>
 
-            {message && (
-              <div
-                className={`max-w-md mx-auto p-4 rounded-md ${
-                  message.includes("Error")
-                    ? "bg-red-50 text-red-700 border border-red-200"
-                    : "bg-green-50 text-green-700 border border-green-200"
-                }`}
-                dangerouslySetInnerHTML={{ __html: message }}
-              />
-            )}
-
-            <form
-              onSubmit={handleSignUp}
-              className="space-y-6 max-w-md mx-auto"
-            >
+            {/* Name row */}
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Email address
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${
-                    email && !email.toLowerCase().endsWith("@ufl.edu")
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                      : "border-gray-300"
-                  }`}
-                  placeholder="Enter your @ufl.edu email"
-                />
-                {email && !email.toLowerCase().endsWith("@ufl.edu") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    Please use your @ufl.edu email address
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="firstName"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label className="block text-[11px] font-semibold tracking-[0.14em] uppercase text-[#6B7280] mb-2">
                   First Name
                 </label>
                 <input
-                  id="firstName"
                   type="text"
                   required
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Enter your first name"
+                  placeholder="First"
+                  className={inputCls}
                 />
               </div>
-
               <div>
-                <label
-                  htmlFor="lastName"
-                  className="block text-sm font-medium text-gray-700"
-                >
+                <label className="block text-[11px] font-semibold tracking-[0.14em] uppercase text-[#6B7280] mb-2">
                   Last Name
                 </label>
                 <input
-                  id="lastName"
                   type="text"
                   required
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Enter your last name"
+                  placeholder="Last"
+                  className={inputCls}
                 />
               </div>
+            </div>
 
-              <div>
-                <label
-                  htmlFor="major"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Major
-                </label>
+            {/* Major */}
+            <div>
+              <label className="block text-[11px] font-semibold tracking-[0.14em] uppercase text-[#6B7280] mb-2">
+                Major
+              </label>
+              <div className="relative">
                 <select
-                  id="major"
                   required
                   value={major}
                   onChange={(e) => setMajor(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className={selectCls}
                 >
                   <option value="">Select your major</option>
-                  {majorOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
+                  {majorOptions.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
                   ))}
                 </select>
-              </div>
-
-              {major === "Other" && (
-                <div>
-                  <label
-                    htmlFor="customMajor"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Please specify your major
-                  </label>
-                  <input
-                    id="customMajor"
-                    type="text"
-                    required
-                    value={customMajor}
-                    onChange={(e) => setCustomMajor(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Enter your major"
-                  />
+                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                  <svg className="w-3.5 h-3.5 text-[#9A9A9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
                 </div>
-              )}
+              </div>
+            </div>
 
+            {major === "Other" && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Are you a national IEEE EMBS member?
+                <label className="block text-[11px] font-semibold tracking-[0.14em] uppercase text-[#6B7280] mb-2">
+                  Specify Major
                 </label>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="nationalMember"
-                      value="yes"
-                      checked={nationalMember === "yes"}
-                      onChange={(e) => setNationalMember(e.target.value)}
-                      className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="text-sm text-gray-700">Yes, I am a national IEEE EMBS member</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="nationalMember"
-                      value="no"
-                      checked={nationalMember === "no"}
-                      onChange={(e) => setNationalMember(e.target.value)}
-                      className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="text-sm text-gray-700">No, I am not a national IEEE EMBS member</span>
-                  </label>
-                </div>
+                <input
+                  type="text"
+                  required
+                  value={customMajor}
+                  onChange={(e) => setCustomMajor(e.target.value)}
+                  placeholder="Your major"
+                  className={inputCls}
+                />
               </div>
+            )}
 
-              <button
-                type="submit"
-                disabled={
-                  loading ||
-                  (email && !email.toLowerCase().endsWith("@ufl.edu")) ||
-                  !major ||
-                  (major === "Other" && !customMajor) ||
-                  !nationalMember
-                }
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#96529a] hover:bg-[#772583] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 hover:cursor-pointer"
-              >
-                {loading ? "Creating account..." : "Create Account"}
-              </button>
-            </form>
+            {/* National member */}
+            <div>
+              <label className="block text-[11px] font-semibold tracking-[0.14em] uppercase text-[#6B7280] mb-3">
+                IEEE EMBS National Member?
+              </label>
+              <div className="flex gap-6">
+                {["yes", "no"].map((val) => (
+                  <label key={val} className="flex items-center gap-2.5 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="radio"
+                        name="nationalMember"
+                        value={val}
+                        checked={nationalMember === val}
+                        onChange={(e) => setNationalMember(e.target.value)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-4 h-4 border border-[#D0CCC4] peer-checked:border-[#772583] transition-colors duration-200 flex items-center justify-center">
+                        <div className="w-2 h-2 bg-[#772583] opacity-0 peer-checked:opacity-100 transition-opacity duration-200" />
+                      </div>
+                    </div>
+                    <span className="text-[0.9375rem] text-[#4A4A4A] font-light capitalize">
+                      {val === "yes" ? "Yes" : "No"}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
 
-            <p className="text-center text-gray-600 ">
-              Already have an account?
-              <span
-                onClick={() => navigate("/auth/login")}
-                className="text-[#772583] cursor-pointer ml-1 hover:underline"
-              >
-                Login
-              </span>
-            </p>
-          </div>
+            <button
+              type="submit"
+              disabled={
+                loading ||
+                (email && !email.toLowerCase().endsWith("@ufl.edu")) ||
+                !major ||
+                (major === "Other" && !customMajor) ||
+                !nationalMember
+              }
+              className="w-full py-3 px-4 bg-[#1A1A1A] hover:bg-[#00629B] text-white text-[0.875rem] font-medium tracking-wide transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer mt-2"
+            >
+              {loading ? "Creating account..." : "Create Account"}
+            </button>
+          </form>
+
+          <p className="mt-8 text-[0.9375rem] text-[#6B7280] font-light text-center">
+            Already have an account?{" "}
+            <span
+              onClick={() => navigate("/auth/login")}
+              className="text-[#772583] cursor-pointer hover:underline font-medium"
+            >
+              Sign in
+            </span>
+          </p>
         </div>
       </div>
-    </>
+    </div>
   );
 }

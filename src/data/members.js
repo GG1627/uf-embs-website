@@ -56,12 +56,6 @@ export const techLeads = [
     imgURL: Michael,
   },
   {
-    name: "Devin Wylde",
-    position: "CS Tech Lead",
-    linkedin: "https://www.linkedin.com/in/devinwylde/",
-    imgURL: Devin,
-  },
-  {
     name: "Dana Sapir",
     position: "CS Tech Lead",
     linkedin: "https://www.linkedin.com/in/danasapir/",
@@ -123,5 +117,19 @@ export const advisors = [
     position: "BME Advisor",
     linkedin: "https://www.linkedin.com/in/maymansy/",
     imgURL: May,
+  },
+];
+
+export const pastBoards = [
+  {
+    year: "2025 – 2026",
+    members: [
+      {
+        name: "Devin Wylde",
+        position: "CS Tech Lead",
+        linkedin: "https://www.linkedin.com/in/devinwylde/",
+        imgURL: Devin,
+      },
+    ],
   },
 ];
