@@ -974,8 +974,8 @@ export default function Home() {
                 return (
                   <div
                     key={idx}
-                    className={`border-t border-white/[0.08] ${
-                      idx === 2 ? "border-b border-white/[0.08]" : ""
+                    className={`border-t border-white/[0.18] ${
+                      idx === 2 ? "border-b border-white/[0.18]" : ""
                     } transition-all duration-500 ease-in-out overflow-hidden ${
                       isPlaceholder ? "" : "cursor-pointer group"
                     }`}
@@ -986,24 +986,24 @@ export default function Home() {
                   >
                     {/* Collapsed Ribbon */}
                     <div className={`flex items-center justify-between gap-6 py-6 md:py-8 transition-colors duration-300 ${
-                      isPlaceholder ? "opacity-25" : ""
+                      isPlaceholder ? "opacity-45" : ""
                     }`} style={{ fontFamily: "'Inter', sans-serif" }}>
                       {/* Left: number + event name */}
                       <div className="flex items-center gap-5 md:gap-8 min-w-0">
                         <span
-                          className="text-white/20 text-2xl md:text-3xl font-light leading-none flex-shrink-0 select-none tabular-nums"
+                          className="text-white text-2xl md:text-3xl font-light leading-none flex-shrink-0 select-none tabular-nums"
                           style={{ fontFamily: "'Lora', Georgia, serif" }}
                         >
                           {String(idx + 1).padStart(2, "0")}
                         </span>
                         {isPlaceholder ? (
-                          <p className="text-white/40 text-base md:text-lg font-light italic">
+                          <p className="text-white text-base md:text-lg font-light italic">
                             {placeholderMessages[idx]}
                           </p>
                         ) : (
                           <div className="flex flex-col gap-1.5 min-w-0">
                             <h2
-                              className="text-white text-xl md:text-2xl lg:text-3xl font-medium leading-tight tracking-[-0.01em] group-hover:text-white/70 transition-colors duration-300"
+                              className="text-white text-xl md:text-2xl lg:text-[2.60rem] font-medium leading-tight tracking-[-0.01em] group-hover:text-white/70 transition-colors duration-300"
                               style={{ fontFamily: "'Lora', Georgia, serif" }}
                             >
                               {event.summary}
