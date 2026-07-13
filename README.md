@@ -34,8 +34,8 @@
 
 ### 🌟 Contributors
 
-- **Gael Garcia (Webmaster)**
-- **Lincy Phipps (Webmaster)**
+- **Gael Garcia (2025-2026 Webmaster)**
+- **Lincy Phipps (2025-2026 Webmaster)**
 
 ## 🔗 Links
 
