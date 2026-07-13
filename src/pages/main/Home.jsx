@@ -1,4 +1,4 @@
-import DesktopBackgroundFiller from "../../assets/images/desktop_background_filler2.avif";
+﻿import DesktopBackgroundFiller from "../../assets/images/desktop_background_filler2.avif";
 import DesktopBackgroundDNA from "../../assets/images/desktop_background_dna2.avif";
 import MobileBackgroundFiller from "../../assets/images/mobile_background_filler2.avif";
 import MobileBackgroundDNA from "../../assets/images/mobile_background_dna2.avif";
