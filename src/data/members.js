@@ -18,6 +18,7 @@ import Angelina from "../assets/members/Angelina.avif";
 import Daiwik from "../assets/members/Daiwik.avif";
 import Omar from "../assets/members/Omar.avif";
 import Carson from "../assets/members/Carson.avif";
+import Diego from "../assets/members/Diego.avif";
 import Mia from "../assets/members/Mia.avif";
 
 export const executiveBoard = [
@@ -95,6 +96,7 @@ export const outreachAndOperations = [
   {
     name: "Diego Oliver",
     position: "Outreach Coordinator",
+    imgURL: Diego,
   },
   {
     name: "Salma Ouaakki",
