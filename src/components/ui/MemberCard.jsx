@@ -1,17 +1,20 @@
-import defaultAvatar from "../../assets/default-avatar.png";
 import { FaLinkedin } from "react-icons/fa";
 
 export default function MemberCard({ name, position, linkedin, imgURL }) {
+  const isDaiwik = name === "Daiwik Sevugan";
+
   return (
     <div className="group flex flex-col items-center text-center">
       {/* Portrait */}
       <div className="relative w-full aspect-square overflow-hidden mb-4 bg-[#F0EDE8]">
-        <img
-          src={imgURL || defaultAvatar}
-          alt={`${name} - ${position}`}
-          className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
-          decoding="async"
-        />
+        {imgURL && (
+          <img
+            src={imgURL}
+            alt={`${name} - ${position}`}
+            className={`w-full h-full transition-transform duration-500 group-hover:scale-[1.03] ${isDaiwik ? "object-[center_30%] object-cover" : "object-cover object-center"}`}
+            decoding="async"
+          />
+        )}
         {/* Subtle warm overlay on hover */}
         <div className="absolute inset-0 bg-[#1A1A1A]/0 group-hover:bg-[#1A1A1A]/5 transition-colors duration-500" />
       </div>

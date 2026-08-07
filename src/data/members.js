@@ -14,67 +14,63 @@ import Katherine from "../assets/members/Katherine.avif";
 import Dana from "../assets/members/Dana.avif";
 import Clara from "../assets/members/Clara.avif";
 import Salma from "../assets/members/Salma.avif";
+import Angelina from "../assets/members/Angelina.avif";
+import Daiwik from "../assets/members/Daiwik.avif";
+import Omar from "../assets/members/Omar.avif";
+import Carson from "../assets/members/Carson.avif";
+import Mia from "../assets/members/Mia.avif";
 
 export const executiveBoard = [
   {
-    name: "Veronica Ramos Rodriguez",
-    position: "President",
-    linkedin: "https://www.linkedin.com/in/veronicasramos/",
-    imgURL: Veronica,
-  },
-  {
     name: "Christian Gomez",
-    position: "Vice President",
+    position: "President",
     linkedin: "https://www.linkedin.com/in/christian-gomez-8b4bb92b8/",
     imgURL: Christian,
   },
   {
-    name: "Viola Szalkai",
-    position: "Secretary",
-    linkedin: "https://www.linkedin.com/in/viola-szalkai-2421912b9/",
-    imgURL: Viola,
+    name: "Matthew Valenti",
+    position: "Vice President",
+    linkedin: "https://www.linkedin.com/in/matthew-valenti-a46960297/",
+    imgURL: Matthew,
   },
   {
-    name: "Krish Patel",
+    name: "Angelina Garcon",
     position: "Treasurer",
-    linkedin: "https://www.linkedin.com/in/krish-patel-connect/",
-    imgURL: Krish,
+    imgURL: Angelina,
+  },
+  {
+    name: "Clea Judilla",
+    position: "Secretary",
+    linkedin: "https://www.linkedin.com/in/cleajudilla/",
+    imgURL: Clea,
   },
 ];
 
 export const techLeads = [
   {
-    name: "Matthew Valenti",
-    position: "BME Tech Lead",
-    linkedin: "https://www.linkedin.com/in/matthew-valenti-a46960297/",
-    imgURL: Matthew,
+    name: "Katherine Phy",
+    position: "Biomedical Engineering Technical Lead",
+    linkedin: "https://www.linkedin.com/in/katherine-phy-66a0a4297/",
+    imgURL: Katherine,
   },
   {
-    name: "Michael Vladimirsky",
-    position: "EE Tech Lead",
-    linkedin: "https://www.linkedin.com/in/michaelvladimirsky/",
-    imgURL: Michael,
+    name: "Carson Phuong",
+    position: "Electrical Engineering Technical Lead",
+    imgURL: Carson,
   },
-  {
-    name: "Dana Sapir",
-    position: "CS Tech Lead",
-    linkedin: "https://www.linkedin.com/in/danasapir/",
-    imgURL: Dana,
-  }
-];
-
-export const digitalMedia = [
   {
     name: "Gael Garcia",
-    position: "Webmaster",
+    position: "Computer Science Technical Lead",
     linkedin: "https://www.linkedin.com/in/gael-garcia1627/",
     imgURL: Gael,
   },
-  {
-    name: "Lincy Phipps",
-    position: "Webmaster",
-    linkedin: "https://www.linkedin.com/in/rosalinda-nancy-lincy-phipps040/",
-    imgURL: Lincy,
+];
+
+export const digitalMedia = [
+  { 
+    name: "Mia Beltran", 
+    position: "Webmaster", 
+    imgURL: Mia 
   },
   {
     name: "Clara Anderson",
@@ -83,38 +79,40 @@ export const digitalMedia = [
     imgURL: Clara,
   },
   {
-    name: "Clea Judilla",
+    name: "Daiwik Sevugan",
     position: "Social Media Manager",
-    linkedin: "https://www.linkedin.com/in/cleajudilla/",
-    imgURL: Clea,
+    imgURL: Daiwik,
   },
 ];
 
 export const outreachAndOperations = [
   {
-    name: "Katherine Phy",
+    name: "Dana Sapir",
     position: "Fundraising Lead",
-    linkedin: "https://www.linkedin.com/in/katherine-phy-66a0a4297/",
-    imgURL: Katherine,
+    linkedin: "https://www.linkedin.com/in/danasapir/",
+    imgURL: Dana,
   },
   {
-    name: "Fabiana Mastantuono",
+    name: "Diego Oliver",
     position: "Outreach Coordinator",
-    linkedin: "https://www.linkedin.com/in/fabiana-mastantuono/",
-    imgURL: Fabiana,
   },
   {
     name: "Salma Ouaakki",
     position: "Event Coordinator",
     linkedin: "https://www.linkedin.com/in/salmaouaakki/",
     imgURL: Salma,
-  }
+  },
+  {
+    name: "Omar Grini",
+    position: "Event Coordinator",
+    imgURL: Omar,
+  },
 ];
 
 export const advisors = [
   {
     name: "Dr. May Mansy",
-    position: "BME Advisor",
+    position: "Biomedical Engineering Advisor",
     linkedin: "https://www.linkedin.com/in/maymansy/",
     imgURL: May,
   },
@@ -125,8 +123,44 @@ export const pastBoards = [
     year: "2025 – 2026",
     members: [
       {
+        name: "Veronica Ramos Rodriguez",
+        position: "President",
+        linkedin: "https://www.linkedin.com/in/veronicasramos/",
+        imgURL: Veronica,
+      },
+      {
+        name: "Viola Szalkai",
+        position: "Secretary",
+        linkedin: "https://www.linkedin.com/in/viola-szalkai-2421912b9/",
+        imgURL: Viola,
+      },
+      {
+        name: "Krish Patel",
+        position: "Treasurer",
+        linkedin: "https://www.linkedin.com/in/krish-patel-connect/",
+        imgURL: Krish,
+      },
+      {
+        name: "Michael Vladimirsky",
+        position: "Electrical Engineering Technical Lead",
+        linkedin: "https://www.linkedin.com/in/michaelvladimirsky/",
+        imgURL: Michael,
+      },
+      {
+        name: "Lincy Phipps",
+        position: "Webmaster",
+        linkedin: "https://www.linkedin.com/in/rosalinda-nancy-lincy-phipps040/",
+        imgURL: Lincy,
+      },
+      {
+        name: "Fabiana Mastantuono",
+        position: "Outreach Coordinator",
+        linkedin: "https://www.linkedin.com/in/fabiana-mastantuono/",
+        imgURL: Fabiana,
+      },
+      {
         name: "Devin Wylde",
-        position: "CS Tech Lead",
+        position: "Computer Science Technical Lead",
         linkedin: "https://www.linkedin.com/in/devinwylde/",
         imgURL: Devin,
       },
