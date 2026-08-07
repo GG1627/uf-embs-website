@@ -1,6 +1,8 @@
 import { FaLinkedin } from "react-icons/fa";
 
 export default function MemberCard({ name, position, linkedin, imgURL }) {
+  const isDaiwik = name === "Daiwik Sevugan";
+
   return (
     <div className="group flex flex-col items-center text-center">
       {/* Portrait */}
@@ -9,7 +11,7 @@ export default function MemberCard({ name, position, linkedin, imgURL }) {
           <img
             src={imgURL}
             alt={`${name} - ${position}`}
-            className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+            className={`w-full h-full transition-transform duration-500 group-hover:scale-[1.03] ${isDaiwik ? "object-[center_30%] object-cover" : "object-cover object-center"}`}
             decoding="async"
           />
         )}

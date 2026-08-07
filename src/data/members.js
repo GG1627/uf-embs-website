@@ -14,6 +14,11 @@ import Katherine from "../assets/members/Katherine.avif";
 import Dana from "../assets/members/Dana.avif";
 import Clara from "../assets/members/Clara.avif";
 import Salma from "../assets/members/Salma.avif";
+import Angelina from "../assets/members/Angelina.avif";
+import Daiwik from "../assets/members/Daiwik.avif";
+import Omar from "../assets/members/Omar.avif";
+import Carson from "../assets/members/Carson.avif";
+import Mia from "../assets/members/Mia.avif";
 
 export const executiveBoard = [
   {
@@ -28,7 +33,11 @@ export const executiveBoard = [
     linkedin: "https://www.linkedin.com/in/matthew-valenti-a46960297/",
     imgURL: Matthew,
   },
-  { name: "Angelina __", position: "Treasurer" },
+  {
+    name: "Angelina Garcon",
+    position: "Treasurer",
+    imgURL: Angelina,
+  },
   {
     name: "Clea Judilla",
     position: "Secretary",
@@ -44,7 +53,11 @@ export const techLeads = [
     linkedin: "https://www.linkedin.com/in/katherine-phy-66a0a4297/",
     imgURL: Katherine,
   },
-  { name: "Carson __", position: "Electrical Engineering Technical Lead" },
+  {
+    name: "Carson Phuong",
+    position: "Electrical Engineering Technical Lead",
+    imgURL: Carson,
+  },
   {
     name: "Gael Garcia",
     position: "Computer Science Technical Lead",
@@ -54,14 +67,22 @@ export const techLeads = [
 ];
 
 export const digitalMedia = [
-  { name: "Mia Beltran", position: "Webmaster" },
+  { 
+    name: "Mia Beltran", 
+    position: "Webmaster", 
+    imgURL: Mia 
+  },
   {
     name: "Clara Anderson",
     position: "Social Media Manager",
     linkedin: "https://www.linkedin.com/in/clara-andersonn/",
     imgURL: Clara,
   },
-  { name: "Daiwik __", position: "Social Media Manager" },
+  {
+    name: "Daiwik Sevugan",
+    position: "Social Media Manager",
+    imgURL: Daiwik,
+  },
 ];
 
 export const outreachAndOperations = [
@@ -71,14 +92,21 @@ export const outreachAndOperations = [
     linkedin: "https://www.linkedin.com/in/danasapir/",
     imgURL: Dana,
   },
-  { name: "Diego __", position: "Outreach Coordinator" },
+  {
+    name: "Diego Oliver",
+    position: "Outreach Coordinator",
+  },
   {
     name: "Salma Ouaakki",
     position: "Event Coordinator",
     linkedin: "https://www.linkedin.com/in/salmaouaakki/",
     imgURL: Salma,
   },
-  { name: "Omar Grini", position: "Event Coordinator" },
+  {
+    name: "Omar Grini",
+    position: "Event Coordinator",
+    imgURL: Omar,
+  },
 ];
 
 export const advisors = [
