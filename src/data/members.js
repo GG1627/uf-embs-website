@@ -37,6 +37,7 @@ export const executiveBoard = [
   {
     name: "Angelina Garcon",
     position: "Treasurer",
+    linkedin: "https://www.linkedin.com/in/angelina-garcon-9a018b335/",
     imgURL: Angelina,
   },
   {
@@ -57,6 +58,7 @@ export const techLeads = [
   {
     name: "Carson Phuong",
     position: "Electrical Engineering Technical Lead",
+    linkedin: "https://www.linkedin.com/in/carson-phuong-79753a320/",
     imgURL: Carson,
   },
   {
@@ -69,9 +71,10 @@ export const techLeads = [
 
 export const digitalMedia = [
   { 
-    name: "Mia Beltran", 
-    position: "Webmaster", 
-    imgURL: Mia 
+    name: "Mia Beltran",
+    position: "Webmaster",
+    linkedin: "https://www.linkedin.com/in/mia-beltran-27384b2b8/",
+    imgURL: Mia
   },
   {
     name: "Clara Anderson",
@@ -82,6 +85,7 @@ export const digitalMedia = [
   {
     name: "Daiwik Sevugan",
     position: "Social Media Manager",
+    linkedin: "https://www.linkedin.com/in/dsuf2/",
     imgURL: Daiwik,
   },
 ];
@@ -96,6 +100,7 @@ export const outreachAndOperations = [
   {
     name: "Diego Oliver",
     position: "Outreach Coordinator",
+    linkedin: "https://www.linkedin.com/in/diegoaoliverm/",
     imgURL: Diego,
   },
   {
@@ -107,6 +112,7 @@ export const outreachAndOperations = [
   {
     name: "Omar Grini",
     position: "Event Coordinator",
+    linkedin: "https://www.linkedin.com/in/ogrini/",
     imgURL: Omar,
   },
 ];
