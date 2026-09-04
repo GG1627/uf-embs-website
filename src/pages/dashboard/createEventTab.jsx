@@ -3,6 +3,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { supabase } from "../../lib/supabase";
 import { useSnackbar } from "../../components/ui/Snackbar";
 import { useAuth } from "../auth/AuthContext";
+import { TBD_START_TIME, TBD_END_TIME, isTimeTBD } from "../../lib/eventTime";
 
 const fieldCls =
   "w-full px-3 py-2.5 text-[0.9375rem] border border-[#2E2E2E] bg-[#1A1A1A] text-white placeholder-white/25 focus:outline-none focus:border-white/40 transition-colors duration-200";
@@ -24,6 +25,7 @@ export default function CreateEventTab() {
   const [eventCode, setEventCode]           = useState("");
   const [eventStartTime, setEventStartTime] = useState("");
   const [eventEndTime, setEventEndTime]     = useState("");
+  const [timeTBD, setTimeTBD]               = useState(false);
   const [eventQrcode, setEventQrcode]       = useState("");
   const [showQRCode, setShowQRCode]         = useState(false);
   const [eventType, setEventType]           = useState("");
@@ -135,10 +137,10 @@ export default function CreateEventTab() {
     return (2 * matches) / (s1.length - 1 + (s2.length - 1));
   };
 
-  const createGoogleCalendarEvent = async (name, date, startTime, endTime, desc, loc) => {
+  const createGoogleCalendarEvent = async (name, date, startTime, endTime, desc, loc, allDay) => {
     try {
       const gcalRes = await supabase.functions.invoke("create-google-calendar-event", {
-        body: { name, date, startTime, endTime, description: desc || "", location: loc || "" },
+        body: { name, date, startTime, endTime, description: desc || "", location: loc || "", allDay: !!allDay },
       });
       if (gcalRes.error || (gcalRes.data && !gcalRes.data.ok)) {
         showSnackbar("Event added but failed to sync to Google Calendar", { customColor: "#f59e0b" });
@@ -153,7 +155,7 @@ export default function CreateEventTab() {
     }
   };
 
-  const checkAndCreateGoogleCalendarEvent = async (name, date, startTime, endTime, desc, loc) => {
+  const checkAndCreateGoogleCalendarEvent = async (name, date, startTime, endTime, desc, loc, allDay) => {
     const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
     const CALENDAR_ID = import.meta.env.VITE_CALENDAR_ID;
     if (!API_KEY || !CALENDAR_ID) return "error";
@@ -162,12 +164,12 @@ export default function CreateEventTab() {
       const dayEnd   = `${date}T23:59:59-05:00`;
       const params = new URLSearchParams({ key: API_KEY, singleEvents: "true", timeMin: new Date(dayStart).toISOString(), timeMax: new Date(dayEnd).toISOString() });
       const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?${params}`);
-      if (!res.ok) return await createGoogleCalendarEvent(name, date, startTime, endTime, desc, loc);
+      if (!res.ok) return await createGoogleCalendarEvent(name, date, startTime, endTime, desc, loc, allDay);
       const data = await res.json();
       const isDuplicate = (data.items || []).some((e) => stringSimilarity(e.summary || "", name) >= 0.6);
       if (isDuplicate) return "skipped";
-      return await createGoogleCalendarEvent(name, date, startTime, endTime, desc, loc);
-    } catch { return await createGoogleCalendarEvent(name, date, startTime, endTime, desc, loc); }
+      return await createGoogleCalendarEvent(name, date, startTime, endTime, desc, loc, allDay);
+    } catch { return await createGoogleCalendarEvent(name, date, startTime, endTime, desc, loc, allDay); }
   };
 
   const addEvent = async (e) => {
@@ -177,8 +179,10 @@ export default function CreateEventTab() {
       try { uploadedFlyerUrl = await uploadFlyer(flyerFile); }
       catch { showSnackbar("Error uploading flyer. Please try again.", { customColor: "#dc2626" }); return; }
     }
-    const startDateTime = new Date(`${eventDate}T${eventStartTime}:00`).toISOString();
-    const endDateTime   = new Date(`${eventDate}T${eventEndTime}:00`).toISOString();
+    const startTime = timeTBD ? TBD_START_TIME : eventStartTime;
+    const endTime   = timeTBD ? TBD_END_TIME : eventEndTime;
+    const startDateTime = new Date(`${eventDate}T${startTime}:00`).toISOString();
+    const endDateTime   = new Date(`${eventDate}T${endTime}:00`).toISOString();
     const { data, error } = await supabase.from("events").insert({
       name: eventName, date: eventDate, points: eventPoints, code: eventCode,
       start_time: startDateTime, end_time: endDateTime, event_type: eventType,
@@ -188,10 +192,10 @@ export default function CreateEventTab() {
     });
     if (error) { showSnackbar("Error adding event", { customColor: "#dc2626" }); return; }
     console.log(data);
-    const calResult = await checkAndCreateGoogleCalendarEvent(eventName, eventDate, eventStartTime, eventEndTime, description, location);
+    const calResult = await checkAndCreateGoogleCalendarEvent(eventName, eventDate, startTime, endTime, description, location, timeTBD);
     if (calResult === "skipped") showSnackbar("Event saved — similar event already in Google Calendar", { customColor: "#f59e0b" });
     setEventName(""); setEventDate(""); setEventPoints(""); setEventCode("");
-    setEventStartTime(""); setEventEndTime(""); setEventQrcode(""); setShowQRCode(false);
+    setEventStartTime(""); setEventEndTime(""); setTimeTBD(false); setEventQrcode(""); setShowQRCode(false);
     setEventType(""); setFoodPresent(""); setIsVirtual(""); setDescription(""); setLocation("");
     setFlyerFile(null); setFlyerUrl("");
     const fileInput = document.getElementById("event-flyer");
@@ -208,6 +212,7 @@ export default function CreateEventTab() {
       code: event.code || "",
       startTime: `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}`,
       endTime:   `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`,
+      timeTBD: isTimeTBD(event.start_time, event.end_time),
       eventType: event.event_type || "", foodPresent: event.food_present ? "yes" : "no",
       isVirtual: event.is_virtual ? "yes" : "no", description: event.description || "",
       location: event.location || "", flyerUrl: event.flyer_url || "",
@@ -223,8 +228,10 @@ export default function CreateEventTab() {
     try {
       let uploadedFlyerUrl = editForm.flyerUrl;
       if (editFlyerFile) uploadedFlyerUrl = await uploadFlyer(editFlyerFile);
-      const startDateTime = new Date(`${editForm.date}T${editForm.startTime}:00`).toISOString();
-      const endDateTime   = new Date(`${editForm.date}T${editForm.endTime}:00`).toISOString();
+      const startTime = editForm.timeTBD ? TBD_START_TIME : editForm.startTime;
+      const endTime   = editForm.timeTBD ? TBD_END_TIME : editForm.endTime;
+      const startDateTime = new Date(`${editForm.date}T${startTime}:00`).toISOString();
+      const endDateTime   = new Date(`${editForm.date}T${endTime}:00`).toISOString();
       const { error } = await supabase.from("events").update({
         name: editForm.name, date: editForm.date, points: parseInt(editForm.points),
         code: editForm.code, start_time: startDateTime, end_time: endDateTime,
@@ -301,7 +308,9 @@ export default function CreateEventTab() {
 
   const EventCard = ({ event, showQR = true }) => {
     const startStr = new Date(event.start_time).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-    const timeRange = `${new Date(event.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} – ${new Date(event.end_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+    const timeRange = isTimeTBD(event.start_time, event.end_time)
+      ? "Time TBD"
+      : `${new Date(event.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} – ${new Date(event.end_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
     return (
       <div className="border border-[#2E2E2E] bg-[#181818] p-5 flex flex-col lg:flex-row gap-5">
         <div className="flex-1 space-y-3">
@@ -423,18 +432,34 @@ export default function CreateEventTab() {
                     disabled={editForm.eventType && editForm.eventType !== "fundraising"}
                     className={`${fieldCls} ${editForm.eventType && editForm.eventType !== "fundraising" ? "opacity-40 cursor-not-allowed" : ""}`} />
                 </div>
-                <div>
-                  <label className={labelCls}>Start Time</label>
-                  <input type="time" required value={editForm.startTime}
-                    onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
-                    className={fieldCls} />
+                <div className="md:col-span-2">
+                  <label className="flex items-center gap-2.5 cursor-pointer group w-fit">
+                    <div className="relative">
+                      <input type="checkbox" checked={!!editForm.timeTBD}
+                        onChange={(e) => setEditForm({ ...editForm, timeTBD: e.target.checked })}
+                        className="sr-only peer" />
+                      <div className="w-8 h-4 bg-[#2E2E2E] peer-checked:bg-[#772583] transition-colors duration-200" />
+                      <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white transition-transform duration-200 peer-checked:translate-x-4" />
+                    </div>
+                    <span className="text-[0.8125rem] text-white/50 font-light select-none">Time TBD</span>
+                  </label>
                 </div>
-                <div>
-                  <label className={labelCls}>End Time</label>
-                  <input type="time" required value={editForm.endTime}
-                    onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
-                    className={fieldCls} />
-                </div>
+                {!editForm.timeTBD && (
+                  <>
+                    <div>
+                      <label className={labelCls}>Start Time</label>
+                      <input type="time" required value={editForm.startTime}
+                        onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
+                        className={fieldCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>End Time</label>
+                      <input type="time" required value={editForm.endTime}
+                        onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
+                        className={fieldCls} />
+                    </div>
+                  </>
+                )}
                 <div className="md:col-span-2">
                   <label className={labelCls}>Description</label>
                   <textarea value={editForm.description}
@@ -614,16 +639,32 @@ export default function CreateEventTab() {
                     placeholder={eventType === "fundraising" ? "Enter points" : "Points"}
                     className={`${fieldCls} ${eventType && eventType !== "fundraising" ? "opacity-40 cursor-not-allowed" : ""}`} />
                 </div>
-                <div>
-                  <label className={labelCls} htmlFor="event-start-time">Start Time</label>
-                  <input id="event-start-time" type="time" required value={eventStartTime}
-                    onChange={(e) => setEventStartTime(e.target.value)} className={fieldCls} />
+                <div className="md:col-span-2">
+                  <label className="flex items-center gap-2.5 cursor-pointer group w-fit">
+                    <div className="relative">
+                      <input type="checkbox" checked={timeTBD}
+                        onChange={(e) => setTimeTBD(e.target.checked)}
+                        className="sr-only peer" />
+                      <div className="w-8 h-4 bg-[#2E2E2E] peer-checked:bg-[#772583] transition-colors duration-200" />
+                      <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white transition-transform duration-200 peer-checked:translate-x-4" />
+                    </div>
+                    <span className="text-[0.8125rem] text-white/50 font-light select-none">Time TBD</span>
+                  </label>
                 </div>
-                <div>
-                  <label className={labelCls} htmlFor="event-end-time">End Time</label>
-                  <input id="event-end-time" type="time" required value={eventEndTime}
-                    onChange={(e) => setEventEndTime(e.target.value)} className={fieldCls} />
-                </div>
+                {!timeTBD && (
+                  <>
+                    <div>
+                      <label className={labelCls} htmlFor="event-start-time">Start Time</label>
+                      <input id="event-start-time" type="time" required value={eventStartTime}
+                        onChange={(e) => setEventStartTime(e.target.value)} className={fieldCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls} htmlFor="event-end-time">End Time</label>
+                      <input id="event-end-time" type="time" required value={eventEndTime}
+                        onChange={(e) => setEventEndTime(e.target.value)} className={fieldCls} />
+                    </div>
+                  </>
+                )}
                 <div className="md:col-span-2">
                   <label className={labelCls} htmlFor="event-description">Description <span className="normal-case tracking-normal font-normal text-white/20">(optional)</span></label>
                   <textarea id="event-description" rows={3} value={description}
