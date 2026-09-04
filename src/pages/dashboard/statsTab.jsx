@@ -20,7 +20,6 @@ import { VscPerson } from "react-icons/vsc";
 import React from "react";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { supabase } from "../../lib/supabase";
-import { isTimeTBD } from "../../lib/eventTime";
 
 // Center icon component for donut chart
 function PieCenterLabel({ size = 32 }) {
@@ -892,7 +891,7 @@ export default function StatsTab() {
                                     <svg className="w-3.5 h-3.5 text-white/25 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span>{isTimeTBD(event.start_time, event.end_time) ? "Time TBD" : new Date(event.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                                    <span>{new Date(event.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <svg className="w-3.5 h-3.5 text-[#00629B]/80 shrink-0" fill="currentColor" viewBox="0 0 20 20">

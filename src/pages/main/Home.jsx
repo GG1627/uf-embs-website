@@ -462,7 +462,6 @@ export default function Home() {
   }, []);
 
   const formatTime = useCallback((dateTime) => {
-    if (!dateTime) return "Time TBD";
     return new Date(dateTime).toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
