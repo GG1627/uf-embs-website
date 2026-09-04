@@ -82,13 +82,6 @@ async function getAccessToken(serviceAccount: {
   return tokenData.access_token;
 }
 
-// Google Calendar all-day events use an exclusive end date, i.e. one day past the event date
-function nextDay(dateStr: string): string {
-  const d = new Date(`${dateStr}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + 1);
-  return d.toISOString().slice(0, 10);
-}
-
 type EventPayload = {
   name: string;
   date: string;        // YYYY-MM-DD
@@ -96,7 +89,6 @@ type EventPayload = {
   endTime: string;     // HH:MM
   description?: string;
   location?: string;
-  allDay?: boolean;     // true when the event's time is TBD
 };
 
 Deno.serve(async (req) => {
@@ -136,28 +128,19 @@ Deno.serve(async (req) => {
 
     // Build the Google Calendar event object
     // Use America/New_York timezone since this is a UF (University of Florida) org
-    // All-day events (time TBD) use date-only start/end with an exclusive end date
-    const calendarEvent = body.allDay
-      ? {
-          summary: body.name,
-          description: body.description || "",
-          location: body.location || "",
-          start: { date: body.date },
-          end: { date: nextDay(body.date) },
-        }
-      : {
-          summary: body.name,
-          description: body.description || "",
-          location: body.location || "",
-          start: {
-            dateTime: `${body.date}T${body.startTime}:00`,
-            timeZone: "America/New_York",
-          },
-          end: {
-            dateTime: `${body.date}T${body.endTime}:00`,
-            timeZone: "America/New_York",
-          },
-        };
+    const calendarEvent = {
+      summary: body.name,
+      description: body.description || "",
+      location: body.location || "",
+      start: {
+        dateTime: `${body.date}T${body.startTime}:00`,
+        timeZone: "America/New_York",
+      },
+      end: {
+        dateTime: `${body.date}T${body.endTime}:00`,
+        timeZone: "America/New_York",
+      },
+    };
 
     // Create the event via Google Calendar API
     const calRes = await fetch(

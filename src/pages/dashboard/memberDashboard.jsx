@@ -7,7 +7,6 @@ import { careerFields } from "../../data/careerFields";
 import { supabase } from "../../lib/supabase";
 import { useEffect, useState } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
-import { isTimeTBD } from "../../lib/eventTime";
 
 const inputCls =
   "w-full px-3 py-2.5 text-[0.9375rem] border border-[#D0CCC4] bg-white text-[#1A1A1A] placeholder-[#AAAAAA] focus:outline-none focus:border-[#1A1A1A] transition-colors duration-200";
@@ -138,7 +137,7 @@ export default function MemberDashboard() {
       setEventsLoading(true);
       const { data, error } = await supabase
         .from("event_attendance")
-        .select("event_id, events(id, name, start_time, end_time, points)")
+        .select("event_id, events(id, name, start_time, points)")
         .eq("member_id", user.id)
         .order("events(start_time)", { ascending: false });
       if (error) { setEventsAttended([]); return; }
@@ -458,9 +457,7 @@ export default function MemberDashboard() {
                         <p className="text-[0.8125rem] text-[#9A9A9A] font-light">
                           {new Date(event.start_time).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                           {" · "}
-                          {isTimeTBD(event.start_time, event.end_time)
-                            ? "Time TBD"
-                            : new Date(event.start_time).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(event.start_time).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                         </p>
                       )}
                     </div>
