@@ -21,6 +21,27 @@ const Spinner = () => (
   </svg>
 );
 
+const getCurrentAcademicYearDetails = (date = new Date()) => {
+  const dateParts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "numeric",
+  }).formatToParts(date);
+  const calendarYear = Number(dateParts.find((part) => part.type === "year")?.value);
+  const calendarMonth = Number(dateParts.find((part) => part.type === "month")?.value);
+  const startYear = calendarMonth >= 8 ? calendarYear : calendarYear - 1;
+  const endYear = startYear + 1;
+
+  return {
+    label: `${startYear}-${endYear}`,
+    fallLabel: `Fall '${String(startYear).slice(-2)} Points`,
+    springLabel: `Spring '${String(endYear).slice(-2)} Points`,
+    startDate: `${startYear}-08-01T00:00:00-04:00`,
+    springStartDate: `${endYear}-01-01T00:00:00-05:00`,
+    endDate: `${endYear}-08-01T00:00:00-04:00`,
+  };
+};
+
 export default function MemberDashboard() {
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
@@ -28,10 +49,8 @@ export default function MemberDashboard() {
 
   const [favoriteFields, setFavoriteFields]         = useState([]);
   const [selectedCareer, setSelectedCareer]         = useState(null);
-  const [userStats, setUserStats]                   = useState({ points: 0, events_attended: 0 });
   const [eventCode, setEventCode]                   = useState("");
   const [showQRScanner, setShowQRScanner]           = useState(false);
-  const [nationalMemberStatus, setNationalMemberStatus] = useState(null);
   const [showNationalMemberUpdate, setShowNationalMemberUpdate] = useState(false);
   const [selectedNationalStatus, setSelectedNationalStatus] = useState("");
   const [userMajor, setUserMajor]                   = useState(null);
@@ -40,11 +59,12 @@ export default function MemberDashboard() {
   const [customMajor, setCustomMajor]               = useState("");
   const [eventsAttended, setEventsAttended]         = useState([]);
   const [eventsLoading, setEventsLoading]           = useState(true);
-  const [statsLoading, setStatsLoading]             = useState(true);
   const [favoritesLoading, setFavoritesLoading]     = useState(true);
-  const [semesterStats, setSemesterStats]           = useState({
-    fallPoints: 0, springPoints: 0, fallEvents: 0, springEvents: 0, loading: true,
+  const [academicYearStats, setAcademicYearStats]   = useState({
+    totalPoints: 0, totalEvents: 0, fallPoints: 0, springPoints: 0, loading: true,
   });
+
+  const academicYear = getCurrentAcademicYearDetails();
 
   const majorOptions = [
     "Biomedical Engineering", "Electrical Engineering", "Computer Science",
@@ -53,55 +73,63 @@ export default function MemberDashboard() {
 
   useEffect(() => {
     if (user) {
-      fetchUserStats();
       fetchFavoriteFields();
-      fetchEventsAttended();
+      fetchAcademicYearActivity();
       checkNationalMemberStatus();
       checkMajorStatus();
-      fetchSemesterStats();
     }
   }, [user]);
 
-  const fetchUserStats = async () => {
+  const fetchAcademicYearActivity = async () => {
     try {
-      setStatsLoading(true);
-      const { data, error } = await supabase
-        .from("members")
-        .select("points, events_attended, national_member, major")
-        .eq("user_id", user.id)
-        .single();
-      if (error) { setUserStats({ points: 0, events_attended: 0 }); return; }
-      if (data) {
-        setUserStats({ points: data.points || 0, events_attended: data.events_attended || 0 });
-        setNationalMemberStatus(data.national_member);
-        setUserMajor(data.major);
-      }
-    } catch { setUserStats({ points: 0, events_attended: 0 }); }
-    finally { setStatsLoading(false); }
-  };
-
-  const fetchSemesterStats = async () => {
-    try {
-      setSemesterStats((p) => ({ ...p, loading: true }));
-      const springCutoff = new Date("2026-01-01T00:00:00.000Z");
+      setEventsLoading(true);
+      setAcademicYearStats((previous) => ({ ...previous, loading: true }));
       const { data, error } = await supabase
         .from("event_attendance")
-        .select("claimed_at, events(points)")
-        .eq("member_id", user.id);
-      if (error || !data) { setSemesterStats({ fallPoints: 0, springPoints: 0, fallEvents: 0, springEvents: 0, loading: false }); return; }
-      let fp = 0, sp = 0, fe = 0, se = 0;
-      data.forEach((r) => {
-        const pts = r.events?.points || 0;
-        if (r.claimed_at && new Date(r.claimed_at) >= springCutoff) { sp += pts; se += 1; }
-        else { fp += pts; fe += 1; }
+        .select("event_id, points_awarded, events!inner(id, name, start_time, points)")
+        .eq("member_id", user.id)
+        .gte("events.start_time", academicYear.startDate)
+        .lt("events.start_time", academicYear.endDate);
+
+      if (error) throw error;
+
+      const attendedEvents = (data || [])
+        .filter((row) => row.events)
+        .map((row) => ({
+          ...row.events,
+          points: row.points_awarded ?? row.events.points ?? 0,
+        }))
+        .sort((first, second) => new Date(second.start_time) - new Date(first.start_time));
+
+      let fallPoints = 0;
+      let springPoints = 0;
+      attendedEvents.forEach((event) => {
+        if (new Date(event.start_time) < new Date(academicYear.springStartDate)) {
+          fallPoints += event.points;
+        } else {
+          springPoints += event.points;
+        }
       });
-      setSemesterStats({ fallPoints: fp, springPoints: sp, fallEvents: fe, springEvents: se, loading: false });
-    } catch { setSemesterStats({ fallPoints: 0, springPoints: 0, fallEvents: 0, springEvents: 0, loading: false }); }
+
+      setEventsAttended(attendedEvents);
+      setAcademicYearStats({
+        totalPoints: fallPoints + springPoints,
+        totalEvents: attendedEvents.length,
+        fallPoints,
+        springPoints,
+        loading: false,
+      });
+    } catch {
+      setEventsAttended([]);
+      setAcademicYearStats({ totalPoints: 0, totalEvents: 0, fallPoints: 0, springPoints: 0, loading: false });
+    } finally {
+      setEventsLoading(false);
+    }
   };
 
   const checkNationalMemberStatus = async () => {
     const { data } = await supabase.from("members").select("national_member").eq("user_id", user.id).single();
-    if (data) { setNationalMemberStatus(data.national_member); setShowNationalMemberUpdate(data.national_member === null); }
+    if (data) setShowNationalMemberUpdate(data.national_member === null);
   };
 
   const checkMajorStatus = async () => {
@@ -113,7 +141,6 @@ export default function MemberDashboard() {
     if (!selectedNationalStatus) { showSnackbar("Please select your status", { customColor: "#b00000" }); return; }
     const { error } = await supabase.from("members").update({ national_member: selectedNationalStatus }).eq("user_id", user.id);
     if (error) { showSnackbar("Error: " + error.message, { customColor: "#b00000" }); return; }
-    setNationalMemberStatus(selectedNationalStatus);
     setShowNationalMemberUpdate(false);
     setSelectedNationalStatus("");
     showSnackbar("Membership status updated!", { customColor: "#007377" });
@@ -130,20 +157,6 @@ export default function MemberDashboard() {
     setSelectedMajor("");
     setCustomMajor("");
     showSnackbar("Major updated!", { customColor: "#007377" });
-  };
-
-  const fetchEventsAttended = async () => {
-    try {
-      setEventsLoading(true);
-      const { data, error } = await supabase
-        .from("event_attendance")
-        .select("event_id, events(id, name, start_time, points)")
-        .eq("member_id", user.id)
-        .order("events(start_time)", { ascending: false });
-      if (error) { setEventsAttended([]); return; }
-      setEventsAttended((data || []).filter((i) => i.events !== null).map((i) => i.events));
-    } catch { setEventsAttended([]); }
-    finally { setEventsLoading(false); }
   };
 
   const fetchFavoriteFields = async () => {
@@ -178,8 +191,7 @@ export default function MemberDashboard() {
     if (data === "Points claimed successfully!") {
       showSnackbar("Checked in! Points added.", { customColor: "#007377" });
       setEventCode("");
-      fetchUserStats();
-      fetchEventsAttended();
+      fetchAcademicYearActivity();
     } else {
       showSnackbar(data || "Check-in failed", { customColor: "#b00000" });
     }
@@ -208,12 +220,6 @@ export default function MemberDashboard() {
   };
 
   // ── derived ────────────────────────────────────────────────────────────────
-  const total  = userStats.points;
-  const spring = semesterStats.springPoints;
-  const rawFall = semesterStats.fallPoints;
-  const fall   = rawFall + Math.max(0, total - (rawFall + spring));
-  const isOfficerEligible = !semesterStats.loading && !statsLoading && (fall >= 7 || spring >= 12);
-
   const firstName = user?.user_metadata?.first_name || "";
 
   // ── render ─────────────────────────────────────────────────────────────────
@@ -236,25 +242,6 @@ export default function MemberDashboard() {
             {firstName ? `Welcome back, ${firstName}.` : "Welcome back."}
           </h1>
         </div>
-
-        {/* ── Officer eligibility banner ──────────────────────────────────── */}
-        {isOfficerEligible && (
-          <div className="mb-8 bg-[#1A1A1A] px-8 py-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="w-8 h-8 bg-[#772583]/20 flex items-center justify-center shrink-0">
-              <svg className="w-4 h-4 text-[#772583]" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118L10 15.347l-3.95 2.878c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-1">
-                Milestone Reached
-              </p>
-              <p className="text-white text-[0.9375rem] font-medium leading-snug">
-                You're eligible to apply for an Officer position. Keep an eye out for applications!
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* ── Alerts: national member + major ────────────────────────────── */}
         {(showNationalMemberUpdate || showMajorUpdate) && (
@@ -331,12 +318,18 @@ export default function MemberDashboard() {
         )}
 
         {/* ── Stats row ──────────────────────────────────────────────────── */}
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#772583]">
+            Current Academic Year
+          </p>
+          <p className="text-[0.8125rem] text-[#6B7280]">{academicYear.label}</p>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 border border-[#E8E4DD] divide-x divide-y md:divide-y-0 divide-[#E8E4DD] bg-white mb-8">
           {[
-            { label: "Total Points", value: statsLoading ? null : userStats.points.toLocaleString(), accent: "text-[#772583]" },
-            { label: "Events Attended", value: statsLoading ? null : userStats.events_attended, accent: "text-[#00629B]" },
-            { label: "Fall '25 Points", value: semesterStats.loading ? null : fall.toLocaleString(), accent: "text-[#772583]" },
-            { label: "Spring '26 Points", value: semesterStats.loading ? null : spring.toLocaleString(), accent: "text-[#00629B]" },
+            { label: "Total Points", value: academicYearStats.loading ? null : academicYearStats.totalPoints.toLocaleString(), accent: "text-[#772583]" },
+            { label: "Events Attended", value: academicYearStats.loading ? null : academicYearStats.totalEvents, accent: "text-[#00629B]" },
+            { label: academicYear.fallLabel, value: academicYearStats.loading ? null : academicYearStats.fallPoints.toLocaleString(), accent: "text-[#772583]" },
+            { label: academicYear.springLabel, value: academicYearStats.loading ? null : academicYearStats.springPoints.toLocaleString(), accent: "text-[#00629B]" },
           ].map(({ label, value, accent }) => (
             <div key={label} className="flex flex-col items-center py-8 px-4 gap-2">
               {value === null ? (
@@ -438,7 +431,7 @@ export default function MemberDashboard() {
             </p>
             <h2 style={{ fontFamily: "'Lora', Georgia, serif" }}
               className="text-2xl font-medium text-[#1A1A1A] mb-6">
-              Events Attended
+              Events Attended · {academicYear.label}
             </h2>
 
             {eventsLoading ? (
@@ -471,7 +464,7 @@ export default function MemberDashboard() {
               </div>
             ) : (
               <div className="py-12 text-center border-t border-[#E8E4DD]">
-                <p className="text-[0.9375rem] text-[#9A9A9A] font-light mb-1">No events yet.</p>
+                <p className="text-[0.9375rem] text-[#9A9A9A] font-light mb-1">No events attended this academic year.</p>
                 <p className="text-[0.8125rem] text-[#C0BCC4] font-light">
                   Use the check-in section above to get started.
                 </p>

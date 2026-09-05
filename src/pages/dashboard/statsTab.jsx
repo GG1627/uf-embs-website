@@ -39,7 +39,7 @@ function PieCenterLabel({ size = 32 }) {
         xmlns="http://www.w3.org/1999/xhtml"
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: size, height: size }}
       >
-        <VscPerson style={{ color: 'rgba(255,255,255,0.35)', width: size, height: size }} />
+        <VscPerson style={{ color: '#8A8A8A', width: size, height: size }} />
       </div>
     </foreignObject>
   );
@@ -190,13 +190,16 @@ const getCurrentAcademicYear = () => {
   return `${year - 1}-${year}`;
 };
 
-// update this in the future for setting academic year
+const FOUNDING_ACADEMIC_YEAR_START = 2025;
+
 const getAcademicYearOptions = () => {
-  const current = getCurrentAcademicYear();
-  const startYear = parseInt(current.split("-")[0]);
-  return [
-    `${startYear}-${startYear + 1}`,
-  ];
+  const currentStartYear = Number(getCurrentAcademicYear().split("-")[0]);
+  const numberOfYears = currentStartYear - FOUNDING_ACADEMIC_YEAR_START + 1;
+
+  return Array.from({ length: Math.max(numberOfYears, 1) }, (_, index) => {
+    const startYear = currentStartYear - index;
+    return `${startYear}-${startYear + 1}`;
+  });
 };
 
 const getDateRange = (academicYear, semester) => {
@@ -808,12 +811,12 @@ export default function StatsTab() {
     <div className="mx-auto" style={{ fontFamily: "'Inter', sans-serif" }}>
       <div className="h-[calc(100vh-3.5rem)] flex flex-col overflow-hidden p-2 pt-19">
         <div className="bg-[#000000]/0 flex-1 flex gap-2 p-2 overflow-hidden">
-          <div className="bg-[#111110] border border-white/[0.06] flex-[0.8] p-4 flex flex-col overflow-hidden">
+          <div className="admin-panel flex-[0.8] p-4 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-2 flex-shrink-0">
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-1">Admin</p>
                 <h1 style={{ fontFamily: "'Lora', Georgia, serif" }}
-                  className="text-2xl font-medium text-white">
+                  className="text-2xl font-medium text-[#1A1A1A]">
                   {currentData.title}
                 </h1>
               </div>
@@ -845,29 +848,29 @@ export default function StatsTab() {
                 </a>
               )}
             </div>
-            <div className="w-full h-px bg-white/[0.07] mb-2"></div>
+            <div className="w-full h-px bg-[#E8E4DD] mb-2"></div>
             <div className="flex-1 min-h-0 w-full overflow-hidden">
               {category === "ai-predictions" ? (
                 <div className="h-full flex gap-3">
-                  <div className="flex-[2] bg-[#141414] border border-white/[0.06] p-6 flex flex-col min-h-0">
+                  <div className="admin-subpanel admin-accent-purple flex-[2] p-6 flex flex-col min-h-0">
                     {loadingPredictions ? (
                       <div className="flex items-center justify-center h-full">
                         <div className="text-center">
-                          <div className="animate-spin rounded-full h-8 w-8 border-2 border-white/10 border-t-[#772583] mx-auto mb-3"></div>
-                          <p className="text-white/50 text-[0.9375rem] font-light">Loading predictions…</p>
+                          <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#DEDAD2] border-t-[#772583] mx-auto mb-3"></div>
+                          <p className="text-[#6B7280] text-[0.9375rem] font-light">Loading predictions…</p>
                         </div>
                       </div>
                     ) : upcomingEventsPredictions.length > 0 ? (
-                      <div className="space-y-4 overflow-y-auto scrollbar-dark">
-                        <div className="mb-6 flex-shrink-0 border-b border-white/[0.07] pb-5">
+                      <div className="space-y-4 overflow-y-auto scrollbar-sleek">
+                        <div className="mb-6 flex-shrink-0 border-b border-[#E8E4DD] pb-5">
                           <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-2">AI / ML</p>
                           <div className="flex items-start gap-3">
                             <div className="w-9 h-9 bg-[#772583]/10 flex items-center justify-center border border-[#772583]/25 shrink-0">
                               <RiRobot3Line className="h-4 w-4 text-[#772583]" />
                             </div>
                             <div>
-                              <h3 style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-xl font-medium text-white">Predictions</h3>
-                              <p className="text-white/40 text-[0.8125rem] font-light mt-1">Model output compared to actual turnout</p>
+                              <h3 style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-xl font-medium text-[#1A1A1A]">Predictions</h3>
+                              <p className="text-[#6B7280] text-[0.8125rem] font-light mt-1">Model output compared to actual turnout</p>
                             </div>
                           </div>
                         </div>
@@ -875,20 +878,20 @@ export default function StatsTab() {
                         {upcomingEventsPredictions.map((event) => (
                           <div
                             key={event.id}
-                            className="border border-white/[0.07] bg-[#111110] p-5 hover:border-white/[0.12] transition-colors duration-200"
+                            className="admin-panel admin-accent-purple p-5 hover:border-[#CFC8BD] transition-colors duration-200"
                           >
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex-1 min-w-0">
-                                <h4 style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-white text-[1.0625rem] font-medium mb-3 leading-snug">{event.name}</h4>
-                                <div className="grid grid-cols-2 gap-3 text-[0.8125rem] text-white/50">
+                                <h4 style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-[#1A1A1A] text-[1.0625rem] font-medium mb-3 leading-snug">{event.name}</h4>
+                                <div className="grid grid-cols-2 gap-3 text-[0.8125rem] text-[#6B7280]">
                                   <div className="flex items-center gap-2">
-                                    <svg className="w-3.5 h-3.5 text-white/25 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-3.5 h-3.5 text-[#9A9A9A] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
                                     <span>{new Date(event.start_time).toLocaleDateString()}</span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <svg className="w-3.5 h-3.5 text-white/25 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-3.5 h-3.5 text-[#9A9A9A] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     <span>{new Date(event.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
@@ -900,10 +903,10 @@ export default function StatsTab() {
                                     <span>{event.points} points</span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <svg className="w-3.5 h-3.5 text-white/25 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-3.5 h-3.5 text-[#9A9A9A] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                                     </svg>
-                                    <span className="uppercase tracking-wide text-[11px] font-medium text-white/45">{event.event_type?.replace('_', ' ') || 'UNKNOWN'}</span>
+                                    <span className="uppercase tracking-wide text-[11px] font-medium text-[#6B7280]">{event.event_type?.replace('_', ' ') || 'UNKNOWN'}</span>
                                   </div>
                                 </div>
                               </div>
@@ -913,13 +916,13 @@ export default function StatsTab() {
                                     <div className="flex gap-2">
                                       <div className="border border-[#772583]/30 bg-[#772583]/5 p-3 min-w-[88px] text-center">
                                         <p className="text-[#772583] text-[11px] font-semibold tracking-[0.14em] uppercase mb-1">Predicted</p>
-                                        <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-2xl font-medium text-white mb-0.5">{event.predicted_attendance || 0}</p>
-                                        <p className="text-white/35 text-[11px]">attendees</p>
+                                        <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-2xl font-medium text-[#1A1A1A] mb-0.5">{event.predicted_attendance || 0}</p>
+                                        <p className="text-[#8A8A8A] text-[11px]">attendees</p>
                                       </div>
                                       <div className="border border-[#00629B]/30 bg-[#00629B]/5 p-3 min-w-[88px] text-center">
                                         <p className="text-[#00629B] text-[11px] font-semibold tracking-[0.14em] uppercase mb-1">Actual</p>
-                                        <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-2xl font-medium text-white mb-0.5">{event.actual_attendance}</p>
-                                        <p className="text-white/35 text-[11px]">attendees</p>
+                                        <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-2xl font-medium text-[#1A1A1A] mb-0.5">{event.actual_attendance}</p>
+                                        <p className="text-[#8A8A8A] text-[11px]">attendees</p>
                                       </div>
                                     </div>
                                     {(() => {
@@ -928,10 +931,10 @@ export default function StatsTab() {
                                       if (pred === 0) return null;
                                       const accuracy = Math.max(0, Math.round((1 - Math.abs(actual - pred) / pred) * 100));
                                       const color = accuracy >= 80
-                                        ? "text-emerald-400/90 border-emerald-400/25 bg-emerald-400/5"
+                                        ? "text-emerald-700 border-emerald-600/25 bg-emerald-600/5"
                                         : accuracy >= 60
-                                          ? "text-amber-400/90 border-amber-400/25 bg-amber-400/5"
-                                          : "text-rose-400/90 border-rose-400/25 bg-rose-400/5";
+                                          ? "text-amber-700 border-amber-600/25 bg-amber-600/5"
+                                          : "text-rose-700 border-rose-600/25 bg-rose-600/5";
                                       return (
                                         <div className={`border px-3 py-1.5 text-center text-[11px] font-semibold tracking-wide ${color}`}>
                                           {accuracy}% match
@@ -940,10 +943,10 @@ export default function StatsTab() {
                                     })()}
                                   </>
                                 ) : (
-                                  <div className="border border-white/15 bg-[#1A1A1A] p-4 min-w-[120px] text-center">
-                                    <p className="text-white/45 text-[11px] font-semibold tracking-[0.14em] uppercase mb-1">Prediction</p>
-                                    <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-3xl font-medium text-white mb-0.5">{event.predicted_attendance || 0}</p>
-                                    <p className="text-white/35 text-[11px]">attendees</p>
+                                  <div className="border border-[#D8D3CB] bg-[#F8F6F1] p-4 min-w-[120px] text-center">
+                                    <p className="text-[#6B7280] text-[11px] font-semibold tracking-[0.14em] uppercase mb-1">Prediction</p>
+                                    <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-3xl font-medium text-[#1A1A1A] mb-0.5">{event.predicted_attendance || 0}</p>
+                                    <p className="text-[#8A8A8A] text-[11px]">attendees</p>
                                   </div>
                                 )}
                               </div>
@@ -955,19 +958,19 @@ export default function StatsTab() {
                     ) : (
                       <div className="flex items-center justify-center h-full">
                         <div className="text-center px-4">
-                          <div className="text-white/20 mb-4">
+                          <div className="text-[#AAA39A] mb-4">
                             <svg className="mx-auto h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.25}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                             </svg>
                           </div>
-                          <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-white text-lg font-medium mb-2">No predictions yet</p>
-                          <p className="text-white/40 text-[0.8125rem] font-light">Run the model on events with prediction fields to populate this list.</p>
+                          <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-[#1A1A1A] text-lg font-medium mb-2">No predictions yet</p>
+                          <p className="text-[#6B7280] text-[0.8125rem] font-light">Run the model on events with prediction fields to populate this list.</p>
                         </div>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex-[1] bg-[#141414] border border-white/[0.06] p-6 flex flex-col justify-center min-h-0 overflow-y-auto scrollbar-dark">
+                  <div className="admin-subpanel admin-accent-blue flex-[1] p-6 flex flex-col justify-center min-h-0 overflow-y-auto scrollbar-sleek">
                     <div className="text-center max-w-[240px] mx-auto">
                       <div className="w-14 h-14 bg-[#00629B]/10 flex items-center justify-center border border-[#00629B]/25 mx-auto mb-5">
                         <svg className="w-7 h-7 text-[#00629B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -975,11 +978,11 @@ export default function StatsTab() {
                         </svg>
                       </div>
                       <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#00629B] mb-2">Roadmap</p>
-                      <h3 style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-white text-xl font-medium mb-2">More AI tools</h3>
-                      <p className="text-white/40 text-[0.8125rem] font-light mb-6">Coming soon</p>
-                      <div className="space-y-2.5 text-left border-t border-white/[0.07] pt-5">
+                      <h3 style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-[#1A1A1A] text-xl font-medium mb-2">More AI tools</h3>
+                      <p className="text-[#6B7280] text-[0.8125rem] font-light mb-6">Coming soon</p>
+                      <div className="space-y-2.5 text-left border-t border-[#E8E4DD] pt-5">
                         {['Attendance trend analysis', 'Optimal event timing', 'Member engagement insights'].map((label) => (
-                          <div key={label} className="flex items-start gap-2.5 text-white/50 text-[0.8125rem]">
+                          <div key={label} className="flex items-start gap-2.5 text-[#6B7280] text-[0.8125rem]">
                             <svg className="w-3.5 h-3.5 text-[#772583]/70 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -992,7 +995,7 @@ export default function StatsTab() {
                 </div>
               ) : category === "charts" ? (
                 <div className="h-full flex gap-3">
-                    <div className="flex-[2] bg-[#141414] border border-white/[0.06] p-6 flex flex-col min-h-0">
+                    <div className="admin-subpanel admin-accent-purple flex-[2] p-6 flex flex-col min-h-0">
                     <Tabs
                       value={selectedChart}
                       onChange={(e, newValue) => setSelectedChart(newValue)}
@@ -1001,18 +1004,18 @@ export default function StatsTab() {
                         flexShrink: 0,
                         fontFamily: "'Inter', sans-serif",
                         '& .MuiTab-root': {
-                          color: 'rgba(255,255,255,0.4)',
+                          color: '#6B7280',
                           fontSize: '13px',
                           fontWeight: 500,
                           textTransform: 'none',
                           minHeight: '44px',
                           transition: 'color 0.2s ease',
                           '&.Mui-selected': {
-                            color: '#ffffff',
+                            color: '#1A1A1A',
                             fontWeight: 600,
                           },
                           '&:hover': {
-                            color: 'rgba(255,255,255,0.7)',
+                            color: '#4A4A4A',
                           },
                         },
                         '& .MuiTabs-indicator': {
@@ -1026,18 +1029,18 @@ export default function StatsTab() {
                       <Tab label="Member Growth" />
                     </Tabs>
 
-                    <div ref={chartContainerRef} className="flex-1 relative bg-[#111110] border border-white/[0.07] min-h-0">
+                    <div ref={chartContainerRef} className="admin-subpanel flex-1 relative min-h-0">
                       {selectedChart === 0 && (
                         <div className="absolute inset-0 flex flex-col">
                           <div className="mb-3 mt-3 flex justify-between gap-3 px-4">
                             <div className="border border-[#772583]/25 bg-[#772583]/5 p-3 flex-1">
-                              <h3 className="text-white/45 text-[11px] font-semibold mb-1.5 uppercase tracking-[0.14em]">Avg. with food</h3>
+                              <h3 className="text-[#6B7280] text-[11px] font-semibold mb-1.5 uppercase tracking-[0.14em]">Avg. with food</h3>
                               <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-xl font-medium text-[#772583]">
                                 {attendanceOverTimeData[0]?.overallAvgWithFood || 0}
                               </p>
                             </div>
                             <div className="border border-[#00629B]/25 bg-[#00629B]/5 p-3 flex-1">
-                              <h3 className="text-white/45 text-[11px] font-semibold mb-1.5 uppercase tracking-[0.14em]">Avg. without food</h3>
+                              <h3 className="text-[#6B7280] text-[11px] font-semibold mb-1.5 uppercase tracking-[0.14em]">Avg. without food</h3>
                               <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-xl font-medium text-[#6B9FC4]">
                                 {attendanceOverTimeData[0]?.overallAvgWithoutFood || 0}
                               </p>
@@ -1048,8 +1051,8 @@ export default function StatsTab() {
                                 onClick={() => setShowFoodLines(!showFoodLines)}
                                 className={`max-w-28 px-3 py-2 border text-[11px] font-semibold tracking-wide transition-colors duration-200 cursor-pointer ${
                                   showFoodLines
-                                    ? 'border-white/20 text-white/70 hover:border-white/35 bg-white/[0.04]'
-                                    : 'border-white/10 text-white/40 hover:border-white/25 hover:text-white/60'
+                                    ? 'border-[#CFC8BD] text-[#4A4A4A] hover:border-[#B8B1A7] bg-[#F3F1EC]'
+                                    : 'border-[#DEDAD2] text-[#6B7280] hover:border-[#CFC8BD] hover:text-[#4A4A4A]'
                                 }`}
                               >
                                 {showFoodLines ? 'Hide food lines' : 'Show food lines'}
@@ -1062,14 +1065,14 @@ export default function StatsTab() {
                                 dataKey: 'date',
                                 scaleType: 'time',
                                 valueFormatter: (value) => value ? new Date(value).toLocaleDateString() : '',
-                                tickLabelStyle: { fill: 'rgba(255,255,255,0.65)', fontSize: 11 },
-                                axisLine: { stroke: 'rgba(255,255,255,0.15)', strokeWidth: 1 },
-                                tickLine: { stroke: 'rgba(255,255,255,0.15)' },
+                                tickLabelStyle: { fill: '#6B7280', fontSize: 11 },
+                                axisLine: { stroke: 'rgba(26,26,26,0.14)', strokeWidth: 1 },
+                                tickLine: { stroke: 'rgba(26,26,26,0.14)' },
                               }]}
                               yAxis={[{
-                                tickLabelStyle: { fill: 'rgba(255,255,255,0.65)', fontSize: 11 },
-                                axisLine: { stroke: 'rgba(255,255,255,0.15)', strokeWidth: 1 },
-                                tickLine: { stroke: 'rgba(255,255,255,0.15)' },
+                                tickLabelStyle: { fill: '#6B7280', fontSize: 11 },
+                                axisLine: { stroke: 'rgba(26,26,26,0.14)', strokeWidth: 1 },
+                                tickLine: { stroke: 'rgba(26,26,26,0.14)' },
                               }]}
                               series={[
                                 {
@@ -1121,28 +1124,28 @@ export default function StatsTab() {
                               sx={{
                                 width: '100%',
                                 '& .MuiChartsLegend-root': {
-                                  fill: 'rgba(255,255,255,0.75)',
+                                  fill: '#4A4A4A',
                                 },
                                 '& .MuiChartsLegend-mark': {
-                                  fill: 'rgba(255,255,255,0.75)',
+                                  fill: '#4A4A4A',
                                 },
                                 '& .MuiChartsLegend-label': {
-                                  fill: 'rgba(255,255,255,0.75) !important',
-                                  color: 'rgba(255,255,255,0.75) !important',
+                                  fill: '#4A4A4A !important',
+                                  color: '#4A4A4A !important',
                                   fontSize: '12px',
                                 },
                                 '& .MuiChartsAxis-line': {
-                                  stroke: 'rgba(255,255,255,0.75) !important',
+                                  stroke: '#4A4A4A !important',
                                 },
                                 '& .MuiChartsAxis-tick': {
-                                  stroke: 'rgba(255,255,255,0.75) !important',
+                                  stroke: '#4A4A4A !important',
                                 },
                                 '& .MuiChartsAxis-root': {
                                   '& .MuiChartsAxis-line': {
-                                    stroke: 'rgba(255,255,255,0.75) !important',
+                                    stroke: '#4A4A4A !important',
                                   },
                                   '& .MuiChartsAxis-tick': {
-                                    stroke: 'rgba(255,255,255,0.75) !important',
+                                    stroke: '#4A4A4A !important',
                                   },
                                 },
                               }}
@@ -1155,7 +1158,7 @@ export default function StatsTab() {
                         <div className="absolute inset-0 flex flex-col">
                           <div className="mb-3 mt-3 flex justify-between gap-3 px-4">
                             <div className="border border-[#772583]/25 bg-[#772583]/5 p-3 flex-1 min-w-0">
-                              <h3 className="text-white/45 text-[11px] font-semibold mb-1.5 uppercase tracking-[0.14em]">Most popular</h3>
+                              <h3 className="text-[#6B7280] text-[11px] font-semibold mb-1.5 uppercase tracking-[0.14em]">Most popular</h3>
                               <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-xl font-medium text-[#772583] truncate">
                                 {eventTypeData.length > 0 ? eventTypeData.reduce((max, type) =>
                                   type.avgAttendance > max.avgAttendance ? type : max
@@ -1163,7 +1166,7 @@ export default function StatsTab() {
                               </p>
                             </div>
                             <div className="border border-[#00629B]/25 bg-[#00629B]/5 p-3 flex-1">
-                              <h3 className="text-white/45 text-[11px] font-semibold mb-1.5 uppercase tracking-[0.14em]">Total types</h3>
+                              <h3 className="text-[#6B7280] text-[11px] font-semibold mb-1.5 uppercase tracking-[0.14em]">Total types</h3>
                               <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-xl font-medium text-[#6B9FC4]">
                                 {eventTypeData.length}
                               </p>
@@ -1175,14 +1178,14 @@ export default function StatsTab() {
                               xAxis={[{
                                 dataKey: 'type',
                                 scaleType: 'band',
-                                tickLabelStyle: { fill: 'rgba(255,255,255,0.65)', fontSize: 11 },
-                                axisLine: { stroke: 'rgba(255,255,255,0.75)', strokeWidth: 1 },
-                                tickLine: { stroke: 'rgba(255,255,255,0.75)' },
+                                tickLabelStyle: { fill: '#6B7280', fontSize: 11 },
+                                axisLine: { stroke: '#4A4A4A', strokeWidth: 1 },
+                                tickLine: { stroke: '#4A4A4A' },
                               }]}
                               yAxis={[{
-                                tickLabelStyle: { fill: 'rgba(255,255,255,0.65)', fontSize: 11 },
-                                axisLine: { stroke: 'rgba(255,255,255,0.75)', strokeWidth: 1 },
-                                tickLine: { stroke: 'rgba(255,255,255,0.75)' },
+                                tickLabelStyle: { fill: '#6B7280', fontSize: 11 },
+                                axisLine: { stroke: '#4A4A4A', strokeWidth: 1 },
+                                tickLine: { stroke: '#4A4A4A' },
                               }]}
                                 series={[{
                                   dataKey: 'avgAttendance',
@@ -1203,29 +1206,29 @@ export default function StatsTab() {
                                 sx={{
                                   width: '100%',
                                   '& .MuiChartsLegend-root': {
-                                    fill: 'rgba(255,255,255,0.85)',
+                                    fill: '#3A3A3A',
                                   },
                                   '& .MuiChartsLegend-mark': {
-                                    fill: 'rgba(255,255,255,0.85)',
+                                    fill: '#3A3A3A',
                                   },
                                   '& .MuiChartsLegend-label': {
-                                    fill: 'rgba(255,255,255,0.85) !important',
-                                    color: 'rgba(255,255,255,0.85) !important',
+                                    fill: '#3A3A3A !important',
+                                    color: '#3A3A3A !important',
                                     fontSize: '12px',
                                   },
                                   '& .MuiChartsAxis-line': {
-                                    stroke: 'rgba(255,255,255,0.75)',
+                                    stroke: '#4A4A4A',
                                   },
                                   '& .MuiChartsAxis-tick': {
-                                    stroke: 'rgba(255,255,255,0.75)',
+                                    stroke: '#4A4A4A',
                                   },
                                 }}
                               />
                             ) : (
                               <div className="flex items-center justify-center h-full">
                                 <div className="text-center px-4">
-                                  <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-white text-lg font-medium mb-2">No event data</p>
-                                  <p className="text-white/40 text-[0.8125rem] font-light">Add events with attendance to populate this chart.</p>
+                                  <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-[#1A1A1A] text-lg font-medium mb-2">No event data</p>
+                                  <p className="text-[#6B7280] text-[0.8125rem] font-light">Add events with attendance to populate this chart.</p>
                                 </div>
                               </div>
                             )}
@@ -1241,14 +1244,14 @@ export default function StatsTab() {
                                 dataKey: 'date',
                                 scaleType: 'time',
                                 valueFormatter: (value) => value ? new Date(value).toLocaleDateString() : '',
-                                tickLabelStyle: { fill: 'rgba(255,255,255,0.65)', fontSize: 11 },
-                                axisLine: { stroke: 'rgba(255,255,255,0.75)', strokeWidth: 1 },
-                                tickLine: { stroke: 'rgba(255,255,255,0.75)' },
+                                tickLabelStyle: { fill: '#6B7280', fontSize: 11 },
+                                axisLine: { stroke: '#4A4A4A', strokeWidth: 1 },
+                                tickLine: { stroke: '#4A4A4A' },
                               }]}
                               yAxis={[{
-                                tickLabelStyle: { fill: 'rgba(255,255,255,0.65)', fontSize: 11 },
-                                axisLine: { stroke: 'rgba(255,255,255,0.75)', strokeWidth: 1 },
-                                tickLine: { stroke: 'rgba(255,255,255,0.75)' },
+                                tickLabelStyle: { fill: '#6B7280', fontSize: 11 },
+                                axisLine: { stroke: '#4A4A4A', strokeWidth: 1 },
+                                tickLine: { stroke: '#4A4A4A' },
                               }]}
                               series={[{
                                 dataKey: 'memberCount',
@@ -1272,28 +1275,28 @@ export default function StatsTab() {
                               sx={{
                                 width: '100%',
                                 '& .MuiChartsLegend-root': {
-                                  fill: 'rgba(255,255,255,0.85)',
+                                  fill: '#3A3A3A',
                                 },
                                 '& .MuiChartsLegend-mark': {
-                                  fill: 'rgba(255,255,255,0.85)',
+                                  fill: '#3A3A3A',
                                 },
                                 '& .MuiChartsLegend-label': {
-                                  fill: 'rgba(255,255,255,0.85) !important',
-                                  color: 'rgba(255,255,255,0.85) !important',
+                                  fill: '#3A3A3A !important',
+                                  color: '#3A3A3A !important',
                                   fontSize: '12px',
                                 },
                                 '& .MuiChartsAxis-line': {
-                                  stroke: 'rgba(255,255,255,0.75) !important',
+                                  stroke: '#4A4A4A !important',
                                 },
                                 '& .MuiChartsAxis-tick': {
-                                  stroke: 'rgba(255,255,255,0.75) !important',
+                                  stroke: '#4A4A4A !important',
                                 },
                                 '& .MuiChartsAxis-root': {
                                   '& .MuiChartsAxis-line': {
-                                    stroke: 'rgba(255,255,255,0.75) !important',
+                                    stroke: '#4A4A4A !important',
                                   },
                                   '& .MuiChartsAxis-tick': {
-                                    stroke: 'rgba(255,255,255,0.75) !important',
+                                    stroke: '#4A4A4A !important',
                                   },
                                 },
                               }}
@@ -1305,9 +1308,9 @@ export default function StatsTab() {
                     </div>
                   </div>
 
-                  <div className="flex-[1] bg-[#141414] border border-white/[0.06] px-5 py-6 flex flex-col overflow-y-auto scrollbar-dark min-h-0">
+                  <div className="admin-subpanel admin-accent-blue flex-[1] px-5 py-6 flex flex-col overflow-y-auto scrollbar-sleek min-h-0">
                     <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#00629B] mb-2 text-center">Analytics</p>
-                    <h3 style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-white text-lg font-medium mb-4 text-center">Major distribution</h3>
+                    <h3 style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-[#1A1A1A] text-lg font-medium mb-4 text-center">Major distribution</h3>
                     <div className="flex-1 flex items-center justify-center">
                       {majorDistributionData.length > 0 ? (
                         <PieChart
@@ -1327,16 +1330,16 @@ export default function StatsTab() {
                           }}
                           sx={{
                             '& .MuiChartsLegend-root': {
-                              fill: 'rgba(255,255,255,0.85)',
+                              fill: '#3A3A3A',
                               transform: 'translateY(26px)',
                             },
                             '& .MuiChartsLegend-mark': {
-                              fill: 'rgba(255,255,255,0.85)',
+                              fill: '#3A3A3A',
                             },
                             '& .MuiChartsLegend-label': {
-                              fill: 'rgba(255,255,255,0.85) !important',
+                              fill: '#3A3A3A !important',
                               fontSize: '11px',
-                              color: 'rgba(255,255,255,0.85) !important',
+                              color: '#3A3A3A !important',
                               '@media (min-width: 1280px)': {
                                 fontSize: '10px',
                               },
@@ -1356,8 +1359,8 @@ export default function StatsTab() {
                         </PieChart>
                       ) : (
                         <div className="text-center px-2">
-                          <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-white text-lg font-medium mb-2">No major data</p>
-                          <p className="text-white/40 text-[0.8125rem] font-light">Members can set a major on the member dashboard to fill this chart.</p>
+                          <p style={{ fontFamily: "'Lora', Georgia, serif" }} className="text-[#1A1A1A] text-lg font-medium mb-2">No major data</p>
+                          <p className="text-[#6B7280] text-[0.8125rem] font-light">Members can set a major on the member dashboard to fill this chart.</p>
                         </div>
                       )}
                     </div>
@@ -1388,67 +1391,68 @@ export default function StatsTab() {
                   width: "100%",
                   border: "none",
                   backgroundColor: "transparent",
-                  color: "white",
+                  color: "#1A1A1A",
                   "& .MuiDataGrid-virtualScroller": {
                     overflowY: "auto",
                     backgroundColor: "transparent",
                   },
                   "& .MuiDataGrid-columnHeaders": {
-                    backgroundColor: "#6877FF",
+                    backgroundColor: "#EAF3F8",
                   },
                   "& .MuiDataGrid-columnHeaderTitle": {
-                    color: "black",
+                    color: "#17445F",
+                    fontWeight: 700,
                   },
                   "& .MuiDataGrid-row": {
-                    color: "white",
+                    color: "#1A1A1A",
                     "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      backgroundColor: "rgba(0, 98, 155, 0.06)",
                     },
                     "&.Mui-selected": {
-                      backgroundColor: "rgba(40, 40, 40, 0.4)",
+                      backgroundColor: "rgba(119, 37, 131, 0.08)",
                       "&:hover": {
-                        backgroundColor: "rgba(100, 100, 100, 0.4)",
+                        backgroundColor: "rgba(119, 37, 131, 0.12)",
                       },
                     },
                   },
 
                   "& .MuiDataGrid-cell": {
-                    color: "white",
-                    borderColor: "rgba(255, 255, 255, 0.1)",
+                    color: "#1A1A1A",
+                    borderColor: "#E8E4DD",
                   },
                   "& .MuiTablePagination-displayedRows": {
-                    color: "rgb(255, 255, 255)",
+                    color: "#4A4A4A",
                   },
                   "& .MuiTablePagination-actions": {
-                    color: "rgb(255, 255, 255)",
+                    color: "#4A4A4A",
                   },
                   "& .MuiTablePagination-selectLabel": {
-                    color: "rgb(255, 255, 255)",
+                    color: "#4A4A4A",
                   },
                   "& .MuiTablePagination-actions svg": {
-                    color: "rgb(255, 255, 255)",
+                    color: "#4A4A4A",
                   },
                   "& .MuiTablePagination-select": {
-                    color: "rgb(255, 255, 255)",
+                    color: "#4A4A4A",
                   },
                   "& .MuiDataGrid-selectedRowCount": {
-                    color: "rgb(255, 255, 255)",
+                    color: "#4A4A4A",
                   },
                   "& .MuiSelect-icon": {
-                    color: "rgb(255, 255, 255)",
+                    color: "#4A4A4A",
                   },
                   "& .MuiCheckbox-root": {
-                    color: "rgb(255, 255, 255)",
+                    color: "#4A4A4A",
                   },
                   "& .MuiCheckbox-root.Mui-checked": {
-                    color: "#836BFF",
+                    color: "#772583",
                   },
                   "& .MuiDataGrid-columnHeaderCheckbox .MuiCheckbox-root": {
-                    color: "#666666",
+                    color: "#8A8A8A",
                   },
                   "& .MuiDataGrid-columnHeaderCheckbox .MuiCheckbox-root.Mui-checked":
                     {
-                      color: "#666666",
+                      color: "#772583",
                     },
                 }}
               />
@@ -1456,20 +1460,20 @@ export default function StatsTab() {
             </div>
           </div>
           {/* RIGHT SIDEBAR */}
-          <div className="bg-[#111110] border border-white/[0.06] flex-[0.2] p-4 space-y-5 overflow-y-auto scrollbar-dark">
+          <div className="admin-panel admin-accent-blue flex-[0.2] p-4 space-y-5 overflow-y-auto scrollbar-sleek">
             {/* Filter Section */}
             <div className="mt-2">
               <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-1">Filter</p>
-              <h2 className="text-[0.9375rem] font-medium text-white mb-3">Category</h2>
-              <div className="w-full h-px bg-white/[0.07] mb-4"></div>
+              <h2 className="text-[0.9375rem] font-medium text-[#1A1A1A] mb-3">Category</h2>
+              <div className="w-full h-px bg-[#E8E4DD] mb-4"></div>
               <Box sx={{ minWidth: 120 }}>
                 <FormControl fullWidth>
                   <InputLabel
                     id="category-select-label"
                     sx={{
-                      color: "white",
+                      color: "#6B7280",
                       "&.Mui-focused": {
-                        color: "white",
+                        color: "#00629B",
                       },
                     }}
                   >
@@ -1482,18 +1486,18 @@ export default function StatsTab() {
                     label="Category"
                     onChange={handleChange}
                     sx={{
-                      color: "white",
+                      color: "#1A1A1A",
                       "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "white",
+                        borderColor: "#D0CCC4",
                       },
                       "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "white",
+                        borderColor: "#8A8A8A",
                       },
                       "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "white",
+                        borderColor: "#00629B",
                       },
                       "& .MuiSelect-icon": {
-                        color: "white",
+                        color: "#6B7280",
                       },
                     }}
                   >
@@ -1509,16 +1513,16 @@ export default function StatsTab() {
             {/* Academic Year Filter */}
             <div>
               <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#00629B] mb-1">Filter</p>
-              <h2 className="text-[0.9375rem] font-medium text-white mb-3">Academic Year</h2>
-              <div className="w-full h-px bg-white/[0.07] mb-4"></div>
+              <h2 className="text-[0.9375rem] font-medium text-[#1A1A1A] mb-3">Academic Year</h2>
+              <div className="w-full h-px bg-[#E8E4DD] mb-4"></div>
               <Box sx={{ minWidth: 120 }}>
                 <FormControl fullWidth>
                   <InputLabel
                     id="academic-year-label"
                     sx={{
-                      color: "white",
+                      color: "#6B7280",
                       "&.Mui-focused": {
-                        color: "white",
+                        color: "#00629B",
                       },
                     }}
                   >
@@ -1531,18 +1535,18 @@ export default function StatsTab() {
                     label="Year"
                     onChange={(e) => setAcademicYear(e.target.value)}
                     sx={{
-                      color: "white",
+                      color: "#1A1A1A",
                       "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "white",
+                        borderColor: "#D0CCC4",
                       },
                       "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "white",
+                        borderColor: "#8A8A8A",
                       },
                       "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "white",
+                        borderColor: "#00629B",
                       },
                       "& .MuiSelect-icon": {
-                        color: "white",
+                        color: "#6B7280",
                       },
                     }}
                   >
@@ -1570,8 +1574,8 @@ export default function StatsTab() {
                       control={
                         <Radio
                           sx={{
-                            color: "rgba(255,255,255,0.5)",
-                            "&.Mui-checked": { color: "#8ed8f8" },
+                            color: "#8A8A8A",
+                            "&.Mui-checked": { color: "#00629B" },
                           }}
                           onClick={() => {
                             if (selectedSemester === "spring") setSelectedSemester(null);
@@ -1579,7 +1583,7 @@ export default function StatsTab() {
                         />
                       }
                       label={
-                        <span className="text-white text-sm">
+                        <span className="text-[#1A1A1A] text-sm">
                           Spring {academicYear.split("-")[1]}
                         </span>
                       }
@@ -1589,8 +1593,8 @@ export default function StatsTab() {
                       control={
                         <Radio
                           sx={{
-                            color: "rgba(255,255,255,0.5)",
-                            "&.Mui-checked": { color: "#8ed8f8" },
+                            color: "#8A8A8A",
+                            "&.Mui-checked": { color: "#00629B" },
                           }}
                           onClick={() => {
                             if (selectedSemester === "fall") setSelectedSemester(null);
@@ -1598,7 +1602,7 @@ export default function StatsTab() {
                         />
                       }
                       label={
-                        <span className="text-white text-sm">
+                        <span className="text-[#1A1A1A] text-sm">
                           Fall {academicYear.split("-")[0]}
                         </span>
                       }
@@ -1612,15 +1616,15 @@ export default function StatsTab() {
             {category === "events" && (
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-1">Export</p>
-                <h2 className="text-[0.9375rem] font-medium text-white mb-3">Download Attendance</h2>
-                <div className="w-full h-px bg-white/[0.07] mb-4"></div>
+                <h2 className="text-[0.9375rem] font-medium text-[#1A1A1A] mb-3">Download Attendance</h2>
+                <div className="w-full h-px bg-[#E8E4DD] mb-4"></div>
                 <div className="space-y-3">
                   <button onClick={() => downloadAttendees("TXT")}
-                    className="w-full px-4 py-2 border border-white/10 hover:border-white/30 text-white/50 hover:text-white text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
+                    className="w-full px-4 py-2 border border-[#DEDAD2] hover:border-[#B8B1A7] text-[#6B7280] hover:text-[#1A1A1A] text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
                     TXT
                   </button>
                   <button onClick={() => downloadAttendees("EXCEL")}
-                    className="w-full px-4 py-2 border border-white/10 hover:border-white/30 text-white/50 hover:text-white text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
+                    className="w-full px-4 py-2 border border-[#DEDAD2] hover:border-[#B8B1A7] text-[#6B7280] hover:text-[#1A1A1A] text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
                     EXCEL
                   </button>
                 </div>
@@ -1631,15 +1635,15 @@ export default function StatsTab() {
             {category === "members" && (
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-1">Export</p>
-                <h2 className="text-[0.9375rem] font-medium text-white mb-3">Download Members</h2>
-                <div className="w-full h-px bg-white/[0.07] mb-4"></div>
+                <h2 className="text-[0.9375rem] font-medium text-[#1A1A1A] mb-3">Download Members</h2>
+                <div className="w-full h-px bg-[#E8E4DD] mb-4"></div>
                 <div className="space-y-3">
                   <button onClick={() => downloadMembers("TXT")}
-                    className="w-full px-4 py-2 border border-white/10 hover:border-white/30 text-white/50 hover:text-white text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
+                    className="w-full px-4 py-2 border border-[#DEDAD2] hover:border-[#B8B1A7] text-[#6B7280] hover:text-[#1A1A1A] text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
                     TXT
                   </button>
                   <button onClick={() => downloadMembers("EXCEL")}
-                    className="w-full px-4 py-2 border border-white/10 hover:border-white/30 text-white/50 hover:text-white text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
+                    className="w-full px-4 py-2 border border-[#DEDAD2] hover:border-[#B8B1A7] text-[#6B7280] hover:text-[#1A1A1A] text-[0.8125rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
                     EXCEL
                   </button>
                 </div>
@@ -1650,16 +1654,16 @@ export default function StatsTab() {
             {category === "members" && (
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#00629B] mb-1">Overview</p>
-                <h2 className="text-[0.9375rem] font-medium text-white mb-3">Extra Stats</h2>
-                <div className="w-full h-px bg-white/[0.07] mb-4"></div>
+                <h2 className="text-[0.9375rem] font-medium text-[#1A1A1A] mb-3">Extra Stats</h2>
+                <div className="w-full h-px bg-[#E8E4DD] mb-4"></div>
                 <div className="space-y-3">
-                  <div className="border border-white/[0.07] p-3">
-                    <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/30 mb-1">Total Members</div>
-                    <div className="text-2xl font-medium text-white" style={{ fontFamily: "'Lora', Georgia, serif" }}>{membersData.length}</div>
+                  <div className="border border-[#E8E4DD] p-3">
+                    <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#8A8A8A] mb-1">Total Members</div>
+                    <div className="text-2xl font-medium text-[#1A1A1A]" style={{ fontFamily: "'Lora', Georgia, serif" }}>{membersData.length}</div>
                   </div>
-                  <div className="border border-white/[0.07] p-3">
-                    <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/30 mb-1">National Members</div>
-                    <div className="text-2xl font-medium text-white" style={{ fontFamily: "'Lora', Georgia, serif" }}>
+                  <div className="border border-[#E8E4DD] p-3">
+                    <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#8A8A8A] mb-1">National Members</div>
+                    <div className="text-2xl font-medium text-[#1A1A1A]" style={{ fontFamily: "'Lora', Georgia, serif" }}>
                       {membersData.filter((m) => m.national_member === "yes").length}
                     </div>
                   </div>
@@ -1671,17 +1675,17 @@ export default function StatsTab() {
             {category === "charts" && (
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#00629B] mb-1">Overview</p>
-                <h2 className="text-[0.9375rem] font-medium text-white mb-3">Analytics</h2>
-                <div className="w-full h-px bg-white/[0.07] mb-4"></div>
+                <h2 className="text-[0.9375rem] font-medium text-[#1A1A1A] mb-3">Analytics</h2>
+                <div className="w-full h-px bg-[#E8E4DD] mb-4"></div>
                 <div className="space-y-3">
                   {[
                     { label: "Total Events", value: attendanceOverTimeData.length },
                     { label: "Total Attendance", value: attendanceOverTimeData.reduce((s, e) => s + e.attendance, 0) },
                     { label: "Avg. Attendance", value: attendanceOverTimeData.length > 0 ? Math.round(attendanceOverTimeData.reduce((s, e) => s + e.attendance, 0) / attendanceOverTimeData.length) : 0 },
                   ].map(({ label, value }) => (
-                    <div key={label} className="border border-white/[0.07] p-3">
-                      <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/30 mb-1">{label}</div>
-                      <div className="text-2xl font-medium text-white" style={{ fontFamily: "'Lora', Georgia, serif" }}>{value}</div>
+                    <div key={label} className="border border-[#E8E4DD] p-3">
+                      <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#8A8A8A] mb-1">{label}</div>
+                      <div className="text-2xl font-medium text-[#1A1A1A]" style={{ fontFamily: "'Lora', Georgia, serif" }}>{value}</div>
                     </div>
                   ))}
                 </div>
@@ -1692,17 +1696,17 @@ export default function StatsTab() {
             {category === "ai-predictions" && (
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-1">AI</p>
-                <h2 className="text-[0.9375rem] font-medium text-white mb-3">Predictions Overview</h2>
-                <div className="w-full h-px bg-white/[0.07] mb-4"></div>
+                <h2 className="text-[0.9375rem] font-medium text-[#1A1A1A] mb-3">Predictions Overview</h2>
+                <div className="w-full h-px bg-[#E8E4DD] mb-4"></div>
                 <div className="space-y-3">
                   {[
                     { label: "Events w/ Predictions", value: upcomingEventsPredictions.length },
                     { label: "Avg. Predicted", value: upcomingEventsPredictions.length > 0 ? Math.round(upcomingEventsPredictions.reduce((s, e) => s + (e.predicted_attendance || 0), 0) / upcomingEventsPredictions.length) : 0 },
                     { label: "Total Predicted", value: upcomingEventsPredictions.reduce((s, e) => s + (e.predicted_attendance || 0), 0) },
                   ].map(({ label, value }) => (
-                    <div key={label} className="border border-white/[0.07] p-3">
-                      <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-white/30 mb-1">{label}</div>
-                      <div className="text-2xl font-medium text-white" style={{ fontFamily: "'Lora', Georgia, serif" }}>{value}</div>
+                    <div key={label} className="border border-[#E8E4DD] p-3">
+                      <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#8A8A8A] mb-1">{label}</div>
+                      <div className="text-2xl font-medium text-[#1A1A1A]" style={{ fontFamily: "'Lora', Georgia, serif" }}>{value}</div>
                     </div>
                   ))}
                 </div>
