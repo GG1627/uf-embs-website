@@ -96,6 +96,40 @@
   display: none;
 }
 
+/* Admin dashboard: warm, editorial workspace with restrained brand accents */
+.admin-workspace-theme {
+  color-scheme: light;
+  color: #1a1a1a;
+  background-color: #f3f1ec;
+  background-image:
+    linear-gradient(rgba(0, 98, 155, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 98, 155, 0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.admin-panel {
+  border: 1px solid #dedad2;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(37, 32, 27, 0.055);
+}
+
+.admin-subpanel {
+  border: 1px solid #e8e4dd;
+  background: #fcfbf8;
+}
+
+.admin-accent-purple {
+  border-left: 3px solid #772583;
+}
+
+.admin-accent-blue {
+  border-left: 3px solid #00629b;
+}
+
+.admin-accent-teal {
+  border-left: 3px solid #007377;
+}
+
 /* index.css */
 .backface-hidden {
   backface-visibility: hidden;
@@ -174,4 +208,3 @@
   background: transparent !important;
   opacity: 0 !important;
 }
-

@@ -62,11 +62,11 @@ export default function AdminDashboard() {
 
   return (
     <div
-      className="min-h-screen bg-[#111110] flex flex-col"
+      className="min-h-screen bg-[#F3F1EC] flex flex-col"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       {/* Tab navigation */}
-      <div className="sticky top-16 z-[9998] bg-[#111110] border-b border-white/[0.07]">
+      <div className="sticky top-16 z-[9998] bg-[#17191D] border-b border-white/10 shadow-[0_8px_24px_rgba(23,25,29,0.08)]">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex items-center gap-8 h-12">
             {tabs.map((tab) => (
@@ -102,7 +102,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Tab content */}
-      <div className="flex-1">{renderTabContent()}</div>
+      <div className="admin-workspace-theme flex-1">{renderTabContent()}</div>
     </div>
   );
 }
