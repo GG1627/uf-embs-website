@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import Footer from "../../components/layout/Footer";
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import {
@@ -17,7 +19,7 @@ import { careerFields } from "../../data/careerFields";
 const CAREER_CONTEXT = careerFields.map((f) => {
   const parts = [`Field: ${f.name}`, `Description: ${f.description}`];
   if (f.skills?.length)    parts.push(`Key skills: ${f.skills.join(", ")}`);
-  if (f.classes?.length)   parts.push(`UF courses: ${f.classes.join("; ")}`);
+  if (f.classes?.length)   parts.push(`Relevant UF course examples (not sequencing or enrollment advice; prerequisites are not provided): ${f.classes.join("; ")}`);
   if (f.companies?.length) parts.push(`Top employers: ${f.companies.join(", ")}`);
   const profs = [
     ...(f.uf_research_professors  || []),
@@ -29,18 +31,113 @@ const CAREER_CONTEXT = careerFields.map((f) => {
 
 const SYSTEM_PROMPT = `You are an expert academic and career advisor for UF EMBS (IEEE Engineering in Medicine and Biology Society at the University of Florida). Your role is to help students — especially those curious about switching majors or exploring biomedical engineering subfields — make informed decisions.
 
-You have deep knowledge of the following career fields available to UF students in biomedical engineering:
+Use these two information sources:
+1. The curated UF EMBS career data below. Treat it as the primary source for career fields, courses, skills, companies, and faculty.
+2. Browser search when the provided data does not cover the question or when current information is important. Prefer official UF websites and link the relevant page when possible.
+If browser search is not available on a turn, do not rely on memory for specific UF facts outside the curated data. Explain that the detail needs verification and invite the student to ask you to search for current information.
+
+Curated UF EMBS career data:
 
 ${CAREER_CONTEXT}
 
-Guidelines:
+Accuracy guidelines:
+- "UF" always means the University of Florida in Gainesville, Florida.
+- Never invent course numbers, degree requirements, faculty affiliations, clubs, deadlines, events, or URLs.
+- For UF-specific claims not present in the curated data, use browser search and verify them on an official ufl.edu page before presenting them as facts.
+- Link the official UF page for every externally sourced UF course, program requirement, opportunity, or organization. If you cannot provide an official link, omit the claim or clearly say it is unverified.
+- Do not infer when a course should be taken from the curated data. The listed courses are relevant examples, not a semester-by-semester degree plan.
+- Never guess a student's exact schedule. Refer them to the official UF catalog or an academic advisor for requirements and prerequisites.
+- Before sending an answer, perform a factual check: every named UF course, faculty member, program, club, event, office, or credential must either appear in the curated data exactly or be supported by a direct official ufl.edu link in the answer. Remove any named claim that fails this check.
+- You may give general advice such as learning Python or building a portfolio without a source, but do not invent a named UF resource around that advice.
+
+Student-fit and course guidance:
+- Use everything the student has said about their year, current major, interests, experience, and goals. Recommendations must make sense for that specific student.
+- A course appearing in the curated data means only that it is related to a career field. It does not mean the student meets its prerequisites or should take it now.
+- Never use words such as "enroll," "register," or "take this semester" for a specific course unless its prerequisites and placement in the student's official UF curriculum have been verified.
+- For first-year students, focus immediate recommendations on exploring interests, building general foundational skills, completing a small beginner project, participating in UF EMBS, and meeting an academic advisor.
+- For first-year students, describe 3000- and 4000-level courses only as subjects or options to explore later. Never present them as freshman course recommendations.
+- Treat any 5000- or 6000-level course, including cross-listed special-topics courses, as advanced. Do not recommend it without verifying eligibility and prerequisites.
+- When asked for an exact schedule, prerequisites, or degree requirements, use an official UF source if browser search is available; otherwise direct the student to the UF catalog or their academic advisor.
+- Organize time-sensitive advice as "What you can do now" and "Options to explore later" when that distinction is useful.
+
+Conversation guidelines:
 - Be warm, direct, and specific. Do not give vague platitudes.
-- When asked about switching majors or choosing a path, ask about the student's interests, current major, and goals before giving advice.
+- If a student asks a broad "Where do I start?" or path-selection question without stating their interests, respond only with a brief welcome and one question about their interests. Do not give a course roadmap yet.
+- When asked about switching majors, ask about the student's interests, current major, and goals before giving advice.
 - Reference specific UF courses, professors, and skills from the data above when relevant.
 - If a student mentions a specific field, give concrete next steps: courses to take, professors to reach out to, skills to build.
-- Keep responses concise but substantive. Use short paragraphs, not walls of text.
-- Never fabricate course numbers or professor names. Only cite what is in your knowledge above.
+- Keep every response under 250 words unless the student explicitly requests a detailed answer.
+- Do not create a multi-year or semester-by-semester plan unless the student explicitly asks for one.
+- Start with a direct answer, give 3–6 focused actions, and finish with at most one follow-up question when useful.
+- Use short paragraphs and simple Markdown. Use one flat list with standard "-" bullets or "1." numbered items; do not nest lists.
+- Never use tables or emoji as list markers. Use headings sparingly.
+- Use Markdown only. Never output raw HTML such as <br> tags.
+- Ask no more than one follow-up question at a time.
 - If asked something outside your scope, say so honestly and redirect to relevant resources.`;
+
+const WEB_SEARCH_TRIGGERS = /\b(search|look\s*up|verify|source|link|current|latest|today|deadline|application|admission|requirement|prerequisite|curriculum|catalog|degree|minor|certificate|scholarship|internship|research\s+opportunit(?:y|ies)|club|organization|event|advisor|contact)\b/i;
+
+function shouldUseBrowserSearch(message) {
+  return WEB_SEARCH_TRIGGERS.test(message);
+}
+
+function remarkModelBreaks() {
+  return (tree) => {
+    const replaceBreakTags = (node) => {
+      if (!Array.isArray(node.children)) return;
+
+      node.children = node.children.map((child) => {
+        if (child.type === "html" && /^<br\s*\/?\s*>$/i.test(child.value.trim())) {
+          return { type: "break" };
+        }
+        replaceBreakTags(child);
+        return child;
+      });
+    };
+
+    replaceBreakTags(tree);
+  };
+}
+
+const MARKDOWN_COMPONENTS = {
+  h1: ({ children }) => <h1 className="text-base font-semibold mt-3 mb-1.5 first:mt-0">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-[0.9375rem] font-semibold mt-3 mb-1.5 first:mt-0">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-[0.875rem] font-semibold mt-2.5 mb-1 first:mt-0">{children}</h3>,
+  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+  ul: ({ children }) => <ul className="list-disc pl-5 my-1.5 space-y-0.5 marker:text-[#00629B]">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal pl-5 my-1.5 space-y-0.5 marker:font-medium marker:text-[#00629B]">{children}</ol>,
+  li: ({ children }) => <li className="pl-0.5 [&>p]:mb-1 [&>ul]:my-1 [&>ol]:my-1">{children}</li>,
+  strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+  a: ({ children, ...props }) => (
+    <a
+      {...props}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-medium text-[#00629B] underline underline-offset-2 break-words hover:text-[#772583]"
+    >
+      {children}
+    </a>
+  ),
+  blockquote: ({ children }) => (
+    <blockquote className="border-l-2 border-[#00629B]/40 pl-3 my-3 text-[#555]">{children}</blockquote>
+  ),
+  code: ({ children }) => (
+    <code className="bg-[#F3F1ED] px-1 py-0.5 text-[0.8125rem] break-words">{children}</code>
+  ),
+  pre: ({ children }) => (
+    <pre className="bg-[#F3F1ED] p-3 my-3 overflow-x-auto text-[0.8125rem] leading-relaxed">{children}</pre>
+  ),
+  table: ({ children }) => (
+    <div className="overflow-x-auto my-3">
+      <table className="w-full min-w-[480px] border-collapse text-[0.75rem] leading-relaxed">{children}</table>
+    </div>
+  ),
+  th: ({ children }) => (
+    <th className="border border-[#D0CCC4] bg-[#F3F1ED] px-2 py-1.5 text-left font-semibold">{children}</th>
+  ),
+  td: ({ children }) => <td className="border border-[#D0CCC4] px-2 py-1.5 align-top">{children}</td>,
+  hr: () => <hr className="border-0 border-t border-[#E8E4DD] my-4" />,
+};
 
 // ── Link type icon helper ────────────────────────────────────────────────────
 function LinkIcon({ type }) {
@@ -82,9 +179,17 @@ function AdvisorChat() {
   const textareaRef = useRef(null);
 
   useEffect(() => {
-    const el = scrollContainerRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [messages, loading]);
+    if (!loading) return undefined;
+
+    const container = scrollContainerRef.current;
+    if (!container) return undefined;
+
+    const frame = requestAnimationFrame(() => {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [loading]);
 
   const sendMessage = async () => {
     const text = input.trim();
@@ -100,21 +205,30 @@ function AdvisorChat() {
     if (textareaRef.current) textareaRef.current.style.height = "auto";
 
     try {
+      const useBrowserSearch = shouldUseBrowserSearch(text);
+      const requestBody = {
+        model: useBrowserSearch ? "openai/gpt-oss-120b" : "qwen/qwen3.6-27b",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...nextMessages,
+        ],
+        temperature: 0.3,
+        max_completion_tokens: useBrowserSearch ? 1200 : 900,
+        reasoning_effort: useBrowserSearch ? "low" : "none",
+      };
+
+      if (useBrowserSearch) {
+        requestBody.tools = [{ type: "browser_search" }];
+        requestBody.tool_choice = "required";
+      }
+
       const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
         },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            ...nextMessages,
-          ],
-          temperature: 0.65,
-          max_tokens: 800,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!res.ok) throw new Error(`Groq API error: ${res.status}`);
@@ -158,20 +272,29 @@ function AdvisorChat() {
       {/* Message thread */}
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto scrollbar-sleek px-6 py-6 space-y-5 min-h-0">
         {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+          <div
+            key={i}
+            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+          >
             {msg.role === "assistant" && (
               <div className="w-6 h-6 border border-[#00629B]/30 bg-[#00629B]/8 flex items-center justify-center shrink-0 mr-3 mt-0.5">
                 <span className="text-[8px] font-bold text-[#00629B]">AI</span>
               </div>
             )}
             <div
-              className={`max-w-[78%] text-[0.875rem] leading-[1.75] font-light whitespace-pre-wrap ${
+              className={`text-[0.875rem] leading-[1.65] font-light ${
                 msg.role === "user"
-                  ? "bg-[#1A1A1A] text-white px-4 py-3"
-                  : "text-[#1A1A1A]"
+                  ? "max-w-[78%] whitespace-pre-wrap bg-[#1A1A1A] text-white px-4 py-3"
+                  : "max-w-[calc(100%-2.25rem)] min-w-0 whitespace-normal text-[#1A1A1A]"
               }`}
             >
-              {msg.content}
+              {msg.role === "assistant" ? (
+                <ReactMarkdown remarkPlugins={[remarkGfm, remarkModelBreaks]} components={MARKDOWN_COMPONENTS}>
+                  {msg.content}
+                </ReactMarkdown>
+              ) : (
+                msg.content
+              )}
             </div>
           </div>
         ))}
@@ -346,7 +469,7 @@ export default function Resources() {
             </div>
 
             <p className="text-[11px] text-[#9A9A9A] font-light mt-3 tracking-wide">
-              Powered by Llama 3.3 70B via Groq. Responses are AI-generated and may contain inaccuracies. Always verify course and faculty information with UF directly.
+              Powered by Qwen and GPT-OSS via Groq. Responses are AI-generated and may contain inaccuracies. Always verify course and faculty information with UF directly.
             </p>
           </div>
         </div>

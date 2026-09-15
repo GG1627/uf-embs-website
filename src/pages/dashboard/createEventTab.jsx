@@ -5,15 +5,15 @@ import { useSnackbar } from "../../components/ui/Snackbar";
 import { useAuth } from "../auth/AuthContext";
 
 const fieldCls =
-  "w-full px-3 py-2.5 text-[0.9375rem] border border-[#2E2E2E] bg-[#1A1A1A] text-white placeholder-white/25 focus:outline-none focus:border-white/40 transition-colors duration-200";
+  "w-full px-3 py-2.5 text-[0.9375rem] border border-[#DEDAD2] bg-white text-[#1A1A1A] placeholder-[#A39B91] focus:outline-none focus:border-[#00629B] transition-colors duration-200";
 
-const labelCls = "block text-[11px] font-semibold tracking-[0.16em] uppercase text-white/40 mb-2";
+const labelCls = "block text-[11px] font-semibold tracking-[0.16em] uppercase text-[#6B7280] mb-2";
 
 const SectionHeading = ({ label, title }) => (
   <div className="mb-6">
     <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-2">{label}</p>
     <h2 style={{ fontFamily: "'Lora', Georgia, serif" }}
-      className="text-2xl font-medium text-white">{title}</h2>
+      className="text-2xl font-medium text-[#1A1A1A]">{title}</h2>
   </div>
 );
 
@@ -277,8 +277,8 @@ export default function CreateEventTab() {
 
   // ── small reusable event meta row ──────────────────────────────────────────
   const EventMeta = ({ icon, children }) => (
-    <div className="flex items-center gap-2 text-[0.8125rem] text-white/50">
-      <span className="text-white/30 shrink-0">{icon}</span>
+    <div className="flex items-center gap-2 text-[0.8125rem] text-[#6B7280]">
+      <span className="text-[#8A8A8A] shrink-0">{icon}</span>
       {children}
     </div>
   );
@@ -299,25 +299,25 @@ export default function CreateEventTab() {
     </svg>
   );
 
-  const EventCard = ({ event, showQR = true }) => {
+  const EventCard = ({ event, showQR = true, accent = "teal" }) => {
     const startStr = new Date(event.start_time).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
     const timeRange = `${new Date(event.start_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} – ${new Date(event.end_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
     return (
-      <div className="border border-[#2E2E2E] bg-[#181818] p-5 flex flex-col lg:flex-row gap-5">
+      <div className={`admin-panel ${accent === "blue" ? "admin-accent-blue" : "admin-accent-teal"} p-5 flex flex-col lg:flex-row gap-5`}>
         <div className="flex-1 space-y-3">
-          <p className="text-white font-medium text-[0.9375rem] leading-snug">{event.name}</p>
+          <p className="text-[#1A1A1A] font-medium text-[0.9375rem] leading-snug">{event.name}</p>
           <div className="space-y-1.5">
             <EventMeta icon={<CalIcon />}>{startStr}</EventMeta>
             <EventMeta icon={<ClockIcon />}>{timeRange}</EventMeta>
             <EventMeta icon={<StarIcon />}>{event.points} pts</EventMeta>
           </div>
-          <div className="bg-[#111110] border border-[#2E2E2E] px-4 py-3">
-            <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-white/30 mb-1">Event Code</p>
-            <p className="font-mono text-xl font-bold text-white tracking-widest">{event.code}</p>
+          <div className="bg-[#F8F6F1] border border-[#DEDAD2] px-4 py-3">
+            <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-[#8A8A8A] mb-1">Event Code</p>
+            <p className="font-mono text-xl font-bold text-[#1A1A1A] tracking-widest">{event.code}</p>
           </div>
           <div className="flex gap-2 flex-wrap">
             <button onClick={() => downloadQRCode(event.code, event.name)}
-              className="flex items-center gap-1.5 px-3 py-1.5 border border-[#2E2E2E] hover:border-white/30 text-white/50 hover:text-white text-[0.75rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
+              className="flex items-center gap-1.5 px-3 py-1.5 border border-[#DEDAD2] hover:border-[#9A9287] text-[#6B7280] hover:text-[#1A1A1A] text-[0.75rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
               </svg>
@@ -341,7 +341,7 @@ export default function CreateEventTab() {
                 size={88} level="H"
               />
             </div>
-            <p className="text-[11px] text-white/30 font-medium">Scan to check in</p>
+            <p className="text-[11px] text-[#8A8A8A] font-medium">Scan to check in</p>
           </div>
         )}
       </div>
@@ -354,17 +354,17 @@ export default function CreateEventTab() {
       {editingEvent && (
         <div className="fixed inset-0 z-[10001] flex items-center justify-center px-4"
           style={{ fontFamily: "'Inter', sans-serif" }}>
-          <div className="absolute inset-0 bg-[#111110]/80" onClick={() => setEditingEvent(null)} />
-          <div className="relative bg-[#1A1A1A] border border-[#2E2E2E] w-full max-w-2xl max-h-[88vh] overflow-y-auto">
+          <div className="absolute inset-0 bg-[#17191D]/70" onClick={() => setEditingEvent(null)} />
+          <div className="relative admin-panel w-full max-w-2xl max-h-[88vh] overflow-y-auto">
             {/* Modal header */}
-            <div className="flex items-center justify-between px-8 py-5 border-b border-[#2E2E2E]">
+            <div className="flex items-center justify-between px-8 py-5 border-b border-[#DEDAD2]">
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[#772583] mb-1">Admin</p>
                 <h2 style={{ fontFamily: "'Lora', Georgia, serif" }}
-                  className="text-xl font-medium text-white">Edit Event</h2>
+                  className="text-xl font-medium text-[#1A1A1A]">Edit Event</h2>
               </div>
               <button onClick={() => setEditingEvent(null)}
-                className="text-white/30 hover:text-white transition-colors duration-200 cursor-pointer">
+                className="text-[#8A8A8A] hover:text-[#1A1A1A] transition-colors duration-200 cursor-pointer">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -455,23 +455,23 @@ export default function CreateEventTab() {
                     className={`${fieldCls} font-mono`} />
                 </div>
                 <div className="md:col-span-2">
-                  <label className={labelCls}>Event Flyer <span className="normal-case tracking-normal font-normal text-white/20 ml-1">(optional)</span></label>
+                  <label className={labelCls}>Event Flyer <span className="normal-case tracking-normal font-normal text-[#AAA39A] ml-1">(optional)</span></label>
                   {editForm.flyerUrl && !editFlyerFile && (
-                    <img src={editForm.flyerUrl} alt="Current flyer" className="mb-3 max-h-28 object-contain border border-[#2E2E2E]" />
+                    <img src={editForm.flyerUrl} alt="Current flyer" className="mb-3 max-h-28 object-contain border border-[#DEDAD2]" />
                   )}
                   <input type="file" accept="image/*"
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) setEditFlyerFile(f); }}
-                    className={`${fieldCls} file:mr-4 file:py-1 file:px-3 file:border-0 file:text-xs file:font-semibold file:bg-[#2E2E2E] file:text-white/60 hover:file:bg-[#3E3E3E] file:cursor-pointer`} />
+                    className={`${fieldCls} file:mr-4 file:py-1 file:px-3 file:border-0 file:text-xs file:font-semibold file:bg-[#E8E4DD] file:text-[#4A4A4A] hover:file:bg-[#DEDAD2] file:cursor-pointer`} />
                 </div>
               </div>
 
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setEditingEvent(null)}
-                  className="flex-1 py-3 border border-[#2E2E2E] hover:border-white/30 text-white/50 hover:text-white text-[0.875rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
+                  className="flex-1 py-3 border border-[#DEDAD2] hover:border-[#9A9287] text-[#6B7280] hover:text-[#1A1A1A] text-[0.875rem] font-medium tracking-wide transition-colors duration-200 cursor-pointer">
                   Cancel
                 </button>
                 <button type="submit" disabled={savingEdit}
-                  className={`flex-1 py-3 bg-[#1A1A1A] border border-[#772583] hover:bg-[#772583]/20 text-[#772583] text-[0.875rem] font-medium tracking-wide transition-colors duration-200 ${savingEdit ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}>
+                  className={`flex-1 py-3 bg-[#772583] border border-[#772583] hover:bg-[#64206F] text-white text-[0.875rem] font-medium tracking-wide transition-colors duration-200 ${savingEdit ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}>
                   {savingEdit ? "Saving..." : "Save Changes"}
                 </button>
               </div>
@@ -492,7 +492,7 @@ export default function CreateEventTab() {
               <div className="flex items-start justify-between mb-6">
                 <SectionHeading label="Live Now" title="Active Events" />
                 <button onClick={() => { fetchActiveEvents(); fetchUpcomingEvents(); }}
-                  className="text-white/30 hover:text-white transition-colors duration-200 cursor-pointer p-1 mt-1" title="Refresh">
+                  className="text-[#8A8A8A] hover:text-[#1A1A1A] transition-colors duration-200 cursor-pointer p-1 mt-1" title="Refresh">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
@@ -500,7 +500,7 @@ export default function CreateEventTab() {
               </div>
 
               {loadingActiveEvents ? (
-                <div className="border border-[#2E2E2E] py-14 flex items-center justify-center gap-3 text-white/30">
+                <div className="admin-subpanel py-14 flex items-center justify-center gap-3 text-[#8A8A8A]">
                   <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -512,8 +512,8 @@ export default function CreateEventTab() {
                   {activeEvents.map((ev) => <EventCard key={ev.id} event={ev} />)}
                 </div>
               ) : (
-                <div className="border border-[#2E2E2E] py-14 text-center">
-                  <p className="text-[0.9375rem] text-white/30 font-light">No active events right now.</p>
+                <div className="admin-subpanel py-14 text-center">
+                  <p className="text-[0.9375rem] text-[#8A8A8A] font-light">No active events right now.</p>
                 </div>
               )}
             </div>
@@ -522,7 +522,7 @@ export default function CreateEventTab() {
             <div>
               <SectionHeading label="On Deck" title="Upcoming Events" />
               {loadingUpcomingEvents ? (
-                <div className="border border-[#2E2E2E] py-14 flex items-center justify-center gap-3 text-white/30">
+                <div className="admin-subpanel py-14 flex items-center justify-center gap-3 text-[#8A8A8A]">
                   <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -540,18 +540,18 @@ export default function CreateEventTab() {
                     const countdownLabel = diffH <= 24 ? `${diffH}h` : `${diffD}d`;
                     return (
                       <div key={ev.id}>
-                        <EventCard event={ev} />
-                        <div className="border-x border-b border-[#2E2E2E] px-5 py-2 flex items-center gap-2">
+                        <EventCard event={ev} accent="blue" />
+                        <div className="border-x border-b border-[#DEDAD2] bg-[#F4F8FA] px-5 py-2 flex items-center gap-2">
                           <ClockIcon />
-                          <span className="text-[0.75rem] text-white/30">Starts in {countdownLabel}</span>
+                          <span className="text-[0.75rem] text-[#8A8A8A]">Starts in {countdownLabel}</span>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <div className="border border-[#2E2E2E] py-14 text-center">
-                  <p className="text-[0.9375rem] text-white/30 font-light">No upcoming events.</p>
+                <div className="admin-subpanel py-14 text-center">
+                  <p className="text-[0.9375rem] text-[#8A8A8A] font-light">No upcoming events.</p>
                 </div>
               )}
             </div>
@@ -560,7 +560,7 @@ export default function CreateEventTab() {
           {/* RIGHT: Create form ─────────────────────────────────────────── */}
           <div>
             <SectionHeading label="Admin" title="Create New Event" />
-            <form onSubmit={addEvent} className="space-y-4 border border-[#2E2E2E] p-8 bg-[#141414]">
+            <form onSubmit={addEvent} className="admin-panel admin-accent-purple space-y-4 p-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className={labelCls} htmlFor="event-name">Event Name</label>
@@ -602,10 +602,10 @@ export default function CreateEventTab() {
                   <label className={labelCls} htmlFor="event-points">
                     Points
                     {eventType && eventType !== "fundraising" && (
-                      <span className="ml-2 normal-case tracking-normal font-normal text-white/20">(auto-filled)</span>
+                      <span className="ml-2 normal-case tracking-normal font-normal text-[#AAA39A]">(auto-filled)</span>
                     )}
                     {eventType === "fundraising" && (
-                      <span className="ml-2 normal-case tracking-normal font-normal text-white/20">(variable)</span>
+                      <span className="ml-2 normal-case tracking-normal font-normal text-[#AAA39A]">(variable)</span>
                     )}
                   </label>
                   <input id="event-points" type="number" required value={eventPoints}
@@ -625,19 +625,19 @@ export default function CreateEventTab() {
                     onChange={(e) => setEventEndTime(e.target.value)} className={fieldCls} />
                 </div>
                 <div className="md:col-span-2">
-                  <label className={labelCls} htmlFor="event-description">Description <span className="normal-case tracking-normal font-normal text-white/20">(optional)</span></label>
+                  <label className={labelCls} htmlFor="event-description">Description <span className="normal-case tracking-normal font-normal text-[#AAA39A]">(optional)</span></label>
                   <textarea id="event-description" rows={3} value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Event description" className={`${fieldCls} resize-none`} />
                 </div>
                 <div className="md:col-span-2">
-                  <label className={labelCls} htmlFor="event-location">Location <span className="normal-case tracking-normal font-normal text-white/20">(optional)</span></label>
+                  <label className={labelCls} htmlFor="event-location">Location <span className="normal-case tracking-normal font-normal text-[#AAA39A]">(optional)</span></label>
                   <input id="event-location" type="text" value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="Event location" className={fieldCls} />
                 </div>
                 <div className="md:col-span-2">
-                  <label className={labelCls} htmlFor="event-flyer">Flyer <span className="normal-case tracking-normal font-normal text-white/20">(optional)</span></label>
+                  <label className={labelCls} htmlFor="event-flyer">Flyer <span className="normal-case tracking-normal font-normal text-[#AAA39A]">(optional)</span></label>
                   <input id="event-flyer" type="file" accept="image/*"
                     onChange={(e) => {
                       const f = e.target.files?.[0];
@@ -648,10 +648,10 @@ export default function CreateEventTab() {
                         reader.readAsDataURL(f);
                       }
                     }}
-                    className={`${fieldCls} file:mr-4 file:py-1 file:px-3 file:border-0 file:text-xs file:font-semibold file:bg-[#2E2E2E] file:text-white/60 hover:file:bg-[#3E3E3E] file:cursor-pointer`} />
+                    className={`${fieldCls} file:mr-4 file:py-1 file:px-3 file:border-0 file:text-xs file:font-semibold file:bg-[#E8E4DD] file:text-[#4A4A4A] hover:file:bg-[#DEDAD2] file:cursor-pointer`} />
                   {flyerUrl && (
                     <div className="mt-3 space-y-2">
-                      <img src={flyerUrl} alt="Flyer preview" className="max-h-36 object-contain border border-[#2E2E2E]" />
+                      <img src={flyerUrl} alt="Flyer preview" className="max-h-36 object-contain border border-[#DEDAD2]" />
                       <button type="button" onClick={() => { setFlyerFile(null); setFlyerUrl(""); const fi = document.getElementById("event-flyer"); if (fi) fi.value = ""; }}
                         className="text-[0.75rem] text-[#772583] hover:text-[#a040b0] font-medium transition-colors duration-200 cursor-pointer">
                         Remove flyer
@@ -659,7 +659,7 @@ export default function CreateEventTab() {
                     </div>
                   )}
                   {uploadingFlyer && (
-                    <div className="flex items-center gap-2 mt-2 text-[0.8125rem] text-white/30">
+                    <div className="flex items-center gap-2 mt-2 text-[0.8125rem] text-[#8A8A8A]">
                       <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -675,7 +675,7 @@ export default function CreateEventTab() {
                 <div className="flex items-center justify-between mb-2">
                   <label className={labelCls} htmlFor="event-code" style={{ marginBottom: 0 }}>Event Code</label>
                   <button type="button" onClick={generateRandomCode}
-                    className="text-[0.75rem] text-white/40 hover:text-white border border-[#2E2E2E] hover:border-white/30 px-3 py-1 font-medium tracking-wide transition-colors duration-200 cursor-pointer">
+                    className="text-[0.75rem] text-[#6B7280] hover:text-[#1A1A1A] border border-[#DEDAD2] hover:border-[#9A9287] px-3 py-1 font-medium tracking-wide transition-colors duration-200 cursor-pointer">
                     Generate
                   </button>
                 </div>
@@ -685,7 +685,7 @@ export default function CreateEventTab() {
               </div>
 
               {/* QR preview */}
-              <div className="border-t border-[#2E2E2E] pt-5">
+              <div className="border-t border-[#DEDAD2] pt-5">
                 <p className={labelCls}>QR Code Preview</p>
                 {showQRCode && eventQrcode ? (
                   <div className="flex flex-col items-center gap-3 py-4">
@@ -696,9 +696,9 @@ export default function CreateEventTab() {
                         size={110} level="H"
                       />
                     </div>
-                    <p className="text-[0.8125rem] text-white/40 font-mono">{eventQrcode}</p>
+                    <p className="text-[0.8125rem] text-[#6B7280] font-mono">{eventQrcode}</p>
                     <button type="button" onClick={() => downloadQRCode(eventQrcode, eventName)}
-                      className="flex items-center gap-2 px-4 py-2 border border-[#2E2E2E] hover:border-white/30 text-white/40 hover:text-white text-[0.8125rem] font-medium transition-colors duration-200 cursor-pointer">
+                      className="flex items-center gap-2 px-4 py-2 border border-[#DEDAD2] hover:border-[#9A9287] text-[#6B7280] hover:text-[#1A1A1A] text-[0.8125rem] font-medium transition-colors duration-200 cursor-pointer">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                       </svg>
@@ -706,7 +706,7 @@ export default function CreateEventTab() {
                     </button>
                   </div>
                 ) : (
-                  <div className="border border-[#2E2E2E] border-dashed py-10 flex flex-col items-center gap-2 text-white/20">
+                  <div className="border border-[#DEDAD2] border-dashed py-10 flex flex-col items-center gap-2 text-[#AAA39A]">
                     <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.25} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 16h4.01M12 12V8" />
                     </svg>
@@ -716,7 +716,7 @@ export default function CreateEventTab() {
               </div>
 
               <button type="submit" disabled={uploadingFlyer}
-                className={`w-full py-3.5 bg-[#1A1A1A] border border-[#772583] hover:bg-[#772583]/15 text-[#772583] font-medium text-[0.9375rem] tracking-wide transition-colors duration-200 ${uploadingFlyer ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}>
+                className={`w-full py-3.5 bg-[#772583] border border-[#772583] hover:bg-[#64206F] text-white font-medium text-[0.9375rem] tracking-wide transition-colors duration-200 ${uploadingFlyer ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}>
                 {uploadingFlyer ? "Uploading…" : "Create Event"}
               </button>
             </form>
