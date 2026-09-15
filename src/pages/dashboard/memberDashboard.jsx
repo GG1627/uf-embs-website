@@ -159,6 +159,20 @@ export default function MemberDashboard() {
     showSnackbar("Major updated!", { customColor: "#007377" });
   };
 
+  const fetchEventsAttended = async () => {
+    try {
+      setEventsLoading(true);
+      const { data, error } = await supabase
+        .from("event_attendance")
+        .select("event_id, events(id, name, start_time, points)")
+        .eq("member_id", user.id)
+        .order("events(start_time)", { ascending: false });
+      if (error) { setEventsAttended([]); return; }
+      setEventsAttended((data || []).filter((i) => i.events !== null).map((i) => i.events));
+    } catch { setEventsAttended([]); }
+    finally { setEventsLoading(false); }
+  };
+
   const fetchFavoriteFields = async () => {
     try {
       setFavoritesLoading(true);
