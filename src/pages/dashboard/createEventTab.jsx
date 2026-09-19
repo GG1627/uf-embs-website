@@ -49,8 +49,8 @@ export default function CreateEventTab() {
 
   const eventTypeOptions = [
     { value: "gbm",              label: "GBM",              points: 1 },
-    { value: "industry_speaker", label: "Industry Speaker", points: 2 },
-    { value: "social",           label: "Social",           points: 2 },
+    { value: "industry_speaker", label: "Industry Speaker", points: 3 },
+    { value: "social",           label: "Social",           points: 1 },
     { value: "academia_speaker", label: "Academia Speaker", points: 3 },
     { value: "workshop",         label: "Workshop",         points: 3 },
     { value: "competition",      label: "Competitions",     points: 4 },
